@@ -20,6 +20,7 @@ import pickle
 
 def switch(op):
     c = Client("username")
+    c.sessionKeyInit()
     actions = ClientActions()
     address=()
     msg = ""
@@ -43,46 +44,6 @@ def switch(op):
     return (msg, address)
 
 
-#initializes the session key
-#Crying in python
-def sessionKeyInit():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    #Our parameters
-    parameters = dh.generate_parameters(generator=5, key_size=512,backend = default_backend())
-
-    #Our private key and public key
-    private_key = parameters.generate_private_key()
-    public_key = private_key.public_key()
-
-    #needs the server parameters, send our parameters, for now our parameters are the ones to be done
-    message = codecs.encode(pickle.dumps(parameters.parameter_bytes(encoding=Encoding.PEM,format=ParameterFormat.PKCS3)),"base64" ).decode()
-
-    #message construction
-    json_message = "{ " + "\n"
-    json_message += "\"type\" : \"session\","+ "\n"
-    json_message += "\"data\" : \"" + message + "\", \n"
-    json_message += "\"pk\" : \"" + public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                                            format=serialization.PublicFormat.SubjectPublicKeyInfo).decode('utf-8') + "\""
-    json_message += "}"
-
-    print(json_message)
-    try:
-        #send response
-        sent = sock.sendto(base64.b64encode(json_message.encode('utf-8')), AM_ADDRESS)
-
-        # Receive response
-        data, server = sock.recvfrom(4096)
-        #derivate the key
-        peer_public_key_bytes = base64.b64decode(data)
-        peer_public_key = serialization.load_pem_public_key(peer_public_key_bytes, default_backend())
-        shared_key = private_key.exchange(peer_public_key)
-
-        derived_key = HKDF(algorithm=hashes.SHA256(), length=32, salt=None, info=b'handshake data',
-                           backend=default_backend()).derive(shared_key)
-
-    finally:
-        sock.close()
 
 
 
@@ -91,7 +52,7 @@ def menu():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     op = -1
-    sessionKeyInit()
+
     while(op != 6):
         print("1 - Login")
         print("2 - Create an auction")
