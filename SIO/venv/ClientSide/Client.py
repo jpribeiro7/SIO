@@ -4,12 +4,14 @@ import base64
 from venv.AssymetricKeys.RSAKeyGen import *
 from venv.APP.App import *
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import dh
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import ParameterFormat
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import utils
 import codecs
 import pickle
 
@@ -91,4 +93,33 @@ class Client:
         rsa = RSAKeyGen()
         rsa.load_key("ENTER PATH")
 
+    #   Signs a message
+    #   After a signature, the public key must be passed to check that it is the real person who sent
+    def sign_message(self, message):
 
+        # if Messages are to large use Pre-hashing
+        if len(message) > 300:
+            used_hash = hashes.SHA256()
+            hasher = hashes.Hash(used_hash,default_backend())
+
+            message_init, message_end = message[:len(message) / 2], message[len(message) / 2:]
+            hasher.update(message_init.encode())
+            hasher.update(message_end.encode())
+
+            digest = hasher.finalize()
+
+            signature = self.private_key.sign(digest,
+                                              padding.PSS(
+                                                  mgf=padding.MGF1(hashes.SHA256()),
+                                                  salt_length=padding.PSS.MAX_LENGTH
+                                              ),
+                                              utils.Prehashed(used_hash))
+
+        else:
+            signature = self.private_key.sign(message.encode(),
+                                              padding.PSS(
+                                                  mgf=padding.MGF1(hashes.SHA256()),
+                                                  salt_length=padding.PSS.MAX_LENGTH
+                                              ),
+                                              hashes.SHA256())
+        return signature

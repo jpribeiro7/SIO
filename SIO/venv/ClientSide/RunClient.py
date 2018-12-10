@@ -9,8 +9,10 @@ import base64
 
 def switch(op):
     c = Client("username")
+
     c.initialize_session_key()
     c.set_keys()
+
     actions = ClientActions()
     address=()
     msg = ""
