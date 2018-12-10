@@ -1,26 +1,16 @@
-from locale import format
-
 from venv.ClientSide.ClientActions import *
 from venv.ClientSide.Client import *
 from venv.APP.App import *
 import socket
 import base64
-import sys
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import dh
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.serialization import Encoding
-from cryptography.hazmat.primitives.serialization import ParameterFormat
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-import codecs
-import pickle
 
-#This class is responsible for the comunication between the system and the client
+
+# This class is responsible for the communication between the system and the client
 
 def switch(op):
     c = Client("username")
-    c.sessionKeyInit()
+    c.initialize_session_key()
+    c.set_keys()
     actions = ClientActions()
     address=()
     msg = ""
@@ -41,19 +31,14 @@ def switch(op):
         msg = actions.bid(c,"auction",val)
         address = AR_ADDRESS
 
-    return (msg, address)
-
-
-
-
+    return msg, address
 
 def menu():
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
     op = -1
 
-    while(op != 6):
+    while op != 6:
         print("1 - Login")
         print("2 - Create an auction")
         print("3 - Terminate an auction")
@@ -81,5 +66,6 @@ def menu():
         finally:
             print('closing socket')
             sock.close()
+
 
 menu()

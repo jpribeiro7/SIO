@@ -1,7 +1,7 @@
 import os
 import socket
 import base64
-import sys
+from venv.AssymetricKeys.RSAKeyGen import *
 from venv.APP.App import *
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -14,9 +14,7 @@ import codecs
 import pickle
 
 
-#This class has all the information of a client
-
-
+# This class has all the information of a client
 class Client:
 
     def __init__(self, username):
@@ -24,15 +22,18 @@ class Client:
         self.username = username
         self.credentials = ()
 
+        self.private_key = None
+        self.public_key  = None
+
     def set_username(self, username):
         self.username = username
 
     def set_credentials(self,username, password):
         self.credentials = (username, password)
 
-    # initializes the session key
+    # Initializes the session key
     # Crying in python
-    def sessionKeyInit(self):
+    def initialize_session_key(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         # Our parameters
@@ -73,3 +74,21 @@ class Client:
 
         finally:
             sock.close()
+
+    #   Used to set the keys in case of not haveing already a given key pair
+    def set_keys(self):
+        rsa = RSAKeyGen()
+        self.private_key, self.public_key = rsa.generate_key_pair()
+        #TODO
+        #TODO
+        #TODO   Aqui criar um diretorio com o nome do cliente e passa-lo como path (eg. /Desktop/Client1)
+        #TODO
+        #TODO
+
+    #   Used to load the keys if they already exist
+    def load_keys(self):
+        #TODO Load
+        rsa = RSAKeyGen()
+        rsa.load_key("ENTER PATH")
+
+
