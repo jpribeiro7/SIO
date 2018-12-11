@@ -44,9 +44,9 @@ class RSAKeyGen:
                 format = serialization.PublicFormat.SubjectPublicKeyInfo)
 
         # Save the files ( if in WINDOWS USE \\ )
-        private_file = open(path+"/private_key.pem", "wb+")
+        private_file = open(path+"\\private_key.pem", "wb+")
         private_file.write(private_pem)
-        public_file = open(path+"/public_key.pem", "wb+")
+        public_file = open(path+"\\public_key.pem", "wb+")
         public_file.write(public_pem)
 
     #   Given a path "/etc"

@@ -59,7 +59,6 @@ class Client:
             'utf-8') + "\""
         json_message += "}"
 
-        print(json_message)
         try:
             # send response
             sent = sock.sendto(base64.b64encode(json_message.encode('utf-8')), AM_ADDRESS)
@@ -77,24 +76,26 @@ class Client:
         finally:
             sock.close()
 
-    #   Used to set the keys in case of not haveing already a given key pair
-    def set_keys(self):
+    #   Used to set the keys in case of not having already a given key pair
+    #   Creates the keys and creates a directory and saves them
+    def set_keys(self, password="None"):
         rsa = RSAKeyGen()
         self.private_key, self.public_key = rsa.generate_key_pair()
-        #TODO
-        #TODO
-        #TODO   Aqui criar um diretorio com o nome do cliente e passa-lo como path (eg. /Desktop/Client1)
-        #TODO
-        #TODO
+        # directory creation and saving
+        os.mkdir(os.getcwd()+"/" + self.username)
+        rsa.save_keys(os.getcwd()+"/" + self.username,password)
+
+        print(os.getcwd())
 
     #   Used to load the keys if they already exist
     def load_keys(self):
-        #TODO Load
         rsa = RSAKeyGen()
-        rsa.load_key("ENTER PATH")
+        self.private_key, self.public_key = rsa.load_key(os.getcwd()+"/" + self.username)
 
     #   Signs a message
     #   After a signature, the public key must be passed to check that it is the real person who sent
+    #   If a message is 300 chars or longer it will use digest! (This changes the verify_signature ->
+    #   Not yet implemented with digest)
     def sign_message(self, message):
 
         # if Messages are to large use Pre-hashing
@@ -123,3 +124,24 @@ class Client:
                                               ),
                                               hashes.SHA256())
         return signature
+
+    # Verifies the signature given a message
+    # If invalid signature it raises:
+    # raise InvalidSignature cryptography.exceptions.InvalidSignature
+    # If it is VALID returns NONE
+    # The type argument is either BYTES or STRING because of the message.encode
+    def verify_sign(self, signature, message, peer_public_key, type="BYTES"):
+
+        if type=="BYTES":
+            return peer_public_key.verify(signature, message,
+                                          padding.PSS(
+                                              mgf=padding.MGF1(hashes.SHA256()),
+                                              salt_length=padding.PSS.MAX_LENGTH
+                                          ), hashes.SHA256())
+        else:
+            return peer_public_key.verify(signature,message.encode(),
+                                   padding.PSS(
+                                       mgf=padding.MGF1(hashes.SHA256()),
+                                       salt_length=padding.PSS.MAX_LENGTH
+                                   ),hashes.SHA256())
+
