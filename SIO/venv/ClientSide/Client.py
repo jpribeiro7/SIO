@@ -1,6 +1,9 @@
 import os
 import socket
 import base64
+
+from cryptography.fernet import Fernet
+
 from venv.AssymetricKeys.RSAKeyGen import *
 from venv.APP.App import *
 from cryptography.hazmat.backends import default_backend
@@ -12,6 +15,7 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
+from cryptography.hazmat.primitives.asymmetric import rsa
 import codecs
 import pickle
 
@@ -23,9 +27,9 @@ class Client:
         self.id = os.urandom(12)
         self.username = username
         self.credentials = ()
-
         self.private_key = None
-        self.public_key  = None
+        self.public_key = None
+        self.session_key = None
 
     def set_username(self, username):
         self.username = username
@@ -34,7 +38,6 @@ class Client:
         self.credentials = (username, password)
 
     # Initializes the session key
-    # Crying in python
     def initialize_session_key(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -45,7 +48,7 @@ class Client:
         private_key = parameters.generate_private_key()
         public_key = private_key.public_key()
 
-        # needs the server parameters, send our parameters, for now our parameters are the ones to be done
+        # needs the server parameters, send our parameters, for now our parameters are the ones to be accepted
         message = codecs.encode(
             pickle.dumps(parameters.parameter_bytes(encoding=Encoding.PEM, format=ParameterFormat.PKCS3)),
             "base64").decode()
@@ -73,26 +76,27 @@ class Client:
             derived_key = HKDF(algorithm=hashes.SHA256(), length=32, salt=None, info=b'handshake data',
                                backend=default_backend()).derive(shared_key)
 
+            #For now we use it as a SEED
+            self.session_key = derived_key
+
         finally:
             sock.close()
 
     #   Used to set the keys in case of not having already a given key pair
     #   Creates the keys and creates a directory and saves them
-    def set_keys(self, password="None"):
+    def set_keys(self, password=None):
         rsa = RSAKeyGen()
         self.private_key, self.public_key = rsa.generate_key_pair()
         # directory creation and saving
         os.mkdir(os.getcwd()+"/" + self.username)
         rsa.save_keys(os.getcwd()+"/" + self.username,password)
 
-        print(os.getcwd())
-
     #   Used to load the keys if they already exist
-    def load_keys(self):
-        rsa = RSAKeyGen()
-        self.private_key, self.public_key = rsa.load_key(os.getcwd()+"/" + self.username)
+    def load_keys(self, password=None):
+        rsa_kg = RSAKeyGen()
+        self.private_key, self.public_key = rsa_kg.load_key(os.getcwd()+"/" + self.username, password)
 
-    #   Signs a message
+    #   Signs a message with the KeyPair
     #   After a signature, the public key must be passed to check that it is the real person who sent
     #   If a message is 300 chars or longer it will use digest! (This changes the verify_signature ->
     #   Not yet implemented with digest)
@@ -145,3 +149,12 @@ class Client:
                                        salt_length=padding.PSS.MAX_LENGTH
                                    ),hashes.SHA256())
 
+    # Should verify if user already exists
+    # if so, load keys, else create keys
+    # Returns: True if Exists
+    def verify_existence(self,username):
+
+        if os.path.isdir(os.getcwd() + "/" + username):
+            return True
+        else:
+            return False
