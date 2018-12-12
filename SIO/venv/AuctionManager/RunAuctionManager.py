@@ -4,8 +4,6 @@ from venv.AuctionManager import AuctionManagerActions
 from venv.APP.App import *
 import json
 
-
-
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # Create Auction Actions
@@ -20,9 +18,7 @@ while True:
     print('\nwaiting to receive message')
     data, address = sock.recvfrom(4096)
 
-    # This try and expect is to make sure that the data is decoded, in both cases
-    # Data from session comes as base64
-    # Data from the rest can't be base64 decoded
+    # Data from session comes as base64 and as json
     decoded_data = base64.b64decode(data)
     message_json = json.loads(decoded_data, strict=False)
 

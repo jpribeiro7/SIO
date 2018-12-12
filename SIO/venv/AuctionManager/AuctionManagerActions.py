@@ -91,6 +91,7 @@ class AuctionManagerActions:
     # Create the user folder
     def login_actions(self, data):
 
+        # if it exists then do nothing because the key wont change
         if os.path.isdir(os.getcwd() + "/clients/" + data["username"]):
             return
 
@@ -116,7 +117,7 @@ class AuctionManagerActions:
         # Create the folder with the client and save its public_key encrypted
         path = os.getcwd() + "/clients"
 
-        #if client doesnt exist create it
+        # if client doesnt exist create it
         if not os.path.isdir(path +"/" + username):
             os.mkdir(path + "/" + username)
         else:
