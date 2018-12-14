@@ -48,28 +48,32 @@ class ClientActions:
 
         return message,c
 
-    # Function that encrypts the message
-    # Client is necessary
-    def encrypt_function(self,message, client):
-        cipher = Cipher(algorithms.AES(client.session_key), modes.CBC(client.session_key[:16]), backend=default_backend())
-        temp = message.encode()
-        enc = cipher.encryptor()
-        padder = padding.PKCS7(128).padder()
-        message_enc = b''
-        while True:
-            if len(temp) < 128:
-                message_enc += enc.update(padder.update(temp) + padder.finalize()) + enc.finalize()
-                break
-            message_enc += enc.update(padder.update(temp[:128]))
-            temp = temp[128:]
-
-        return str(base64.b64encode(message_enc), 'utf-8')
-
 
     #TODO
-    def createAuction(self,client):
+    def create_auction(self,client):
         message = "{ \"type\" : \"create_auction\",\n"
-        message += "\"client\" : \""+client.id + "\" }"
+        message += "\"username\" : \""+client.username + "\",\n"
+
+        # double break line
+        print("\n\n")
+        # Ask for Auction_type : Either Blind or Normal
+        # If user is a smarty ask again.
+        auc_type = input("Auction type? (B)lind or (N)ormal: ")
+        if auc_type.lower() in ["blind", "b"]:
+            auc_type = "blind"
+        elif auc_type.lower() in ["normal", "n"]:
+            auc_type = "normal"
+        else:
+            self.create_auction(client)
+
+        ### TESTING SIGNATURE
+        t = "{\"hello\" : \"himinameisjeff\" ,\n"
+        t+= "\"test\" : \"andthisisit\"}"
+
+        message += "\"message\" : \"" + self.encrypt_function(t,client) + "\", \n"
+        message += "\"sign\" : \"" + client.sign_message(t) + "\"}"
+
+        print(message)
         return message
 
     #TODO
@@ -92,4 +96,23 @@ class ClientActions:
         message += "\"auction\" : \"" + auction + "\", \n"
         message += "\"value\" : \"" + value + "\"}"
         return message
+
+
+
+    # Function that encrypts the message
+    # Client is necessary
+    def encrypt_function(self,message, client):
+        cipher = Cipher(algorithms.AES(client.session_key), modes.CBC(client.session_key[:16]), backend=default_backend())
+        temp = message.encode()
+        enc = cipher.encryptor()
+        padder = padding.PKCS7(128).padder()
+        message_enc = b''
+        while True:
+            if len(temp) < 128:
+                message_enc += enc.update(padder.update(temp) + padder.finalize()) + enc.finalize()
+                break
+            message_enc += enc.update(padder.update(temp[:128]))
+            temp = temp[128:]
+
+        return str(base64.b64encode(message_enc), 'utf-8')
 

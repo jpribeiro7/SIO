@@ -24,7 +24,7 @@ class RunClient:
             address = AM_ADDRESS
 
         elif op == 2:
-            msg = self.actions.createAuction(self.client)
+            msg = self.actions.create_auction(self.client)
             address = AM_ADDRESS
 
         elif op == 3:

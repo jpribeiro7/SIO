@@ -27,13 +27,13 @@ class AuctionManagerActions:
         self.auction_manager = AuctionManager()
 
         # Keys creation/ Reload
-        r = RSAKeyGen()
+        self.rsa_keygen = RSAKeyGen()
         if os.path.isdir(os.getcwd() + "/server"):
-            self.auction_manager.private_key,self.auction_manager.public_key = r.load_key(os.getcwd() + "/server")
+            self.auction_manager.private_key,self.auction_manager.public_key = self.rsa_keygen.load_key(os.getcwd() + "/server")
         else:
             os.mkdir(os.getcwd() + "/server")
-            self.auction_manager.private_key, self.auction_manager.public_key = r.generate_key_pair()
-            r.save_keys(path=os.getcwd() + "/server")
+            self.auction_manager.private_key, self.auction_manager.public_key = self.rsa_keygen.generate_key_pair()
+            self.rsa_keygen.save_keys(path=os.getcwd() + "/server")
 
 
 
@@ -65,27 +65,25 @@ class AuctionManagerActions:
 
 
     # Function to create a auction
-    def createAuction(self):
-        message = "Create Auction"
-        message = base64.b64encode(message.encode("utf-8"))
+    def create_auction(self,address, message_json):
+
         server_address = AR_ADDRESS
 
-        # Create a UDP socket
-        sock = self.sock.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ### TESTING SIGNATURE
+        ### TODO : Create in rsa a function to load the pubkey from a path (server path)
+        cipher = Cipher(algorithms.AES(self.auction_manager.session_key), modes.CBC(
+            self.auction_manager.session_key[:16]), backend=default_backend())
 
-        try:
-            # Send data
-            print('sending {!r}'.format(message))
-            sent = sock.sendto(message, server_address)
+        unpadder = padding.PKCS7(128).unpadder()
+        decrypted_message = unpadder.update(
+            cipher.decryptor().update(
+                base64.b64decode(message_json["message"])) + cipher.decryptor().finalize()) + unpadder.finalize()
 
-            # Receive response
-            print('waiting to receive')
-            data, server = sock.recvfrom(4096)
-            print('received {!r}'.format(data))
+        t = self.rsa_keygen.verify_sign(codecs.decode(message_json["sign"].encode(), "base64"), decrypted_message, )
+        print("HHHH")
+        print(t)
 
-        finally:
-            print('closing socket')
-            sock.close()
+        sent = self.sock.sendto("",address)
 
     # Verifies the login
     # Create the user folder

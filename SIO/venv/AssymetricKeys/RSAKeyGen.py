@@ -1,7 +1,10 @@
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
-
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import utils
+import base64
 
 class RSAKeyGen:
 
@@ -75,3 +78,56 @@ class RSAKeyGen:
             backend = default_backend())
 
         return self.private_key, self.public_key
+
+    #   Signs a message with the KeyPair
+    #   After a signature, the public key must be passed to check that it is the real person who sent
+    #   If a message is 300 chars or longer it will use digest! (This changes the verify_signature ->
+    #   Not yet implemented with digest)
+    def sign_message(self, message):
+
+        # if Messages are to large use Pre-hashing
+        if len(message) > 300:
+            used_hash = hashes.SHA256()
+            hasher = hashes.Hash(used_hash, default_backend())
+
+            message_init, message_end = message[:len(message) / 2], message[len(message) / 2:]
+            hasher.update(message_init.encode())
+            hasher.update(message_end.encode())
+
+            digest = hasher.finalize()
+
+            signature = self.private_key.sign(digest,
+                                              padding.PSS(
+                                                  mgf=padding.MGF1(hashes.SHA256()),
+                                                  salt_length=padding.PSS.MAX_LENGTH
+                                              ),
+                                              utils.Prehashed(used_hash))
+
+        else:
+            signature = self.private_key.sign(message.encode(),
+                                              padding.PSS(
+                                                  mgf=padding.MGF1(hashes.SHA256()),
+                                                  salt_length=padding.PSS.MAX_LENGTH
+                                              ),
+                                              hashes.SHA256())
+        return str(base64.b64encode(signature), 'utf-8')
+
+    # Verifies the signature given a message
+    # If invalid signature it raises:
+    # raise InvalidSignature cryptography.exceptions.InvalidSignature
+    # If it is VALID returns NONE
+    # The type argument is either BYTES or STRING because of the message.encode
+    def verify_sign(self, signature, message, peer_public_key, type="BYTES"):
+
+        if type == "BYTES":
+            return peer_public_key.verify(signature, message,
+                                            padding.PSS(
+                                                mgf=padding.MGF1(hashes.SHA256()),
+                                                salt_length=padding.PSS.MAX_LENGTH
+                                            ), hashes.SHA256())
+        else:
+            return peer_public_key.verify(signature, message.encode(),
+                                            padding.PSS(
+                                                mgf=padding.MGF1(hashes.SHA256()),
+                                                salt_length=padding.PSS.MAX_LENGTH
+                                            ), hashes.SHA256())

@@ -1,9 +1,6 @@
 import os
 import socket
 import base64
-
-from cryptography.fernet import Fernet
-
 from venv.AssymetricKeys.RSAKeyGen import *
 from venv.APP.App import *
 from cryptography.hazmat.backends import default_backend
@@ -15,7 +12,6 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
-from cryptography.hazmat.primitives.asymmetric import rsa
 import codecs
 import pickle
 
@@ -127,7 +123,7 @@ class Client:
                                                   salt_length=padding.PSS.MAX_LENGTH
                                               ),
                                               hashes.SHA256())
-        return signature
+        return str(base64.b64encode(signature), 'utf-8')
 
     # Verifies the signature given a message
     # If invalid signature it raises:

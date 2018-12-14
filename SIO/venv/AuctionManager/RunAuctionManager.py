@@ -25,8 +25,8 @@ while True:
     print('received {} bytes from {}'.format(
         len(data), address))
 
-    if message_json["type"] == "createAuction":
-        actions.createAuction()
+    if message_json["type"] == "create_auction":
+        actions.create_auction(address, message_json)
     elif message_json["type"] == "session":
         actions.createSessionKey(message_json,address)
     elif message_json["type"] == "login":
