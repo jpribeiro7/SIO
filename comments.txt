@@ -1,0 +1,5 @@
+privacidade das comunicações: falta o algoritmo, modo e controlode integridade
+Chaves: não é prático usar o CC para cifrar todas as mensagens. Este pode certificar outras chaves que serão usadas para assinar as mensagens. DH pode gerar tanto a chave para cifra como a chave para controlo de integridade.
+
+threshold: está ok. Podem também considerar valores dinamicos, ser menor que X, começar por X. Entre X e Y.
+
