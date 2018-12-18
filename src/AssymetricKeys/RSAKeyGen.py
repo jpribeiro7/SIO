@@ -12,7 +12,7 @@ class RSAKeyGen:
     def __init__(self):
         self.private_key = None
         self.public_key = None
-        # Password is to be used when encrypting/decrypting the private key?
+        # Password is to be used when encrypting/decrypting
         self.password = None
 
     #   Generates the Key pair
@@ -29,7 +29,7 @@ class RSAKeyGen:
     #   Saves the keys in .pem files
     #   If there is no password there wont be any encryption
     #   path must be the folder  /etc/testing
-    def save_keys(self,path,password=None):
+    def save_keys(self, path, password=None):
 
         # Verifies the case where it has or has not the password
         if password is not None:
@@ -44,39 +44,41 @@ class RSAKeyGen:
 
         # Public key doesn't need to be encrypted
         public_pem = self.public_key.public_bytes(
-            encoding = serialization.Encoding.PEM,
-            format = serialization.PublicFormat.SubjectPublicKeyInfo)
+            encoding= serialization.Encoding.PEM,
+            format= serialization.PublicFormat.SubjectPublicKeyInfo)
 
         # Save the files
         private_file = open(path+"/private_key.pem", "wb+")
         private_file.write(private_pem)
+        private_file.close()
         public_file = open(path+"/public_key.pem", "wb+")
         public_file.write(public_pem)
+        public_file.close()
 
     #   Given a path "/etc"
     #   Password is if there is any encryption in the private key
     #   Returns the Private_key, Public_key tuple
-    def load_key(self,path, password=None):
+    def load_key(self, path, password=None):
 
         # Verifies both cases for the private key
         if password is not None:
             with open(path + "/private_key.pem", "rb") as key_file:
                 self.private_key = serialization.load_pem_private_key(
                     key_file.read(),
-                    password = password.encode(),
-                    backend = default_backend())
+                    password=password.encode(),
+                    backend=default_backend())
         else:
             with open(path + "/private_key.pem", "rb") as key_file:
                 self.private_key = serialization.load_pem_private_key(
                     key_file.read(),
-                    password = None,
-                    backend = default_backend())
+                    password=None,
+                    backend=default_backend())
 
         # Public key load
         with open(path + "/public_key.pem", "rb") as key_file:
             self.public_key = serialization.load_pem_public_key(
                 key_file.read(),
-                backend = default_backend())
+                backend=default_backend())
 
         return self.private_key, self.public_key
 
@@ -150,10 +152,10 @@ class RSAKeyGen:
 
     # Loads the public key
     # Uses: Client to load the server key
-    def load_server_key(self,path):
+    def load_server_key(self, path):
         with open(path + "/server_key.pem", "rb") as key_file:
             public_key = serialization.load_pem_public_key(
                 key_file.read(),
-                backend = default_backend())
+                backend= default_backend())
 
         return public_key

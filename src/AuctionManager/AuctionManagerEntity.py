@@ -5,4 +5,5 @@ class AuctionManagerEntity:
         self.private_key = None
         self.public_key = None
         self.session_key = None
+        self.session_clients = [("Client", "Session Key")]
 

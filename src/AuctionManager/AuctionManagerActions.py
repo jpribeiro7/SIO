@@ -15,6 +15,7 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import json
+from cryptography.fernet import Fernet
 
 
 class AuctionManagerActions:
@@ -29,14 +30,15 @@ class AuctionManagerActions:
         # Keys creation/ Reload
         self.rsa_keygen = RSAKeyGen()
         if os.path.isdir(os.getcwd() + "/server"):
-            self.auction_manager.private_key,self.auction_manager.public_key = self.rsa_keygen.load_key(os.getcwd() + "/server")
+            self.auction_manager.private_key, self.auction_manager.public_key = self.rsa_keygen.load_key(os.getcwd()
+                                                                                                         + "/server")
         else:
             os.mkdir(os.getcwd() + "/server")
             self.auction_manager.private_key, self.auction_manager.public_key = self.rsa_keygen.generate_key_pair()
             self.rsa_keygen.save_keys(path=os.getcwd() + "/server")
 
     # Function to create a session key between user and server
-    def createSessionKey(self, message_json, address):
+    def create_session_key(self, message_json, address):
         # decode the data
         parameters = pickle.loads(codecs.decode(message_json["data"].encode(), "base64"))
         par = load_pem_parameters(parameters, backend=default_backend())
@@ -62,10 +64,9 @@ class AuctionManagerActions:
         sent = self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
 
     # Function to create a auction
-    def create_auction(self,address, message_json):
-
+    def create_auction(self, address, message_json):
         server_address = AR_ADDRESS
-        # TODO this is old! Change to function that needs to be implemented!
+
         cipher = Cipher(algorithms.AES(self.auction_manager.session_key), modes.CBC(
             self.auction_manager.session_key[:16]), backend=default_backend())
 
@@ -74,22 +75,25 @@ class AuctionManagerActions:
             cipher.decryptor().update(
                 base64.b64decode(message_json["message"])) + cipher.decryptor().finalize()) + unpadder.finalize()
 
-        # Signing with the user key, not with DFHL key
+        # Signing with the user key, not with DF key
         peer_pk = self.rsa_keygen.load_public_key(os.getcwd() + "/clients/"+message_json["username"])
 
-        sign_val = self.rsa_keygen.verify_sign(codecs.decode(message_json["sign"].encode(), "base64"), decrypted_message, peer_pk)
+        sign_val = self.rsa_keygen.verify_sign(codecs.decode(message_json["sign"].encode(), "base64"), decrypted_message
+                                               , peer_pk)
 
         # This verifies if it is valid or not!
         if sign_val in [None]:
 
             auction_information = json.loads(decrypted_message, strict=False)
-
+            print(auction_information)
+            print("Valid")
             # Do the creation
             # -> Get all the params from the auction
             # -> Send to Auction Repository the new auction
         else:
             print("Invalid")
-
+            sent = self.sock.sendto(b"",address)
+            return
 
         sent = self.sock.sendto(b"",address)
 
@@ -105,7 +109,6 @@ class AuctionManagerActions:
             self.auction_manager.session_key[:16]), backend=default_backend())
 
         unpadder = padding.PKCS7(128).unpadder()
-
         decoded_public_key = unpadder.update(
             cipher.decryptor().update(base64.b64decode(data["pk"])) + cipher.decryptor().finalize()) + unpadder.finalize()
 
@@ -119,14 +122,19 @@ class AuctionManagerActions:
         # Get the user key from the dir
         user_key = serialization.load_pem_public_key(
             decoded_public_key,
-            backend = default_backend())
+            backend= default_backend())
 
         # This will encrypt with the session and then with the user public key
         # TODO: This only works for one client, guardar as session keys?! where
+        # Key, message, iv
         encrypted_pk = self.encrypt_function(pk, self.auction_manager.session_key, user_key)
-        message = "{\"server\" : \"" + encrypted_pk + "\"}"
-        self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
 
+        message = "{\"server\" : \"" + str((encrypted_pk[1]), 'utf-8') + "\","
+        message += "\"key\" : \"" + str(base64.b64encode(encrypted_pk[0]), 'utf-8') + "\","
+        message += "\"iv\" : \"" + str(base64.b64encode(encrypted_pk[2]), 'utf-8') + "\"}"
+
+        print(message)
+        self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
 
     # Creates the directory for all clients to be stored
     # Can also create a directory for a user
@@ -154,40 +162,49 @@ class AuctionManagerActions:
         return True
 
     # Function that encrypts the message
-    # Encrypts with both user public key and session key
-    #TODO: Not working, it sends but it sends as cipher_block + cipher_block. Results in a cipher_text > 4096
+    # Encrypts with 2 symmetric keys
+    # Returns the  [Key, message, iv]
     def encrypt_function(self, message, session_key, pub_key):
+        # Create a symmetric key to be sent to the user
+        # The iv has to be sent but doesn't need to be encrypted
+        key = Fernet.generate_key()
+        iv = os.urandom(16)
 
-        cipher = Cipher(algorithms.AES(session_key), modes.CBC(session_key[:16]), backend=default_backend())
-        temp = message.encode()
+        cipher = Cipher(algorithms.AES(key[:32]), modes.CBC(iv), backend=default_backend())
+        encd = message.encode()
         enc = cipher.encryptor()
         padder = padding.PKCS7(128).padder()
         message_enc = b''
         while True:
-            if len(temp) < 128:
-                message_enc += enc.update(padder.update(temp) + padder.finalize()) + enc.finalize()
+            if len(encd) < 128:
+                message_enc += enc.update(padder.update(encd) + padder.finalize()) + enc.finalize()
                 break
-            message_enc += enc.update(padder.update(temp[:128]))
-            temp = temp[128:]
+            message_enc += enc.update(padder.update(encd[:128]))
+            encd = encd[128:]
 
-        message_enc_session = base64.b64encode(message_enc)
-        cipher_text = b""
-        print(bytes(message_enc_session))
+        message_enc_aes = base64.b64encode(message_enc)
+        # the message was successfully encrypted with the AES algorithm
+        # now encrypt with the session key
 
+        cipher2 = Cipher(algorithms.AES(session_key), modes.CBC(session_key[:16]), backend=default_backend())
+        enc2 = cipher2.encryptor()
+        padder2 = padding.PKCS7(128).padder()
+        message_enc = b''
         while True:
-            if len(message_enc_session) < 4096:
-                cipher_text += pub_key.encrypt(message_enc_session, padding=async_padd.OAEP(
-                    mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None
-                ))
+            if len(message_enc_aes) < 128:
+                message_enc += enc2.update(padder2.update(message_enc_aes) + padder2.finalize()) + enc2.finalize()
                 break
-            cipher_text += pub_key.encrypt(message_enc_session[:4096], padding=async_padd.OAEP(
+            message_enc += enc2.update(padder2.update(message_enc_aes[:128]))
+            message_enc_aes = message_enc_aes[128:]
+
+        message_enc_full = base64.b64encode(message_enc)
+
+        enc_key = pub_key.encrypt(key, padding=async_padd.OAEP(
                 mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=None
-            ))
-            message_enc_session = message_enc_session[4096:]
+                ))
 
-        return str(base64.b64encode(cipher_text), 'utf-8')
+        array = [enc_key, message_enc_full, iv]
+        return array
 

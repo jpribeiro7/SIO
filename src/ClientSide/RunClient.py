@@ -20,7 +20,7 @@ class RunClient:
         if op == 1:
             # In the login, The client sends the public key to the server
             # ( the server may be changed to AR_ADDRESS?!) TODO
-            msg, self.client = self.actions.Login()
+            msg, self.client = self.actions.login()
             address = App.AM_ADDRESS
 
         elif op == 2:
@@ -74,21 +74,25 @@ class RunClient:
                 # Send data
                 print('sending {!r}'.format(message))
                 sent = sock.sendto(message, server_address)
-
                 # Receive response
                 print('waiting to receive')
                 data, server = sock.recvfrom(16384)
                 print('received {!r}'.format(data))
 
-                #try:
-                # Verify if it recieved the server public key and saves it
-                message_decoded = json.loads(base64.b64decode(data), strict=False)
-                public_key_server_pem = self.actions.decrypt_function_complete(self.client.session_key, message_decoded["server"], self.client)
-                public_file = open(os.getcwd()+"/" + self.client.username + "/server_key.pem", "wb+")
-                public_file.write(public_key_server_pem)
-                self.client.server_public_key = RSAKeyGen().load_server_key(os.getcwd()+"/" + self.client.username)
-                #except:
-                    #print(b"")
+                try:
+                    # Verify if it received the server public key and saves it
+                    message_decoded = json.loads(base64.b64decode(data), strict=False)
+                    public_key_server_pem = self.actions.decrypt_function_complete(self.client.session_key,
+                                                                                   message_decoded,
+                                                                                   self.client, "server")
+                    # Save to file
+                    public_file = open(os.getcwd()+"/" + self.client.username + "/server_key.pem", "wb+")
+                    public_file.write(public_key_server_pem)
+                    public_file.close()
+                    # Load it from the file
+                    self.client.server_public_key = RSAKeyGen().load_server_key(os.getcwd()+"/" + self.client.username)
+                except:
+                    print(b"")
 
             finally:
                 print('closing socket')

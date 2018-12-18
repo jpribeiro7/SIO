@@ -8,52 +8,52 @@ from cryptography.hazmat.primitives import hashes
 import base64
 from cryptography.hazmat.backends import default_backend
 from AssymetricKeys.RSAKeyGen import RSAKeyGen
+import sys
+from cryptography.fernet import Fernet
 
-# This class has all the possible messages to comunicate with the server
+
+# This class has all the possible messages to communicate with the server
 class ClientActions:
 
     # Logs in
     # Enter the username and password
-    # if it is not the correct password it shall give an error
-    # POR ENQUANTO O PROGRAMA CONTINUA NORMALMENTE MESMO ESTANDO ERRADA
-    def Login(self):
+    # if it is not the correct password closes the program
+    def login(self):
         message = "{ \"type\" : \"login\","
-
         print("\n")
-
         username = input("Insert Username: ")
         password = input("Insert password: ")
 
-        # Username is some information from the cc
         c = Client.Client(username)
-        c.set_credentials(username,password)
+        c.set_credentials(username, password)
         # Now establish the session key for secure communication
         c.initialize_session_key()
 
         # if it exists it wont send its keys
         if c.verify_existence(username):
-
             try:
+                # Loads the keys and the server key
                 c.load_keys(password)
                 r = RSAKeyGen()
                 c.server_public_key = r.load_server_key(os.getcwd()+"/" + c.username)
             except:
                 print("Wrong username/password")
+                sys.exit(0)
 
             message += "\"username\" : \"" + c.username + "\""
 
         else:
-            # Encrypt only the public key, since its the only sensitive information atm
+            # Encrypt only the public key, since its the only "sensitive" information atm
             c.set_keys(password)
             pk = c.public_key.public_bytes(encoding=serialization.Encoding.PEM,
                                            format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
                 'utf-8')
             message += "\"username\" : \"" + c.username + "\","
-            message += "\"pk\" : \"" + self.encrypt_function(pk, c)+ "\""
+            message += "\"pk\" : \"" + self.encrypt_function_sk(pk, c) + "\""
 
         message += " }"
 
-        return message,c
+        return message, c
 
     # When we create an auction
     # send a initial json with the Username, type, message encrypted and a signature of the message in clear text.
@@ -61,7 +61,7 @@ class ClientActions:
     # json example clear text: { type : ___ , username : ___ , message :
     #                                                                   { auc_type : ___ , min : ___ },
     #                          signature : ___ }
-    def create_auction(self,client):
+    def create_auction(self, client):
         message = "{ \"type\" : \"create_auction\",\n"
         message += "\"username\" : \""+client.username + "\",\n"
 
@@ -99,7 +99,7 @@ class ClientActions:
 
         auc += "}"
 
-        message += "\"message\" : \"" + self.encrypt_function(auc, client) + "\", \n"
+        message += "\"message\" : \"" + self.encrypt_function_sk(auc, client) + "\", \n"
         message += "\"sign\" : \"" + client.sign_message(auc) + "\"}"
 
         return message
@@ -127,7 +127,7 @@ class ClientActions:
 
     # Function that encrypts the message with the session key only
     # Client is necessary
-    def encrypt_function(self, message, client):
+    def encrypt_function_sk(self, message, client):
         cipher = Cipher(algorithms.AES(client.session_key), modes.CBC(client.session_key[:16]), backend=default_backend())
         temp = message.encode()
         enc = cipher.encryptor()
@@ -142,26 +142,54 @@ class ClientActions:
 
         return str(base64.b64encode(message_enc), 'utf-8')
 
-    # Function that encrypts the message with the session key and public key
-    # Client is necessary
-    # TODO
+    # Function that encrypts the message with the session key and AES key
+    # Returns the  [Key, message, iv]
     def encrypt_function_complete(self, message, client, server_public_key):
-        cipher = Cipher(algorithms.AES(client.session_key), modes.CBC(client.session_key[:16]), backend=default_backend())
-        temp = message.encode()
+        # Create a symmetric key to be sent to the user
+        # The iv has to be sent but doesn't need to be encrypted
+        key = Fernet.generate_key()
+        iv = os.urandom(16)
+
+        cipher = Cipher(algorithms.AES(key[:32]), modes.CBC(iv), backend=default_backend())
+        encd = message.encode()
         enc = cipher.encryptor()
         padder = padding.PKCS7(128).padder()
         message_enc = b''
         while True:
-            if len(temp) < 128:
-                message_enc += enc.update(padder.update(temp) + padder.finalize()) + enc.finalize()
+            if len(encd) < 128:
+                message_enc += enc.update(padder.update(encd) + padder.finalize()) + enc.finalize()
                 break
-            message_enc += enc.update(padder.update(temp[:128]))
-            temp = temp[128:]
+            message_enc += enc.update(padder.update(encd[:128]))
+            encd = encd[128:]
 
-        return str(base64.b64encode(message_enc), 'utf-8')
+        message_enc_aes = base64.b64encode(message_enc)
+        # the message was successfully encrypted with the AES algorithm
+        # now encrypt with the session key
+
+        cipher2 = Cipher(algorithms.AES(client.session_key), modes.CBC(client.session_key[:16]), backend=default_backend())
+        enc2 = cipher2.encryptor()
+        padder2 = padding.PKCS7(128).padder()
+        message_enc = b''
+        while True:
+            if len(message_enc_aes) < 128:
+                message_enc += enc2.update(padder2.update(message_enc_aes) + padder2.finalize()) + enc2.finalize()
+                break
+            message_enc += enc2.update(padder2.update(message_enc_aes[:128]))
+            message_enc_aes = message_enc_aes[128:]
+
+        message_enc_full = base64.b64encode(message_enc)
+
+        enc_key = server_public_key.encrypt(key, padding=async_padd.OAEP(
+            mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        ))
+
+        array = [enc_key, message_enc_full, iv]
+        return array
 
     # Decrypt with the session key only!
-    def decrypt_function(self, session_key, data):
+    def decrypt_function_sk(self, session_key, data):
 
         cipher = Cipher(algorithms.AES(session_key), modes.CBC(
             session_key[:16]), backend=default_backend())
@@ -173,43 +201,39 @@ class ClientActions:
 
         return decoded_public_key
 
-    # Decrypt with the private key and then session key
-    def decrypt_function_complete(self, session_key, data, client):
+    # Decrypt with the sent key and then session key
+    # Sent-key -> decrypt with private key
+    # Use the sent-key + iv to get session encrypted message
+    # Use session key to get the data
+    # session_key: session key;
+    # data: complete message
+    # client: the current client
+    # target_data : the data that we want returned from json; e.g server or username or type or key...
+    def decrypt_function_complete(self, session_key, data, client, target_data):
 
+        decoded_data_key = base64.b64decode(data["key"])
 
-        decoded_data = base64.b64decode(data)
-
-        plain_text = client.private_key.decrypt(decoded_data,
-                                                 async_padd.OAEP(
+        plain_key = client.private_key.decrypt(decoded_data_key, async_padd.OAEP(
                                                      mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
                                                      algorithm=hashes.SHA256(),
                                                      label=None
                                                  ))
-        plain_text = b""
-        while True:
-            if len(decoded_data) < 4096:
-                plain_text += client.private_key.decrypt(decoded_data,
-                                                         async_padd.OAEP(
-                                                            mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
-                                                             algorithm=hashes.SHA256(),
-                                                            label=None
-                                                         ))
-                break
-            plain_text += client.private_key.decrypt(decoded_data[:4096],
-                                                     async_padd.OAEP(
-                                                         mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
-                                                         algorithm=hashes.SHA256(),
-                                                         label=None
-                                                     ))
-            decoded_data = decoded_data[4096:]
+        decoded_data_iv = base64.b64decode(data["iv"])
 
+        # Decrypt with the session key
         cipher = Cipher(algorithms.AES(session_key), modes.CBC(
             session_key[:16]), backend=default_backend())
 
         unpadder = padding.PKCS7(128).unpadder()
+        dec = unpadder.update(cipher.decryptor().update(
+            base64.b64decode(data[target_data])) + cipher.decryptor().finalize()) + unpadder.finalize()
 
-        dec = unpadder.update(
-            cipher.decryptor().update(base64.b64decode(plain_text)) + cipher.decryptor().finalize()) + unpadder.finalize()
+        # Decrypt with AES key
+        cipher2 = Cipher(algorithms.AES(plain_key[:32]), modes.CBC(
+            decoded_data_iv), backend=default_backend())
 
-        print(dec)
-        return dec
+        unpadder2 = padding.PKCS7(128).unpadder()
+        plain_text = unpadder2.update(cipher2.decryptor().update(
+            base64.b64decode(dec)) + cipher2.decryptor().finalize()) + unpadder2.finalize()
+
+        return plain_text
