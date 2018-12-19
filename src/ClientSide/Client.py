@@ -26,8 +26,9 @@ class Client:
         self.private_key = None
         self.public_key = None
         self.session_key = None
+        self.session_key_repository = None
         self.server_public_key = None
-
+        self.server_public_key_repository = None
 
     def set_username(self, username):
         self.username = username
@@ -36,7 +37,7 @@ class Client:
         self.credentials = (username, password)
 
     # Initializes the session key
-    def initialize_session_key(self):
+    def initialize_session_key(self, address):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         # Our parameters
@@ -54,6 +55,7 @@ class Client:
         # message construction
         json_message = "{ " + "\n"
         json_message += "\"type\" : \"session\"," + "\n"
+        json_message += "\"username\" : \"" + self.username + "\"," + "\n"
         json_message += "\"data\" : \"" + message + "\", \n"
         json_message += "\"pk\" : \"" + public_key.public_bytes(encoding=serialization.Encoding.PEM,
                                                                 format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
@@ -62,7 +64,7 @@ class Client:
 
         try:
             # send response
-            sent = sock.sendto(base64.b64encode(json_message.encode('utf-8')), AM_ADDRESS)
+            sent = sock.sendto(base64.b64encode(json_message.encode('utf-8')), address)
 
             # Receive response
             data, server = sock.recvfrom(16384)

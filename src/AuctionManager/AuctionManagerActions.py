@@ -1,8 +1,6 @@
 import socket
 from App.App import *
 import base64
-import codecs
-import pickle
 import os
 from AuctionManager.AuctionManagerEntity import AuctionManagerEntity
 from cryptography.hazmat.primitives import hashes
@@ -13,9 +11,16 @@ from cryptography.hazmat.primitives.asymmetric import padding as async_padd
 from AssymetricKeys.RSAKeyGen import RSAKeyGen
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
 import json
 from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import dh
+from cryptography.hazmat.primitives.serialization import Encoding
+from cryptography.hazmat.primitives.serialization import ParameterFormat
+import cryptography.hazmat.primitives.kdf.hkdf
+from cryptography.hazmat.primitives import hashes
+import codecs
+import pickle
 
 
 class AuctionManagerActions:
@@ -61,7 +66,10 @@ class AuctionManagerActions:
         # Set the sessionKey as the bytes of the derived_key
         self.auction_manager.session_key = derived_key
 
+        # Get the username
+        self.auction_manager.session_clients.append((message_json["username"], self.auction_manager.session_key))
         sent = self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
+
 
     # Function to create a auction
     def create_auction(self, address, message_json):
@@ -125,9 +133,15 @@ class AuctionManagerActions:
             backend= default_backend())
 
         # This will encrypt with the session and then with the user public key
-        # TODO: This only works for one client, guardar as session keys?! where
         # Key, message, iv
-        encrypted_pk = self.encrypt_function(pk, self.auction_manager.session_key, user_key)
+        # Get the key from the user
+        session_key_user = b""
+        for key, value in self.auction_manager.session_clients:
+            if key == data["username"]:
+                session_key_user = value
+                break
+
+        encrypted_pk = self.encrypt_function(pk, session_key_user, user_key)
 
         message = "{\"server\" : \"" + str((encrypted_pk[1]), 'utf-8') + "\","
         message += "\"key\" : \"" + str(base64.b64encode(encrypted_pk[0]), 'utf-8') + "\","
@@ -135,6 +149,54 @@ class AuctionManagerActions:
 
         print(message)
         self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
+
+    # Initializes the session key with the server
+    def initialize_session_key_server(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        # Our parameters
+        parameters = dh.generate_parameters(generator=5, key_size=512, backend=default_backend())
+
+        # Our private key and public key
+        private_key = parameters.generate_private_key()
+        public_key = private_key.public_key()
+
+        # needs the server parameters, send our parameters, for now our parameters are the ones to be accepted
+        message = codecs.encode(
+            pickle.dumps(parameters.parameter_bytes(encoding=Encoding.PEM, format=ParameterFormat.PKCS3)),
+            "base64").decode()
+
+        # message construction
+        json_message = "{ " + "\n"
+        json_message += "\"type\" : \"session_server\"," + "\n"
+        json_message += "\"data\" : \"" + message + "\", \n"
+        json_message += "\"pk\" : \"" + public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                                format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
+            'utf-8') + "\""
+        json_message += "}"
+
+        try:
+            # send response
+            sent = sock.sendto(base64.b64encode(json_message.encode('utf-8')), AR_ADDRESS)
+
+            # Receive response
+            data, server = sock.recvfrom(16384)
+            # derivate the key
+            peer_public_key_bytes = base64.b64decode(data)
+            peer_public_key = serialization.load_pem_public_key(peer_public_key_bytes, default_backend())
+            shared_key = private_key.exchange(peer_public_key)
+
+            derived_key = cryptography.hazmat.primitives.kdf.hkdf.HKDF(algorithm=hashes.SHA256(), length=32, salt=None, info=b'handshake data',
+                                                                       backend=default_backend()).derive(shared_key)
+
+            #For now we use it as a SEED
+            self.auction_manager.session_key_server = derived_key
+
+        finally:
+            sock.close()
+
+
+
 
     # Creates the directory for all clients to be stored
     # Can also create a directory for a user

@@ -8,7 +8,7 @@ import json
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # Create Auction Actions
 actions = AuctionManagerActions(sock)
-
+actions.initialize_session_key_server()
 
 # Bind the socket to the port
 print('starting up on {} port {}'.format(*AM_ADDRESS))

@@ -10,7 +10,7 @@ from cryptography.hazmat.backends import default_backend
 from AssymetricKeys.RSAKeyGen import RSAKeyGen
 import sys
 from cryptography.fernet import Fernet
-
+from App.App import *
 
 # This class has all the possible messages to communicate with the server
 class ClientActions:
@@ -26,8 +26,8 @@ class ClientActions:
 
         c = Client.Client(username)
         c.set_credentials(username, password)
-        # Now establish the session key for secure communication
-        c.initialize_session_key()
+        # Now establish the session key for secure communication with both servers
+        c.initialize_session_key(AM_ADDRESS)
 
         # if it exists it wont send its keys
         if c.verify_existence(username):
