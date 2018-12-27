@@ -2,8 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8ce01276-78a0-4067-b52f-48bd2a48dc94" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/AuctionManager/server/private_key.pem" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/AuctionManager/server/public_key.pem" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/AuctionRepository/server/private_key.pem" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/AuctionRepository/server/public_key.pem" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/CitizenCard/Certificate.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/CitizenCard/Certificate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/CitizenCard/CitizenCard.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/CitizenCard/CitizenCard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/Client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ClientSide/ClientActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/ClientActions.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -16,10 +23,22 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ClientSide/Client.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="520">
+              <caret line="170" selection-start-line="170" selection-end-line="170" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ClientSide/RunClient.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1377">
-              <caret line="85" column="54" selection-start-line="85" selection-start-column="54" selection-end-line="85" selection-end-column="54" />
+            <state relative-caret-position="150">
+              <caret line="22" column="48" lean-forward="true" selection-start-line="22" selection-start-column="48" selection-end-line="22" selection-end-column="48" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -28,10 +47,31 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/CitizenCard/CitizenCard.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="265">
+              <caret line="42" lean-forward="true" selection-start-line="42" selection-end-line="42" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/CitizenCard/Certificate.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-695">
+              <caret line="7" column="57" lean-forward="true" selection-start-line="7" selection-start-column="57" selection-end-line="7" selection-end-column="57" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="412">
-              <caret line="197" column="71" selection-start-line="197" selection-start-column="67" selection-end-line="197" selection-end-column="71" />
+            <state relative-caret-position="220">
+              <caret line="34" column="16" lean-forward="true" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="16" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -39,11 +79,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
-              <caret line="176" selection-start-line="176" selection-end-line="176" />
+            <state relative-caret-position="30">
+              <caret line="24" selection-start-line="24" selection-end-line="24" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="195">
+              <caret line="17" column="41" selection-start-line="17" selection-start-column="41" selection-end-line="17" selection-end-column="41" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -54,7 +106,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AssymetricKeys/RSAKeyGen.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-969">
+            <state relative-caret-position="225">
               <caret line="21" column="65" selection-start-line="21" selection-start-column="61" selection-end-line="21" selection-end-column="65" />
             </state>
           </provider>
@@ -72,6 +124,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>4096</find>
+      <find>get_attr</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -88,18 +141,20 @@
         <option value="$PROJECT_DIR$/src/AuctionManager/AuctionManagerEntity.py" />
         <option value="$PROJECT_DIR$/src/AssymetricKeys/RSAKeyGen.py" />
         <option value="$PROJECT_DIR$/src/ClientSide/pp/server_key.pem" />
-        <option value="$PROJECT_DIR$/src/ClientSide/Client.py" />
         <option value="$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py" />
         <option value="$PROJECT_DIR$/src/ClientSide/RunClient.py" />
-        <option value="$PROJECT_DIR$/src/ClientSide/ClientActions.py" />
         <option value="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" />
+        <option value="$PROJECT_DIR$/src/CitizenCard/Certificate.py" />
+        <option value="$PROJECT_DIR$/src/CitizenCard/CitizenCard.py" />
+        <option value="$PROJECT_DIR$/src/ClientSide/Client.py" />
+        <option value="$PROJECT_DIR$/src/ClientSide/ClientActions.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-7" />
-    <option name="width" value="974" />
-    <option name="height" value="1047" />
+    <option name="width" value="966" />
+    <option name="height" value="1042" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -107,64 +162,85 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
-              <item name="sio2018-p1g5" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sio2018-p1g5" type="462c0819:PsiDirectoryNode" />
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="sio2018-p1g5" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sio2018-p1g5" type="462c0819:PsiDirectoryNode" />
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
+              <item name=".idea" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="sio2018-p1g5" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sio2018-p1g5" type="462c0819:PsiDirectoryNode" />
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="App" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="AssymetricKeys" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="sio2018-p1g5" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sio2018-p1g5" type="462c0819:PsiDirectoryNode" />
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="AuctionManager" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="sio2018-p1g5" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sio2018-p1g5" type="462c0819:PsiDirectoryNode" />
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="AuctionRepository" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="sio2018-p1g5" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sio2018-p1g5" type="462c0819:PsiDirectoryNode" />
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="ClientSide" type="462c0819:PsiDirectoryNode" />
+              <item name="Blockchain" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="sio2018-p1g5" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sio2018-p1g5" type="462c0819:PsiDirectoryNode" />
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="CitizenCard" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="ClientSide" type="462c0819:PsiDirectoryNode" />
-              <item name="fsdsdf" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1545081501483" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1545931869488" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
+    <property name="settings.editor.selected.configurable" value="reference.projectsettings.compiler.rmicompiler" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/CitizenCard" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -178,7 +254,49 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.RunAuctionManager">
+  <component name="RunManager" selected="Python.Certificate">
+    <configuration name="AuctionManagerActions" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="SIO" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/AuctionManager" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Certificate" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="SIO" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/CitizenCard" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/CitizenCard/Certificate.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="RunAuctionManager" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="SIO" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -192,6 +310,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="RunAuctionRepository" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="SIO" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/AuctionRepository" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -224,11 +363,17 @@
     <list>
       <item itemvalue="Python.RunAuctionManager" />
       <item itemvalue="Python.RunClient" />
+      <item itemvalue="Python.AuctionManagerActions" />
+      <item itemvalue="Python.RunAuctionRepository" />
+      <item itemvalue="Python.Certificate" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Certificate" />
         <item itemvalue="Python.RunClient" />
         <item itemvalue="Python.RunAuctionManager" />
+        <item itemvalue="Python.RunAuctionRepository" />
+        <item itemvalue="Python.AuctionManagerActions" />
       </list>
     </recent_temporary>
   </component>
@@ -245,10 +390,20 @@
     </task>
     <servers />
   </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-1" y="-1" width="1922" height="953" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14818764" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16115262" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -257,14 +412,14 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.38786566" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3954496" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.2557298" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39445114" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.32936078" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3293124" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.3293124" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="9" />
+      <window_info anchor="bottom" id="Version Control" order="9" weight="0.3293124" />
       <window_info anchor="bottom" id="Messages" order="10" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -276,6 +431,35 @@
       <window_info anchor="right" id="Palette&#9;" order="7" />
       <window_info anchor="right" id="Maven Projects" order="8" />
     </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15955175" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Image Layers" order="2" />
+      <window_info id="Designer" order="3" />
+      <window_info id="UI Designer" order="4" />
+      <window_info id="Capture Tool" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.2557298" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3954496" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3293124" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.3293124" />
+      <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="9" weight="0.3293124" />
+      <window_info anchor="bottom" id="Messages" order="10" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Maven" order="4" />
+      <window_info anchor="right" id="Theme Preview" order="5" />
+      <window_info anchor="right" id="Capture Analysis" order="6" />
+      <window_info anchor="right" id="Palette&#9;" order="7" />
+      <window_info anchor="right" id="Maven Projects" order="8" />
+    </layout-to-restore>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/out/production/SIO/App/__init__.py" />
@@ -321,53 +505,83 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/lib/python3/dist-packages/cryptography/hazmat/backends/openssl/rsa.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="268" selection-start-line="268" selection-end-line="268" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="24" selection-start-line="24" selection-end-line="24" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
-          <caret line="18" column="39" selection-start-line="18" selection-start-column="39" selection-end-line="18" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ClientSide/Client.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="121">
-          <caret line="67" column="46" selection-start-line="67" selection-start-column="46" selection-end-line="67" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ClientSide/RunClient.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1377">
-          <caret line="85" column="54" selection-start-line="85" selection-start-column="54" selection-end-line="85" selection-end-column="54" />
+        <state relative-caret-position="195">
+          <caret line="17" column="41" selection-start-line="17" selection-start-column="41" selection-end-line="17" selection-end-column="41" />
           <folding>
-            <element signature="e#0#38#0" expanded="true" />
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/AssymetricKeys/RSAKeyGen.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-969">
+        <state relative-caret-position="225">
           <caret line="21" column="65" selection-start-line="21" selection-start-column="61" selection-end-line="21" selection-end-column="65" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
+    <entry file="file://$PROJECT_DIR$/src/ClientSide/RunClient.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="412">
-          <caret line="197" column="71" selection-start-line="197" selection-start-column="67" selection-end-line="197" selection-end-column="71" />
+        <state relative-caret-position="150">
+          <caret line="22" column="48" lean-forward="true" selection-start-line="22" selection-start-column="48" selection-end-line="22" selection-end-column="48" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ClientSide/Client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="520">
+          <caret line="170" selection-start-line="170" selection-end-line="170" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py">
+    <entry file="file://$PROJECT_DIR$/src/CitizenCard/CitizenCard.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="176" selection-start-line="176" selection-end-line="176" />
+        <state relative-caret-position="265">
+          <caret line="42" lean-forward="true" selection-start-line="42" selection-end-line="42" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/CitizenCard/Certificate.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-695">
+          <caret line="7" column="57" lean-forward="true" selection-start-line="7" selection-start-column="57" selection-end-line="7" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="34" column="16" lean-forward="true" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -401,7 +615,7 @@
       </state>
       <state key="GlobalLibrariesConfigurable.UI">
         <settings>
-          <last-edited>Python 3.7 (SIO) interpreter library</last-edited>
+          <last-edited>Python 3.6 interpreter library</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -413,7 +627,7 @@
       </state>
       <state key="JdkListConfigurable.UI">
         <settings>
-          <last-edited>Python 3.7 (SIO)</last-edited>
+          <last-edited>Python 3.6</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

@@ -12,6 +12,7 @@ import sys
 from cryptography.fernet import Fernet
 from App.App import *
 
+
 # This class has all the possible messages to communicate with the server
 class ClientActions:
 
@@ -36,6 +37,14 @@ class ClientActions:
                 c.load_keys(password)
                 r = RSAKeyGen()
                 c.server_public_key = r.load_server_key(os.getcwd()+"/" + c.username)
+
+                # Loads the citizen card
+                c.load_citizen_card()
+                # Loads the authentication certificate
+                cert = c.get_citizen_card().load_authentication_certificate()
+
+
+
             except:
                 print("Wrong username/password")
                 sys.exit(0)

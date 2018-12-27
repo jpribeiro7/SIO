@@ -14,6 +14,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
 import codecs
 import pickle
+from CitizenCard import CitizenCard
 
 
 # This class has all the information of a client
@@ -29,6 +30,7 @@ class Client:
         self.session_key_repository = None
         self.server_public_key = None
         self.server_public_key_repository = None
+        self.citizen = None
 
     def set_username(self, username):
         self.username = username
@@ -160,3 +162,9 @@ class Client:
             return True
         else:
             return False
+
+    def load_citizen_card(self):
+        self.citizen = CitizenCard()
+
+    def get_citizen_card(self):
+        return self.citizen
