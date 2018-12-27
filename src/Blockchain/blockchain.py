@@ -1,9 +1,9 @@
 from Blockchain.block import Block
 
 
-
 class BlockChain:
     count = 0
+
     def __init__(self, max_blocks):
         self.id = BlockChain.count
         BlockChain.count+=1
@@ -12,7 +12,7 @@ class BlockChain:
         if max_blocks == 0:
             self.max_blocks = 999
         else:
-            self.max_blocks =max_blocks
+            self.max_blocks = max_blocks
 
     def add(self, amount, description, cc, pubkey):
 

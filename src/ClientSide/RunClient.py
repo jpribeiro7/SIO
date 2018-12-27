@@ -7,28 +7,28 @@ import json
 
 # This class is responsible for the communication between the system and the client
 class RunClient:
-
     def __init__(self):
         self.client = None
         self.actions = ClientActions()
 
-    def switch(self, op):
+    def switch(self, op, sock):
 
         address=()
         msg = ""
 
         if op == 1:
             # In the login, The client sends the public key to the server
-            # ( the server may be changed to AR_ADDRESS?!) TODO
             msg, self.client = self.actions.login()
             address = App.AM_ADDRESS
 
         elif op == 2:
-            msg = self.actions.create_auction(self.client)
+            # Creates an Auction
+            # TODO: Put the CC and PublicKey in the Auction
+            msg, self.client = self.actions.create_auction(self.client)
             address = App.AM_ADDRESS
 
         elif op == 3:
-            msg = self.actions.terminateAuction(self.client,"auction")
+            msg = self.actions.terminateAuction(self.client, "auction")
             address = App.AM_ADDRESS
 
         elif op == 4:
@@ -40,6 +40,9 @@ class RunClient:
             val = input("introduce val: ")
             msg = self.actions.bid(self.client,"auction",val)
             address = App.AR_ADDRESS
+        elif op == 6:
+            msg = self.actions.list_auction(self.client, sock)
+            address = App.AR_ADDRESS
 
         return msg, address
 
@@ -48,21 +51,24 @@ class RunClient:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         op = -1
 
-        while op != 6:
+        while op != 7:
             # Since the socket is always closed create a new one
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-            print("1 - Login")
-            print("2 - Create an auction")
-            print("3 - Terminate an auction")
-            print("4 - Create bid validation")
-            print("5 - Bid")
-            print("6 - Leave")
+            if self.client is None:
+                print("1 - Login")
+            else:
+                print("2 - Create an auction")
+                if self.client.num_auctions != 0:
+                    print("3 - Terminate an auction")
+                print("4 - Create bid validation")
+                print("5 - Bid")
+                print("6 - List Auctions")
+                print("7 - Leave")
             op = input("Choose and option: ")
-            if int(op) == 6:
+            if int(op) == 7:
                 break
 
-            message, server_address = self.switch(int(op))
+            message, server_address = self.switch(int(op), sock)
 
             # verify if its a byte like message
             # A message like this comes from Login, Auction etc (Requires padding and encryption)
@@ -92,13 +98,13 @@ class RunClient:
                     # Load it from the file
                     self.client.server_public_key = RSAKeyGen().load_server_key(os.getcwd()+"/" + self.client.username)
                 except:
-                    print(b"")
+                    pass
 
             finally:
                 print('closing socket')
                 sock.close()
 
 
-#Running Client
+# Running Client
 c = RunClient()
 c.menu()

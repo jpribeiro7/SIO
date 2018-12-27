@@ -35,6 +35,7 @@ class AuctionRepositoryActions:
 
     # Function to create a session key between user and server
     def create_session_key(self, message_json, address):
+        print("creating key")
         # decode the data
         parameters = pickle.loads(codecs.decode(message_json["data"].encode(), "base64"))
         par = load_pem_parameters(parameters, backend=default_backend())
@@ -61,7 +62,7 @@ class AuctionRepositoryActions:
         self.auction_repository.session_key_clients.append((message_json["username"], session_key))
         sent = self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
 
-    # Function to create a session key between user and server
+    # Function to create a session key between server and server
     def create_session_key_server(self, message_json, address):
         # decode the data
         parameters = pickle.loads(codecs.decode(message_json["data"].encode(), "base64"))
@@ -104,9 +105,27 @@ class AuctionRepositoryActions:
         # TODO get the CC and other stuff! maybe send in the auction_create from the other server
         # TODO how do we save the auction
         b_chain.add(amount=new_auction.auc_min_price_bid, description="Auction", cc="CC", pubkey="CLIENT PUBLIC")
+
+        # Save to a file!
+        with open(os.getcwd() + "/auctions/" + str(number_auc)+ ".pickle", 'wb') as handle:
+            pickle.dump(b_chain, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        # Open the file
+        #with open(os.getcwd() + "/auctions/" + str(number_auc)+ ".pickle", 'rb') as handle:
+        #    b = pickle.load(handle)
+
         self.sock.sendto(b"VALID", address)
 
+    # List the auctions
+    def list_auctions(self, address):
+        message = "Auction List : \n"
+        files = os.listdir(os.getcwd()+"/auctions")
+        for name in files:
+            with open(os.getcwd() + "/auctions/" + name, 'rb') as handle:
+                b = pickle.load(handle)
+                message += name.replace(".pickle","") + "\n"
 
+        self.sock.sendto(base64.b64encode(message.encode()), address)
 
 
     # Decrypt with the session key only!

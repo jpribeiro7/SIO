@@ -14,6 +14,7 @@ from cryptography.hazmat.primitives.asymmetric import utils
 import codecs
 import pickle
 from CitizenCard import CitizenCard
+from App.App import *
 
 
 # This class has all the information of a client
@@ -30,11 +31,13 @@ class Client:
         self.server_public_key = None
         self.server_public_key_repository = None
         self.citizen = None
+        self.logged = False
+        self.num_auctions = 0
 
     def set_username(self, username):
         self.username = username
 
-    def set_credentials(self,username, password):
+    def set_credentials(self, username, password):
         self.credentials = (username, password)
 
     # Initializes the session key
@@ -78,7 +81,10 @@ class Client:
                                                                        backend=default_backend()).derive(shared_key)
 
             #For now we use it as a SEED
-            self.session_key = derived_key
+            if address == AM_ADDRESS:
+                self.session_key = derived_key
+            else:
+                self.session_key_repository = derived_key
 
         finally:
             sock.close()

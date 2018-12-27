@@ -61,7 +61,7 @@ class ClientActions:
             message += "\"pk\" : \"" + self.encrypt_function_sk(pk, c) + "\""
 
         message += " }"
-
+        c.logged = True
         return message, c
 
     # When we create an auction
@@ -111,7 +111,8 @@ class ClientActions:
         message += "\"message\" : \"" + self.encrypt_function_sk(auc, client) + "\", \n"
         message += "\"sign\" : \"" + client.sign_message(auc) + "\"}"
 
-        return message
+        client.num_auctions+=1
+        return message, client
 
     #TODO
     def setBidValidation(self):
@@ -134,10 +135,32 @@ class ClientActions:
         message += "\"value\" : \"" + value + "\"}"
         return message
 
+    # List the auctions from the repository
+    def list_auction(self, client, sock):
+        if client.session_key_repository is None:
+            # Set the session key
+            client.initialize_session_key(AR_ADDRESS)
+
+        # Now ask for the auctions
+        message = "{ \"type\" : \"auction_list\" }"
+        sock.sendto(base64.b64encode(message.encode()), AR_ADDRESS)
+
+        data,address = sock.recvfrom(16384)
+        message = base64.b64decode(data)
+        print(message.decode())
+        print("\n")
+
+        return b""
+
     # Function that encrypts the message with the session key only
     # Client is necessary
-    def encrypt_function_sk(self, message, client):
-        cipher = Cipher(algorithms.AES(client.session_key), modes.CBC(client.session_key[:16]), backend=default_backend())
+    def encrypt_function_sk(self, message, client, address=None):
+        if address == AM_ADDRESS or address is None:
+            cipher = Cipher(algorithms.AES(client.session_key), modes.CBC(client.session_key[:16]), backend=default_backend())
+        else:
+            cipher = Cipher(algorithms.AES(client.session_key_repository),
+                            modes.CBC(client.session_key_repository[:16]), backend=default_backend())
+
         temp = message.encode()
         enc = cipher.encryptor()
         padder = padding.PKCS7(128).padder()
