@@ -70,11 +70,10 @@ class AuctionManagerActions:
         self.auction_manager.session_clients.append((message_json["username"], self.auction_manager.session_key))
         sent = self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
 
-
     # Function to create a auction
     def create_auction(self, address, message_json):
         server_address = AR_ADDRESS
-
+        print(message_json)
         cipher = Cipher(algorithms.AES(self.auction_manager.session_key), modes.CBC(
             self.auction_manager.session_key[:16]), backend=default_backend())
 
@@ -93,17 +92,27 @@ class AuctionManagerActions:
         if sign_val in [None]:
 
             auction_information = json.loads(decrypted_message, strict=False)
-            print(auction_information)
-            print("Valid")
-            # Do the creation
-            # -> Get all the params from the auction
-            # -> Send to Auction Repository the new auction
+            auction_information["username"] = message_json["username"]
+
+            encrypted_message_sk = self.encrypt_function_sk(str(auction_information))
+            # Send the enc message to the server
+            message = "{"
+            message += "\"type\" : \"create_auction\" ,"
+            message += "\"message\" : \"" + encrypted_message_sk + "\""
+            message += "}"
+
+            self.sock.sendto(base64.b64encode(message.encode()), AR_ADDRESS)
+
+            data, add = self.sock.recvfrom(16384)
+            if data == b"VALID":
+                self.sock.sendto(b"Valid", address)
+
         else:
             print("Invalid")
-            sent = self.sock.sendto(b"",address)
+            self.sock.sendto(b"Invalid", address)
             return
 
-        sent = self.sock.sendto(b"",address)
+        self.sock.sendto(b"", address)
 
     # Verifies the login
     # Create the user folder
@@ -125,7 +134,7 @@ class AuctionManagerActions:
 
         # send our public key to the user
         pk = self.auction_manager.public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                       format=serialization.PublicFormat.SubjectPublicKeyInfo)\
+                                                          format=serialization.PublicFormat.SubjectPublicKeyInfo)\
             .decode('utf-8')
         # Get the user key from the dir
         user_key = serialization.load_pem_public_key(
@@ -147,7 +156,6 @@ class AuctionManagerActions:
         message += "\"key\" : \"" + str(base64.b64encode(encrypted_pk[0]), 'utf-8') + "\","
         message += "\"iv\" : \"" + str(base64.b64encode(encrypted_pk[2]), 'utf-8') + "\"}"
 
-        print(message)
         self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
 
     # Initializes the session key with the server
@@ -194,9 +202,6 @@ class AuctionManagerActions:
 
         finally:
             sock.close()
-
-
-
 
     # Creates the directory for all clients to be stored
     # Can also create a directory for a user
@@ -270,3 +275,20 @@ class AuctionManagerActions:
         array = [enc_key, message_enc_full, iv]
         return array
 
+    # Function that encrypts the message with the session key only
+    def encrypt_function_sk(self, message):
+        cipher = Cipher(algorithms.AES(self.auction_manager.session_key_server), modes.CBC(self.auction_manager.
+                                                                                           session_key_server[:16]),
+                        backend=default_backend())
+        temp = message.encode()
+        enc = cipher.encryptor()
+        padder = padding.PKCS7(128).padder()
+        message_enc = b''
+        while True:
+            if len(temp) < 128:
+                message_enc += enc.update(padder.update(temp) + padder.finalize()) + enc.finalize()
+                break
+            message_enc += enc.update(padder.update(temp[:128]))
+            temp = temp[128:]
+
+        return str(base64.b64encode(message_enc), 'utf-8')

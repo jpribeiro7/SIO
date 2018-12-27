@@ -1,25 +1,20 @@
-from App.App import *
+from AuctionRepository.Auction import Auction
 import base64
 import os
 from AuctionRepository.AuctionRepositoryEntity import AuctionRepositoryEntity
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_parameters
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import padding as async_padd
-from AssymetricKeys.RSAKeyGen import RSAKeyGen
-from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-import json
-from cryptography.fernet import Fernet
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import dh
-from cryptography.hazmat.primitives.serialization import Encoding
-from cryptography.hazmat.primitives.serialization import ParameterFormat
-import cryptography.hazmat.primitives.kdf.hkdf
 from cryptography.hazmat.primitives import hashes
 import codecs
+import json
 import pickle
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
+from AssymetricKeys.RSAKeyGen import RSAKeyGen
+from Blockchain.blockchain import BlockChain
+
 
 class AuctionRepositoryActions:
 
@@ -34,10 +29,11 @@ class AuctionRepositoryActions:
                                                                                                          + "/server")
         else:
             os.mkdir(os.getcwd() + "/server")
+            os.mkdir(os.getcwd() + "/auctions")
             self.auction_repository.private_key, self.auction_repository.public_key = self.rsa_keygen.generate_key_pair()
             self.rsa_keygen.save_keys(path=os.getcwd() + "/server")
 
-# Function to create a session key between user and server
+    # Function to create a session key between user and server
     def create_session_key(self, message_json, address):
         # decode the data
         parameters = pickle.loads(codecs.decode(message_json["data"].encode(), "base64"))
@@ -90,3 +86,38 @@ class AuctionRepositoryActions:
         self.auction_repository.session_key_server = derived_key
 
         sent = self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
+
+    # Creates an auction
+    def create_auction(self, message_json, address):
+        # get the number of auctions in a dir
+        number_auc = len([name for name in os.listdir(os.getcwd()+"/auctions") if os.path.isfile(name)])
+        # decode the message and decrypt
+        decrypted_message = self.decrypt_function_sk(self.auction_repository.session_key_server, message_json["message"])
+        # replace the ' with "
+        str_msg = codecs.decode(decrypted_message)
+        msg = str_msg.replace("'", "\"")
+        # Get as json format
+        json_m = json.loads(msg, strict=False)
+        new_auction = Auction(++number_auc, json_m["auction_type"], json_m["username"], json_m["max_num_bids"],
+                              json_m["min_bid"], json_m["th"])
+        b_chain = BlockChain(new_auction.auc_max_bids)
+        # TODO get the CC and other stuff! maybe send in the auction_create from the other server
+        # TODO how do we save the auction
+        b_chain.add(amount=new_auction.auc_min_price_bid, description="Auction", cc="CC", pubkey="CLIENT PUBLIC")
+        self.sock.sendto(b"VALID", address)
+
+
+
+
+    # Decrypt with the session key only!
+    def decrypt_function_sk(self, session_key, data):
+
+        cipher = Cipher(algorithms.AES(session_key), modes.CBC(
+            session_key[:16]), backend=default_backend())
+
+        unpadder = padding.PKCS7(128).unpadder()
+
+        dec = unpadder.update(
+            cipher.decryptor().update(base64.b64decode(data)) + cipher.decryptor().finalize()) + unpadder.finalize()
+
+        return dec

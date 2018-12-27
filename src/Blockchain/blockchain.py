@@ -9,9 +9,10 @@ class BlockChain:
         BlockChain.count+=1
         self.chain = []
         self.current_block= 0
-        self.max_blocks =max_blocks
-
-
+        if max_blocks == 0:
+            self.max_blocks = 999
+        else:
+            self.max_blocks =max_blocks
 
     def add(self, amount, description, cc, pubkey):
 
@@ -29,12 +30,12 @@ class BlockChain:
             print(block.getBlockHash())
 
 
-some = BlockChain(max_blocks = 3)
-some.add(20, "aa",12,12)
-some.add(20, "aa",12,12)
-some.add(20, "aa",12,12)
-some.add(20, "aa",12,12)
-some.print()
+#some = BlockChain(max_blocks = 3)
+#some.add(20, "aa",12,12)
+#some.add(20, "aa",12,12)
+#some.add(20, "aa",12,12)
+#some.add(20, "aa",12,12)
+#some.print()
 
 
 

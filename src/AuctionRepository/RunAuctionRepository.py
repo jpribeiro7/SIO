@@ -20,15 +20,8 @@ while True:
     message_json = json.loads(decoded_data, strict=False)
 
     if message_json["type"] == "create_auction":
-        actions.create_auction(address, message_json)
+        actions.create_auction(message_json, address)
     elif message_json["type"] == "session":
         actions.create_session_key(message_json, address)
     elif message_json["type"] == "session_server":
         actions.create_session_key_server(message_json, address)
-    elif message_json["type"] == "login":
-        actions.login_actions(address, message_json)
-
-    if data:
-        sent = sock.sendto(data, address)
-        print('sent {} bytes back to {}'.format(
-            sent, address))
