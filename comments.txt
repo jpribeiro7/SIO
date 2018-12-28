@@ -3,3 +3,11 @@ Chaves: não é prático usar o CC para cifrar todas as mensagens. Este pode cer
 
 threshold: está ok. Podem também considerar valores dinamicos, ser menor que X, começar por X. Entre X e Y.
 
+
+    assinar o username -> associar cliente ao cc
+    validar cc do lado do server
+    certificados para serpa
+
+    retornar msgs
+    retornar msg do repository
+

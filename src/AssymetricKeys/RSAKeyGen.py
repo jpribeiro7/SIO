@@ -38,7 +38,7 @@ class RSAKeyGen:
                                                          encryption_algorithm=serialization.BestAvailableEncryption(
                                                              password.encode()))
         else:
-            private_pem = self.private_key.private_bytes(encoding=serialization.Encoding.PEM ,
+            private_pem = self.private_key.private_bytes(encoding=serialization.Encoding.PEM,
                                                          format=serialization.PrivateFormat.PKCS8,
                                                          encryption_algorithm=serialization.NoEncryption())
 

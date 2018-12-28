@@ -120,9 +120,12 @@ class RunClient:
                     try:
                         # Verify if it received the server public key and saves it
                         message_decoded = json.loads(base64.b64decode(data), strict=False)
+
+                        print(message_decoded)
                         public_key_server_pem = self.actions.decrypt_function_complete(self.client.session_key,
                                                                                        message_decoded,
                                                                                        self.client, "server")
+
                         # Save to file
                         public_file = open(os.getcwd()+"/" + self.client.username + "/server_key.pem", "wb+")
                         public_file.write(public_key_server_pem)
@@ -130,8 +133,7 @@ class RunClient:
                         # Load it from the file
                         self.client.server_public_key = RSAKeyGen().load_server_key(os.getcwd()+"/" + self.client.username)
                     except:
-                        pass
-
+                       pass
             finally:
                 print('closing socket')
                 sock.close()

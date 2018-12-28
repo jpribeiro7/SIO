@@ -5,6 +5,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes
 import base64
 import os
 import datetime
@@ -29,6 +30,15 @@ class CitizenCard:
         mechanism = PyKCS11.Mechanism(PyKCS11.CKM_SHA1_RSA_PKCS,None)
         return bytes(session.sign(citizen_authentication_priv_key, text, mechanism))
 
+    def check_signature(self,cert,signature,username):
+        pub_key = cert.public_key()
+        pub_key.verify(
+            signature,
+            username,
+            padding.PKCS1v15,
+            hashes.SHA1()
+        )
+
     def find_authentication_certificate(self):
         session = self.pkcs11.openSession(self.slot)
         obj = session.findObjects([
@@ -37,7 +47,6 @@ class CitizenCard:
         ])[0]
         all_attributes = [PyKCS11.CKA_VALUE]
         attributes = session.getAttributeValue(obj, all_attributes)[0]
-        print(attributes)
         cert = x509.load_der_x509_certificate(bytes(attributes), default_backend())
         return cert
 
@@ -51,7 +60,6 @@ class CitizenCard:
 
         # verify certificate_path
         for i in range(0,len(certificate_path)):
-            print(certificate_path[i].subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value)
             # verify purpose
 
             # verify common name
@@ -123,6 +131,6 @@ class CitizenCard:
 
     def check_crl(self,certificate, crl):
         for revocation_list in crl:
-            if revocation_list.get_revoked_certificate_by_serial_number(certificate.serial_number) != None:
+            if revocation_list.get_revoked_certificate_by_serial_number(certificate.serial_number) is None:
                 return False
         return True

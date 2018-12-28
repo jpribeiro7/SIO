@@ -19,6 +19,8 @@ from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import ParameterFormat
 import cryptography.hazmat.primitives.kdf.hkdf
 from cryptography.hazmat.primitives import hashes
+from cryptography import x509
+from CitizenCard.CitizenCard import *
 import codecs
 import pickle
 
@@ -119,18 +121,34 @@ class AuctionManagerActions:
     # Verifies the login
     # Create the user folder
     def login_actions(self, address, data):
+        # decode with the session key
+        cipher = Cipher(algorithms.AES(self.auction_manager.session_key), modes.CBC(
+            self.auction_manager.session_key[:16]), backend=default_backend())
+
+        unpadder = cryptography.hazmat.primitives.padding.PKCS7(128).unpadder()
+        decoded_auth_cert = unpadder.update(
+            cipher.decryptor().update(base64.b64decode(data["cert"])) + cipher.decryptor().finalize()) + unpadder.finalize()
+
+        unpadder = cryptography.hazmat.primitives.padding.PKCS7(128).unpadder()
+        decoded_digital_sign = unpadder.update(
+            cipher.decryptor().update(base64.b64decode(data["sign"])) + cipher.decryptor().finalize()) + unpadder.finalize()
+        print(decoded_auth_cert)
+        print(decoded_digital_sign)
+        certificate = x509.load_pem_x509_certificate(decoded_auth_cert ,default_backend())
+        citizen  = CitizenCard()
+        if not citizen.validate_certificate(certificate):
+            return base64.b64encode("{ \"error\" : \"No valid certificate\"}".encode('utf-8'))
 
         # if it exists then return success because the key wont change
         if os.path.isdir(os.getcwd() + "/clients/" + data["username"]):
             return base64.b64encode("{ \"success\" : \"success\"}".encode('utf-8'))
 
-        # decode with the session key
-        cipher = Cipher(algorithms.AES(self.auction_manager.session_key), modes.CBC(
-            self.auction_manager.session_key[:16]), backend=default_backend())
 
-        unpadder = padding.PKCS7(128).unpadder()
+
+
         decoded_public_key = unpadder.update(
             cipher.decryptor().update(base64.b64decode(data["pk"])) + cipher.decryptor().finalize()) + unpadder.finalize()
+
 
         # Create the user directory
         self.create_dir_client(data["username"], decoded_public_key)

@@ -11,6 +11,7 @@ from AssymetricKeys.RSAKeyGen import RSAKeyGen
 import sys
 from cryptography.fernet import Fernet
 from App.App import *
+from cryptography import x509
 
 
 # This class has all the possible messages to communicate with the server
@@ -30,26 +31,31 @@ class ClientActions:
         # Now establish the session key for secure communication with both servers
         c.initialize_session_key(AM_ADDRESS)
 
+        # Loads the citizen card
+        c.load_citizen_card()
+        citizen = c.get_citizen_card()
+        digital_signature = None
+        # Loads the authentication certificate
+        cert = citizen.find_authentication_certificate()
+
+        # Digital signature
+        digital_signature = citizen.digital_signature(username)
+
         # if it exists it wont send its keys
         if c.verify_existence(username):
+
             try:
                 # Loads the keys and the server key
                 c.load_keys(password)
                 r = RSAKeyGen()
                 c.server_public_key = r.load_server_key(os.getcwd()+"/" + c.username)
 
-                # Loads the citizen card
-                c.load_citizen_card()
-                # Loads the authentication certificate
-                cert = c.get_citizen_card().load_authentication_certificate()
-
-
 
             except:
                 print("Wrong username/password")
                 sys.exit(0)
 
-            message += "\"username\" : \"" + c.username + "\""
+            message += "\"username\" : \"" + c.username + "\","
 
         else:
             # Encrypt only the public key, since its the only "sensitive" information atm
@@ -57,9 +63,12 @@ class ClientActions:
             pk = c.public_key.public_bytes(encoding=serialization.Encoding.PEM,
                                            format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
                 'utf-8')
-            message += "\"username\" : \"" + c.username + "\","
-            message += "\"pk\" : \"" + self.encrypt_function_sk(pk, c) + "\""
 
+            message += "\"username\" : \"" + c.username + "\","
+            message += "\"pk\" : \"" + self.encrypt_function_sk(pk, c) + "\","
+
+        message += "\"cert\" : \"" + self.encrypt_function_sk(cert, c) + "\","
+        message += "\"sign\" : \"" + self.encrypt_function_sk(digital_signature, c) + "\""
         message += " }"
         c.logged = True
         return message, c
@@ -160,8 +169,14 @@ class ClientActions:
         else:
             cipher = Cipher(algorithms.AES(client.session_key_repository),
                             modes.CBC(client.session_key_repository[:16]), backend=default_backend())
-
-        temp = message.encode()
+        temp = None
+        if isinstance(message, x509.Certificate):
+            temp = message.public_bytes(serialization.Encoding.PEM)
+        elif isinstance(message, bytes):
+            temp = message
+        else:
+            temp = message.encode()
+        print(temp)
         enc = cipher.encryptor()
         padder = padding.PKCS7(128).padder()
         message_enc = b''

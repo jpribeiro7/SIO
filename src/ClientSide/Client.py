@@ -13,7 +13,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
 import codecs
 import pickle
-from CitizenCard import CitizenCard
+from CitizenCard.CitizenCard import *
 from App.App import *
 
 
@@ -170,6 +170,7 @@ class Client:
 
     def load_citizen_card(self):
         self.citizen = CitizenCard()
+
 
     def get_citizen_card(self):
         return self.citizen
