@@ -38,11 +38,11 @@ class AuctionManagerActions:
         self.rsa_keygen = RSAKeyGen()
         if os.path.isdir(os.getcwd() + "/server"):
             self.auction_manager.private_key, self.auction_manager.public_key = self.rsa_keygen.load_key(os.getcwd()
-                                                                                                         + "/server")
+                                                                                                         + "/server", "pass")
         else:
             os.mkdir(os.getcwd() + "/server")
             self.auction_manager.private_key, self.auction_manager.public_key = self.rsa_keygen.generate_key_pair()
-            self.rsa_keygen.save_keys(path=os.getcwd() + "/server")
+            self.rsa_keygen.save_keys(path=os.getcwd() + "/server",password="pass")
 
     # Function to create a session key between user and server
     def create_session_key(self, message_json, address):
@@ -79,7 +79,7 @@ class AuctionManagerActions:
         cipher = Cipher(algorithms.AES(self.auction_manager.session_key), modes.CBC(
             self.auction_manager.session_key[:16]), backend=default_backend())
 
-        unpadder = padding.PKCS7(128).unpadder()
+        unpadder = cryptography.hazmat.primitives.padding.PKCS7(128).unpadder()
         decrypted_message = unpadder.update(
             cipher.decryptor().update(
                 base64.b64decode(message_json["message"])) + cipher.decryptor().finalize()) + unpadder.finalize()
@@ -95,7 +95,14 @@ class AuctionManagerActions:
 
             auction_information = json.loads(decrypted_message, strict=False)
             auction_information["username"] = message_json["username"]
+            unpadder = cryptography.hazmat.primitives.padding.PKCS7(128).unpadder()
+            decrypted_message = unpadder.update(
+                cipher.decryptor().update(
+                    base64.b64decode(auction_information["pk"])) + cipher.decryptor().finalize()) + unpadder.finalize()
+            auction_information["pk"] = codecs.encode(decrypted_message,"base64").decode()
 
+
+            print(str(auction_information))
             encrypted_message_sk = self.encrypt_function_sk(str(auction_information))
             # Send the enc message to the server
             message = "{"
@@ -143,12 +150,8 @@ class AuctionManagerActions:
         if os.path.isdir(os.getcwd() + "/clients/" + data["username"]):
             return base64.b64encode("{ \"success\" : \"success\"}".encode('utf-8'))
 
-
-
-
         decoded_public_key = unpadder.update(
             cipher.decryptor().update(base64.b64decode(data["pk"])) + cipher.decryptor().finalize()) + unpadder.finalize()
-
 
         # Create the user directory
         self.create_dir_client(data["username"], decoded_public_key)
@@ -161,6 +164,11 @@ class AuctionManagerActions:
         user_key = serialization.load_pem_public_key(
             decoded_public_key,
             backend= default_backend())
+
+        # Verify the uses signature of the session key
+        if self.rsa_keygen.verify_sign(base64.b64decode(data["signature"]), self.auction_manager.session_key, user_key) is not None:
+            # It is invalid
+            return base64.b64encode("{\"success\" : \"error\"}".encode("utf-8"))
 
         # This will encrypt with the session and then with the user public key
         # Key, message, iv
@@ -261,7 +269,7 @@ class AuctionManagerActions:
         cipher = Cipher(algorithms.AES(key[:32]), modes.CBC(iv), backend=default_backend())
         encd = message.encode()
         enc = cipher.encryptor()
-        padder = padding.PKCS7(128).padder()
+        padder = cryptography.hazmat.primitives.padding.PKCS7(128).padder()
         message_enc = b''
         while True:
             if len(encd) < 128:
@@ -276,7 +284,7 @@ class AuctionManagerActions:
 
         cipher2 = Cipher(algorithms.AES(session_key), modes.CBC(session_key[:16]), backend=default_backend())
         enc2 = cipher2.encryptor()
-        padder2 = padding.PKCS7(128).padder()
+        padder2 = cryptography.hazmat.primitives.padding.PKCS7(128).padder()
         message_enc = b''
         while True:
             if len(message_enc_aes) < 128:
@@ -303,7 +311,7 @@ class AuctionManagerActions:
                         backend=default_backend())
         temp = message.encode()
         enc = cipher.encryptor()
-        padder = padding.PKCS7(128).padder()
+        padder = cryptography.hazmat.primitives.padding.PKCS7(128).padder()
         message_enc = b''
         while True:
             if len(temp) < 128:

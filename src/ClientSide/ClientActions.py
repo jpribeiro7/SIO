@@ -32,8 +32,10 @@ class ClientActions:
         c.initialize_session_key(AM_ADDRESS)
 
         # Loads the citizen card
+
         c.load_citizen_card()
         citizen = c.get_citizen_card()
+
         digital_signature = None
         # Loads the authentication certificate
         cert = citizen.find_authentication_certificate()
@@ -47,6 +49,7 @@ class ClientActions:
             try:
                 # Loads the keys and the server key
                 c.load_keys(password)
+                c.load_keys_auction(password)
                 r = RSAKeyGen()
                 c.server_public_key = r.load_server_key(os.getcwd()+"/" + c.username)
 
@@ -63,10 +66,9 @@ class ClientActions:
             pk = c.public_key.public_bytes(encoding=serialization.Encoding.PEM,
                                            format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
                 'utf-8')
-
             message += "\"username\" : \"" + c.username + "\","
             message += "\"pk\" : \"" + self.encrypt_function_sk(pk, c) + "\","
-
+            message += "\"signature\" : \"" + c.sign_message(c.session_key,type="BYTES") + "\","
         message += "\"cert\" : \"" + self.encrypt_function_sk(cert, c) + "\","
         message += "\"sign\" : \"" + self.encrypt_function_sk(digital_signature, c) + "\""
         message += " }"
@@ -100,11 +102,14 @@ class ClientActions:
 
         # Ask for max bids
         auc_max_number_bids = input("Maximum number of bids \n(Enter 0 for no maximum):  ")
-
+        pk = client.auction_pub_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                       format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
+            'utf-8')
         # Update the auc values to a json
         auc = "{\"auction_type\" : \"" + auc_type + "\",\n"
         auc += "\"min_bid\" : \"" + auc_min_bid + "\" ,\n"
         auc += "\"max_num_bids\" : \"" + auc_max_number_bids + "\" ,\n"
+        auc += "\"pk\" : \"" + self.encrypt_function_sk(address=AM_ADDRESS,client=client, message=pk)+"\" ,\n"
 
         # Ask for threshold
         op = input("Do you want to customize the threshold? ")

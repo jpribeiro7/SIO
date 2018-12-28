@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import ParameterFormat
 import cryptography.hazmat.primitives.kdf.hkdf
+from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
@@ -15,6 +16,7 @@ import codecs
 import pickle
 from CitizenCard.CitizenCard import *
 from App.App import *
+
 
 
 # This class has all the information of a client
@@ -33,6 +35,8 @@ class Client:
         self.citizen = None
         self.logged = False
         self.num_auctions = 0
+        self.auction_pub_key = None
+        self.auction_priv_key = None
 
     def set_username(self, username):
         self.username = username
@@ -64,6 +68,13 @@ class Client:
         json_message += "\"pk\" : \"" + public_key.public_bytes(encoding=serialization.Encoding.PEM,
                                                                 format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
             'utf-8') + "\""
+
+        if address == AR_ADDRESS:
+            # our public key
+            json_message += ",\"public\" : \"" + self.public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                                        format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
+                'utf-8') + "\""
+
         json_message += "}"
 
         try:
@@ -92,6 +103,41 @@ class Client:
     #   Used to set the keys in case of not having already a given key pair
     #   Creates the keys and creates a directory and saves them
     def set_keys(self, password=None):
+        rsaa = RSAKeyGen()
+        self.private_key, self.public_key = rsaa.generate_key_pair()
+
+
+        # directory creation and saving
+        os.mkdir(os.getcwd()+"/" + self.username)
+        rsaa.save_keys(os.getcwd()+"/" + self.username,password)
+
+        # create the auction keys
+        self.auction_priv_key = rsa.generate_private_key(public_exponent=65537,
+                                                    key_size=4096,
+                                                    backend=default_backend())
+        self.auction_pub_key = self.auction_priv_key.public_key()
+        # Public key doesn't need to be encrypted
+        public_pem = self.auction_pub_key.public_bytes(
+            encoding= serialization.Encoding.PEM,
+            format= serialization.PublicFormat.SubjectPublicKeyInfo)
+        private_pem_auc = self.auction_priv_key.private_bytes(encoding=serialization.Encoding.PEM,
+                                                         format=serialization.PrivateFormat.PKCS8,
+                                                         encryption_algorithm=serialization.BestAvailableEncryption(password.encode()))
+
+        # Save the files
+        private_file = open(os.getcwd()+"/"+self.username+"/auction_private_key.pem", "wb+")
+        private_file.write(private_pem_auc)
+        private_file.close()
+        public_file = open(os.getcwd()+"/"+self.username+"/auction_public_key.pem", "wb+")
+        public_file.write(public_pem)
+        public_file.close()
+
+
+
+
+    #   Used to set the keys in case of not having already a given key pair
+    #   Creates the keys and creates a directory and saves them
+    def set_keys_auction(self, password=None):
         rsa = RSAKeyGen()
         self.private_key, self.public_key = rsa.generate_key_pair()
         # directory creation and saving
@@ -103,37 +149,69 @@ class Client:
         rsa_kg = RSAKeyGen()
         self.private_key, self.public_key = rsa_kg.load_key(os.getcwd()+"/" + self.username, password)
 
+    #   Used to load the keys if they already exist
+    def load_keys_auction(self, password=None):
+        rsa_kg = RSAKeyGen()
+        self.auction_priv_key, self.auction_pub_key= rsa_kg.load_key_auction(os.getcwd()+"/" + self.username, password)
+
     #   Signs a message with the KeyPair
     #   After a signature, the public key must be passed to check that it is the real person who sent
     #   If a message is 300 chars or longer it will use digest! (This changes the verify_signature ->
     #   Not yet implemented with digest)
-    def sign_message(self, message):
+    def sign_message(self, message, type="STR"):
 
-        # if Messages are to large use Pre-hashing
-        if len(message) > 300:
-            used_hash = hashes.SHA256()
-            hasher = hashes.Hash(used_hash,default_backend())
+        if type=="BYTES":
+            # if Messages are to large use Pre-hashing
+            if len(message) > 2000:
+                used_hash = hashes.SHA256()
+                hasher = hashes.Hash(used_hash,default_backend())
 
-            message_init, message_end = message[:len(message) / 2], message[len(message) / 2:]
-            hasher.update(message_init.encode())
-            hasher.update(message_end.encode())
+                message_init, message_end = message[:len(message) / 2], message[len(message) / 2:]
+                hasher.update(message_init)
+                hasher.update(message_end)
 
-            digest = hasher.finalize()
+                digest = hasher.finalize()
 
-            signature = self.private_key.sign(digest,
-                                              padding.PSS(
-                                                  mgf=padding.MGF1(hashes.SHA256()),
-                                                  salt_length=padding.PSS.MAX_LENGTH
-                                              ),
-                                              utils.Prehashed(used_hash))
+                signature = self.private_key.sign(digest,
+                                                  padding.PSS(
+                                                      mgf=padding.MGF1(hashes.SHA256()),
+                                                      salt_length=padding.PSS.MAX_LENGTH
+                                                  ),
+                                                  utils.Prehashed(used_hash))
 
+            else:
+                signature = self.private_key.sign(message,
+                                                  padding.PSS(
+                                                      mgf=padding.MGF1(hashes.SHA256()),
+                                                      salt_length=padding.PSS.MAX_LENGTH
+                                                  ),
+                                                  hashes.SHA256())
         else:
-            signature = self.private_key.sign(message.encode(),
-                                              padding.PSS(
-                                                  mgf=padding.MGF1(hashes.SHA256()),
-                                                  salt_length=padding.PSS.MAX_LENGTH
-                                              ),
-                                              hashes.SHA256())
+            # if Messages are to large use Pre-hashing
+            if len(message) > 2000:
+                used_hash = hashes.SHA256()
+                hasher = hashes.Hash(used_hash,default_backend())
+
+                message_init, message_end = message[:len(message) / 2], message[len(message) / 2:]
+                hasher.update(message_init.encode())
+                hasher.update(message_end.encode())
+
+                digest = hasher.finalize()
+
+                signature = self.private_key.sign(digest,
+                                                  padding.PSS(
+                                                      mgf=padding.MGF1(hashes.SHA256()),
+                                                      salt_length=padding.PSS.MAX_LENGTH
+                                                  ),
+                                                  utils.Prehashed(used_hash))
+
+            else:
+                signature = self.private_key.sign(message.encode(),
+                                                  padding.PSS(
+                                                      mgf=padding.MGF1(hashes.SHA256()),
+                                                      salt_length=padding.PSS.MAX_LENGTH
+                                                  ),
+                                                  hashes.SHA256())
         return str(base64.b64encode(signature), 'utf-8')
 
     # Verifies the signature given a message

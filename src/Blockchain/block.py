@@ -2,6 +2,7 @@
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 import base64
+import datetime
 
 class Block:
     def __init__(self,previous_hash, amount, description, pubkey, cc):
@@ -11,6 +12,7 @@ class Block:
         self.pubkey = pubkey
         self.cc = cc
         self.hash = self.build_hash()
+        self.timestamp = datetime.datetime.now()
 
 
     def build_hash(self):

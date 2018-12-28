@@ -28,12 +28,13 @@ class BlockChain:
     def print(self):
         for block in self.chain:
             print(block.getBlockHash())
+            print(block.previous_hash)
 
 
 #some = BlockChain(max_blocks = 3)
 #some.add(20, "aa",12,12)
-#some.add(20, "aa",12,12)
-#some.add(20, "aa",12,12)
+#some.add(20, "asdas",12,12)
+#some.add(20, "asdasd",12,12)
 #some.add(20, "aa",12,12)
 #some.print()
 

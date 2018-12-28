@@ -31,21 +31,14 @@ class RSAKeyGen:
     #   path must be the folder  /etc/testing
     def save_keys(self, path, password=None):
 
-        # Verifies the case where it has or has not the password
-        if password is not None:
-            private_pem = self.private_key.private_bytes(encoding=serialization.Encoding.PEM,
+        private_pem = self.private_key.private_bytes(encoding=serialization.Encoding.PEM,
                                                          format=serialization.PrivateFormat.PKCS8,
-                                                         encryption_algorithm=serialization.BestAvailableEncryption(
-                                                             password.encode()))
-        else:
-            private_pem = self.private_key.private_bytes(encoding=serialization.Encoding.PEM,
-                                                         format=serialization.PrivateFormat.PKCS8,
-                                                         encryption_algorithm=serialization.NoEncryption())
+                                                         encryption_algorithm=serialization.BestAvailableEncryption(password.encode()))
 
         # Public key doesn't need to be encrypted
         public_pem = self.public_key.public_bytes(
-            encoding= serialization.Encoding.PEM,
-            format= serialization.PublicFormat.SubjectPublicKeyInfo)
+        encoding= serialization.Encoding.PEM,
+        format= serialization.PublicFormat.SubjectPublicKeyInfo)
 
         # Save the files
         private_file = open(path+"/private_key.pem", "wb+")
@@ -61,17 +54,10 @@ class RSAKeyGen:
     def load_key(self, path, password=None):
 
         # Verifies both cases for the private key
-        if password is not None:
-            with open(path + "/private_key.pem", "rb") as key_file:
-                self.private_key = serialization.load_pem_private_key(
+        with open(path + "/private_key.pem", "rb") as key_file:
+            self.private_key = serialization.load_pem_private_key(
                     key_file.read(),
                     password=password.encode(),
-                    backend=default_backend())
-        else:
-            with open(path + "/private_key.pem", "rb") as key_file:
-                self.private_key = serialization.load_pem_private_key(
-                    key_file.read(),
-                    password=None,
                     backend=default_backend())
 
         # Public key load
@@ -81,6 +67,27 @@ class RSAKeyGen:
                 backend=default_backend())
 
         return self.private_key, self.public_key
+
+    #   Given a path "/etc"
+    #   Password is if there is any encryption in the private key
+    #   Returns the Private_key, Public_key tuple
+    def load_key_auction(self, path, password=None):
+
+
+        with open(path + "/auction_private_key.pem", "rb") as key_file:
+                self.private_key = serialization.load_pem_private_key(
+                    key_file.read(),
+                    password=password.encode(),
+                    backend=default_backend())
+
+        # Public key load
+        with open(path + "/auction_public_key.pem", "rb") as key_file:
+            self.public_key = serialization.load_pem_public_key(
+                key_file.read(),
+                backend=default_backend())
+
+        return self.private_key, self.public_key
+
 
     #   Signs a message with the KeyPair
     #   After a signature, the public key must be passed to check that it is the real person who sent
