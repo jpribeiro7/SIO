@@ -60,7 +60,7 @@ class AuctionRepositoryActions:
 
         # Get the username
         self.auction_repository.session_key_clients.append((message_json["username"], session_key))
-        sent = self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
+        return base64.b64encode(message.encode('utf-8'))
 
     # Function to create a session key between server and server
     def create_session_key_server(self, message_json, address):
@@ -86,7 +86,7 @@ class AuctionRepositoryActions:
         # Set the sessionKey as the bytes of the derived_key
         self.auction_repository.session_key_server = derived_key
 
-        sent = self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
+        return base64.b64encode(message.encode('utf-8'))
 
     # Creates an auction
     def create_auction(self, message_json, address):
@@ -114,7 +114,7 @@ class AuctionRepositoryActions:
         #with open(os.getcwd() + "/auctions/" + str(number_auc)+ ".pickle", 'rb') as handle:
         #    b = pickle.load(handle)
 
-        self.sock.sendto(b"VALID", address)
+        return base64.b64encode("{\"success\" : \"success\"}".encode('utf-8'))
 
     # List the auctions
     def list_auctions(self, address):
@@ -125,7 +125,7 @@ class AuctionRepositoryActions:
                 b = pickle.load(handle)
                 message += name.replace(".pickle","") + "\n"
 
-        self.sock.sendto(base64.b64encode(message.encode()), address)
+        return base64.b64encode(message.encode())
 
 
     # Decrypt with the session key only!

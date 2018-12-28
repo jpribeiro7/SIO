@@ -19,11 +19,17 @@ while True:
         decoded_data = base64.b64decode(data)
         message_json = json.loads(decoded_data, strict=False)
         print(message_json)
+
         if message_json["type"] == "create_auction":
-            actions.create_auction(message_json, address)
+            data = actions.create_auction(message_json, address)
         elif message_json["type"] == "session":
-            actions.create_session_key(message_json, address)
+            data = actions.create_session_key(message_json, address)
         elif message_json["type"] == "session_server":
-            actions.create_session_key_server(message_json, address)
+            data = actions.create_session_key_server(message_json, address)
         elif message_json["type"] == "auction_list":
-            actions.list_auctions(address)
+            data = actions.list_auctions(address)
+
+        if data:
+            sent = sock.sendto(data, address)
+            print('sent {} bytes back to {}'.format(
+            sent, address))

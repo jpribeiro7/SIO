@@ -68,7 +68,7 @@ class AuctionManagerActions:
 
         # Get the username
         self.auction_manager.session_clients.append((message_json["username"], self.auction_manager.session_key))
-        sent = self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
+        return base64.b64encode(message.encode('utf-8'))
 
     # Function to create a auction
     def create_auction(self, address, message_json):
@@ -104,23 +104,26 @@ class AuctionManagerActions:
             self.sock.sendto(base64.b64encode(message.encode()), AR_ADDRESS)
 
             data, add = self.sock.recvfrom(16384)
-            if data == b"VALID":
-                self.sock.sendto(b"Valid", address)
+            decoded_data = base64.b64decode(data)
+            json_message = json.loads(decoded_data)
+            if json_message["success"] == "success":
+                return base64.b64encode("{\"success\" : \"success\"}".encode('utf-8'))
 
         else:
-            print("Invalid")
-            self.sock.sendto(b"Invalid", address)
-            return
+            # Returns error
+            return base64.b64encode("{\"success\" : \"error\"}".encode('utf-8'))
 
-        self.sock.sendto(b"", address)
+        # returns empty string
+        return base64.b64encode("".encode())
 
     # Verifies the login
     # Create the user folder
     def login_actions(self, address, data):
 
-        # if it exists then do nothing because the key wont change
+        # if it exists then return success because the key wont change
         if os.path.isdir(os.getcwd() + "/clients/" + data["username"]):
-            return
+            return base64.b64encode("{ \"success\" : \"success\"}".encode('utf-8'))
+
         # decode with the session key
         cipher = Cipher(algorithms.AES(self.auction_manager.session_key), modes.CBC(
             self.auction_manager.session_key[:16]), backend=default_backend())
@@ -156,7 +159,7 @@ class AuctionManagerActions:
         message += "\"key\" : \"" + str(base64.b64encode(encrypted_pk[0]), 'utf-8') + "\","
         message += "\"iv\" : \"" + str(base64.b64encode(encrypted_pk[2]), 'utf-8') + "\"}"
 
-        self.sock.sendto(base64.b64encode(message.encode('utf-8')), address)
+        return base64.b64encode(message.encode('utf-8'))
 
     # Initializes the session key with the server
     def initialize_session_key_server(self):
