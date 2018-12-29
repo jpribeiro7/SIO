@@ -109,21 +109,19 @@ class AuctionRepositoryActions:
                               json_m["min_bid"], json_m["th"])
         b_chain = BlockChain(new_auction.auc_max_bids)
 
-        # ERRORR HERE
-        print(codecs.decode(json_m["pk"].encode("utf-8")))
-        print(self.decrypt_function_sk(self.auction_repository.session_key_server,json_m["pk"]))
+        # User AUCTION key
+        pk = (base64.b64decode(codecs.encode(json_m["pk"]).decode()))
+        print(pk)
 
-        # TODO get the CC and other stuff! maybe send in the auction_create from the other server
         # TODO how do we save the auction
-        pub_key = self.rsa_keygen.load_public_key(os.getcwd()+"/"+json_m["username"])
-        b_chain.add(amount=new_auction.auc_min_price_bid, description="Auction", cc="CC", pubkey=pub_key)
+        b_chain.add(amount=new_auction.auc_min_price_bid, description="Auction", cc="CC", pubkey=pk)
 
         # Save to a file!
         with open(os.getcwd() + "/auctions/" + str(number_auc)+ ".pickle", 'wb') as handle:
             pickle.dump(b_chain, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         # Open the file
-        #with open(os.getcwd() + "/auctions/" + str(number_auc)+ ".pickle", 'rb') as handle:
+        # with open(os.getcwd() + "/auctions/" + str(number_auc)+ ".pickle", 'rb') as handle:
         #    b = pickle.load(handle)
 
         return base64.b64encode("{\"success\" : \"success\"}".encode('utf-8'))

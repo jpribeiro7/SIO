@@ -99,6 +99,7 @@ class AuctionManagerActions:
             decrypted_message = unpadder.update(
                 cipher.decryptor().update(
                     base64.b64decode(auction_information["pk"])) + cipher.decryptor().finalize()) + unpadder.finalize()
+
             auction_information["pk"] = codecs.encode(decrypted_message,"base64").decode()
 
 
