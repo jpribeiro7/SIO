@@ -9,7 +9,7 @@ from cryptography.hazmat.primitives import hashes
 import base64
 import os
 import datetime
-
+from cryptography.hazmat.primitives import serialization
 
 class CitizenCard:
 
@@ -56,6 +56,7 @@ class CitizenCard:
         crl = self.load_crl()
         for certificate in certificate_path:
             if not self.check_crl(certificate,crl):
+                print("Revoked in crl")
                 return False
 
         # verify certificate_path
@@ -72,25 +73,27 @@ class CitizenCard:
             # verifies signature for all intermediates
             if i != len(certificate_path)-1 and \
                     not self.valid_certificate_signature(certificate_path[i], certificate_path[i+1].public_key()):
-
                 return False
             # verifies signature for root (Baltimore which is self-signed)
             if i == len(certificate_path)-1 and \
                     not self.valid_certificate_signature(certificate_path[i], certificate_path[i].public_key()):
-
                 return False
         return True
 
     def load_trusted_chain(self, cert):
-        loaded_certificates = pem.parse_file("/home/user/Downloads/PTEID.pem")
+        path_ze = "/home/user/Downloads/PTEID.pem"
+        path_jo = "/home/user/Desktop/PTEID.pem"
+        loaded_certificates = pem.parse_file(path_jo)
         certificate_path = {}
         for loaded in loaded_certificates:
             certificate = x509.load_pem_x509_certificate(loaded.as_bytes(),default_backend())
             if certificate.not_valid_after > datetime.datetime.now():
                     certificate_path[certificate.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value] = certificate
 
+        path2_ze = "/home/user/Downloads/Baltimore_CyberTrust_Root.pem"
+        path2_jo = "/home/user/Desktop/Baltimore_CyberTrust_Root.pem"
         # loads ECRaizEstado's issuer
-        with open("/home/user/Downloads/Baltimore_CyberTrust_Root.pem","rb") as baltimore:
+        with open(path2_jo,"rb") as baltimore:
             certificate = x509.load_pem_x509_certificate(baltimore.read(), default_backend())
             certificate_path[certificate.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value] = certificate
 
@@ -121,7 +124,9 @@ class CitizenCard:
                 return True
 
     def load_crl(self):
-        files = [f for f in os.scandir("/home/user/Downloads/crl/")]
+        path_ze = "/home/user/Downloads/crl/"
+        path_jo = "/home/user/Desktop/crl"
+        files = [f for f in os.scandir(path_jo)]
         crl = []
         for f in files:
             with open(f, "rb") as file:
@@ -131,6 +136,6 @@ class CitizenCard:
 
     def check_crl(self,certificate, crl):
         for revocation_list in crl:
-            if revocation_list.get_revoked_certificate_by_serial_number(certificate.serial_number) is None:
+            if revocation_list.get_revoked_certificate_by_serial_number(certificate.serial_number) is not None:
                 return False
         return True

@@ -18,6 +18,11 @@
 # quando se quiser libertar o auction tem que ser o criador a desencriptar a blockchain com a chave privada
 
 
+# @@@@-------- >>>>>> No create auction ter numero max de bids?
+#                     Bid minima (começar em 1000$)?
+#
+
+
 
 #TODO validar auction em auctionManager
 
@@ -46,3 +51,4 @@
 #                               na altura de mostrar as bids, desencriptar blockchain com chave privada chave privada
 #                               enviar blockchain ao criador da auction para ele desencriptar a info restante
 #
+

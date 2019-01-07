@@ -150,7 +150,7 @@ class AuctionManagerActions:
         # if it exists then return success because the key wont change
         if os.path.isdir(os.getcwd() + "/clients/" + data["username"]):
             return base64.b64encode("{ \"success\" : \"success\"}".encode('utf-8'))
-
+        unpadder = cryptography.hazmat.primitives.padding.PKCS7(128).unpadder()
         decoded_public_key = unpadder.update(
             cipher.decryptor().update(base64.b64decode(data["pk"])) + cipher.decryptor().finalize()) + unpadder.finalize()
 
