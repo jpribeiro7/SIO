@@ -1,144 +1,114 @@
 from ClientSide.ClientActions import *
-from App import App
+from App.app import *
 import socket
 import base64
 import json
 
 
-# This class is responsible for the communication between the system and the client
-class RunClient:
+class RunClient():
+
     def __init__(self):
-        self.client = None
-        self.actions = ClientActions()
+        self.current_client = None
+        self.client_actions = ClientActions()
 
-    def switch(self, op, sock):
-
-        address=()
+    # Switch method
+    def switch(self, option, array_options = None):
         msg = ""
+        address = ""
 
-        if op == 1:
-            # In the login, The client sends the public key to the server
-            msg, self.client = self.actions.login()
-            address = App.AM_ADDRESS
+        if option == "1":
+            # Creates a auction
+            msg, address = self.client_actions.create_auction(self.current_client)
+        else:
+            pass
 
-        elif op == 2:
-            if self.client is None:
-                print("Not logged in \n")
-                self.menu()
-            else:
-                # Creates an Auction
-                # TODO: Put the CC and PublicKey in the Auction
-                msg, self.client = self.actions.create_auction(self.client)
-                address = App.AM_ADDRESS
+        message_encoded = base64.b64encode(msg.encode("utf-8"))
+        return message_encoded, address
 
-        elif op == 3:
-            if self.client is None:
-                print("Not logged in \n")
-                self.menu()
-            else:
-                msg = self.actions.terminateAuction(self.client, "auction")
-                address = App.AM_ADDRESS
+    # Initial menu
+    def login_menu(self):
+        print("1- Login")
+        print("2- Exit")
 
-        elif op == 4:
-            if self.client is None:
-                print("Not logged in \n")
-                self.menu()
-            else:
-                val = input("introduce val: ")
-                msg = self.actions.setBidValidation()
-                address = App.AM_ADDRESS
+        option = input("> ")
 
-        elif op == 5:
-            if self.client is None:
-                print("Not logged in \n")
-                self.menu()
-            else:
-                val = input("introduce val: ")
-                msg = self.actions.bid(self.client,"auction",val)
-                address = App.AR_ADDRESS
-        elif op == 6:
-            if self.client is None:
-                print("Not logged in \n")
-                self.menu()
-            else:
-                msg = self.actions.list_auction(self.client, sock)
-                address = App.AR_ADDRESS
+        if option == "1":
+            self.current_client = self.client_actions.login()
+            self.build_trust()
+        else:
+            sys.exit(0)
 
-        return msg, address
+    # Builds the trust with the servers
+    # This means that the server recieves our signatures and verifies them
+    # If we are invalid then the program does not continue and the server does not accept our connection
+    def build_trust(self):
+        # build trust for manager
+        msg = self.client_actions.trust_server(self.current_client,address=AM_ADDRESS)
+        msg_encoded = base64.b64encode(msg.encode('utf-8'))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(msg_encoded, AM_ADDRESS)
+        data,server = sock.recvfrom(SOCKET_BYTES)
 
+        decoded_message = base64.b64decode(data)
+        message = json.loads(decoded_message, strict = False)
+
+        if message['response'] != 'success':
+            print('No connection established')
+            sys.exit(0)
+
+
+        # build trust for repos
+        msg = self.client_actions.trust_server(self.current_client,address=AR_ADDRESS)
+        msg_encoded = base64.b64encode(msg.encode('utf-8'))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(msg_encoded, AR_ADDRESS)
+        # print("SENT")
+        data,server = sock.recvfrom(SOCKET_BYTES)
+
+        decoded_message = base64.b64decode(data)
+        message = json.loads(decoded_message, strict = False)
+
+        if message['response'] != 'success':
+            print('No connection established')
+            sys.exit(0)
+
+        self.menu()
+
+    # Menu to be shown after the login
     def menu(self):
+
         # Create a UDP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        op = -1
+        option = "-1"
 
-        while op != 7:
-            # Since the socket is always closed create a new one
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            if self.client is None:
-                print("1 - Login")
-            else:
-                print("2 - Create an auction")
-                if self.client.num_auctions != 0:
-                    print("3 - Terminate an auction")
-                print("4 - Create bid validation")
-                print("5 - Bid")
-                print("6 - List Auctions")
-                print("7 - Leave")
-            op = input("Choose and option: ")
-            if int(op) == 7:
-                break
-
-            message, server_address = self.switch(int(op), sock)
-
-            # verify if its a byte like message
-            # A message like this comes from Login, Auction etc (Requires padding and encryption)
-            # The only one, at the moment, that needs b64 is the Session key implement.
-            if not isinstance(message, (bytes, bytearray)):
-                message = base64.b64encode(message.encode("utf-8"))
+        while option != "3":
+            print('\n')
+            print("1- Create a Auction")
+            print("2- List all auctions")
+            print("3- Leave")
+            option = input("> ")
+            message, address = self.switch(option)
 
             try:
+                # Doesn't send any empty message
                 if message != b"":
-                    # Send data
-                    print('sending {!r}'.format(message))
-                    sent = sock.sendto(message, server_address)
-                    # Receive response
-                    print('waiting to receive')
-                    data, server = sock.recvfrom(16384)
-                    print('received {!r}'.format(base64.b64decode(data)))
+                    sock.sendto(message, address)
+                    print("Waiting for a response")
+                    data, server = sock.recvfrom(SOCKET_BYTES)
+                    # The client should always recieve a confirmation from the server
+                    decoded_message = base64.b64decode(data)
+                    message = json.loads(decoded_message, strict = False)
 
-                    # This will verify if it is a success or not message
-                    success_message = json.loads(base64.b64decode(data), strict=False)
-                    if "success" in success_message:
-                        # This means that the message that we recieved is a success or error one
-                        if success_message["success"] == "error":
-                            # There was an error
-                            print("There was an error")
-                        else:
-                            print("Success")
+                    # Verifies the response
+                    if message['response'] != 'success':
+                        if option == "1":
+                            print('No Auction created')
 
-
-                    try:
-                        # Verify if it received the server public key and saves it
-                        message_decoded = json.loads(base64.b64decode(data), strict=False)
-
-                        print(message_decoded)
-                        public_key_server_pem = self.actions.decrypt_function_complete(self.client.session_key,
-                                                                                       message_decoded,
-                                                                                       self.client, "server")
-
-                        # Save to file
-                        public_file = open(os.getcwd()+"/" + self.client.username + "/server_key.pem", "wb+")
-                        public_file.write(public_key_server_pem)
-                        public_file.close()
-                        # Load it from the file
-                        self.client.server_public_key = RSAKeyGen().load_server_key(os.getcwd()+"/" + self.client.username)
-                    except:
-                       pass
             finally:
-                print('closing socket')
                 sock.close()
 
 
-# Running Client
-c = RunClient()
-c.menu()
+
+
+r = RunClient()
+r.login_menu()

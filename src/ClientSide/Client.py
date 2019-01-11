@@ -1,42 +1,47 @@
 import os
 import socket
 import base64
-from AssymetricKeys.RSAKeyGen import RSAKeyGen
+from RSAKeyGenerator.RSAKGen import RSAKGen
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import dh
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import ParameterFormat
-import cryptography.hazmat.primitives.kdf.hkdf
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.kdf import hkdf
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.asymmetric import utils
+from cryptography.hazmat.primitives.asymmetric import padding, utils, rsa
 import codecs
 import pickle
-from CitizenCard.CitizenCard import *
-from App.App import *
+import App.app as utils_app
+import App.utilities as utilities
+import json
 
 
-
-# This class has all the information of a client
 class Client:
-
     def __init__(self, username):
+        # Generic information
         self.id = os.urandom(12)
         self.username = username
+        self.password = None
         self.credentials = ()
+        # RSA key pair
         self.private_key = None
         self.public_key = None
-        self.session_key = None
+        # Session keys
+        self.session_key_manager = None
         self.session_key_repository = None
-        self.server_public_key = None
+        # Server public key
+        self.server_public_key_manager = None
         self.server_public_key_repository = None
+        # Citizen card
         self.citizen = None
+        # Auction keys
+        self.auction_public_key = None
+        self.auction_private_key = None
+        # Other vars
         self.logged = False
         self.num_auctions = 0
-        self.auction_pub_key = None
-        self.auction_priv_key = None
+        self.citizenCard = None
 
     def set_username(self, username):
         self.username = username
@@ -44,211 +49,79 @@ class Client:
     def set_credentials(self, username, password):
         self.credentials = (username, password)
 
-    # Initializes the session key
+    # Initializes the session key with both servers
+    # address is the wanted server
     def initialize_session_key(self, address):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         # Our parameters
-        parameters = dh.generate_parameters(generator=5, key_size=512, backend=default_backend())
-
-        # Our private key and public key
+        parameters = dh.generate_parameters(generator=5, key_size=utils_app.DH_KEY_SIZE, backend=default_backend())
+        # Our private key and public key from DH
         private_key = parameters.generate_private_key()
         public_key = private_key.public_key()
 
-        # needs the server parameters, send our parameters, for now our parameters are the ones to be accepted
-        message = codecs.encode(
+        pickled_params = codecs.encode(
             pickle.dumps(parameters.parameter_bytes(encoding=Encoding.PEM, format=ParameterFormat.PKCS3)),
             "base64").decode()
 
-        # message construction
-        json_message = "{ " + "\n"
-        json_message += "\"type\" : \"session\"," + "\n"
-        json_message += "\"username\" : \"" + self.username + "\"," + "\n"
-        json_message += "\"data\" : \"" + message + "\", \n"
-        json_message += "\"pk\" : \"" + public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                                                format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
-            'utf-8') + "\""
+        message = "{\"type\" : \"session_key\"," + "\n"
+        message += "\"params\" : \"" + pickled_params + "\"," + "\n"
+        message += "\"username\" : \"" + self.username + "\"," + "\n"
+        message += "\"pk\" : \"" + public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                        format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
+                                                                                                        'utf-8') + "\",\n"
 
-        if address == AR_ADDRESS:
-            # our public key
-            json_message += ",\"public\" : \"" + self.public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                                                        format=serialization.PublicFormat.SubjectPublicKeyInfo).decode(
-                'utf-8') + "\""
+        message += "\"public\" : \"" + self.public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                                         format=serialization.PublicFormat.
+                                                                         SubjectPublicKeyInfo).decode('utf-8') + "\""
+        message += "}"
 
-        json_message += "}"
+        sock.sendto(base64.b64encode(message.encode("utf-8")), address)
+        #print(message)
 
-        try:
-            # send response
-            sent = sock.sendto(base64.b64encode(json_message.encode('utf-8')), address)
+        ##### Sent the parameters with all the information #####
+        ###########################################################################################################
 
-            # Receive response
-            data, server = sock.recvfrom(16384)
-            # derivate the key
-            peer_public_key_bytes = base64.b64decode(data)
-            peer_public_key = serialization.load_pem_public_key(peer_public_key_bytes, default_backend())
-            shared_key = private_key.exchange(peer_public_key)
+        # Receive response
+        data, server = sock.recvfrom(utils_app.SOCKET_BYTES)
+        decoded_data = base64.b64decode(data).decode()
+        json_message = json.loads(decoded_data, strict=False)
+        # 'type', 'pk' -> public dh_key , 'info' -> handshake data, 'server_key'
 
-            derived_key = cryptography.hazmat.primitives.kdf.hkdf.HKDF(algorithm=hashes.SHA256(), length=32, salt=None, info=b'handshake data',
-                                                                       backend=default_backend()).derive(shared_key)
+        peer_pk = serialization.load_pem_public_key(json_message["pk"].encode('utf-8'), default_backend())
+        shared_secret = private_key.exchange(peer_pk)
 
-            #For now we use it as a SEED
-            if address == AM_ADDRESS:
-                self.session_key = derived_key
-            else:
-                self.session_key_repository = derived_key
+        derived_key = hkdf.HKDF(algorithm=hashes.SHA256(), length=utils_app.DH_HKDF_KEY, salt=None,
+                                info=json_message["info"].encode('utf-8'), backend=default_backend())\
+            .derive(shared_secret)
 
-        finally:
-            sock.close()
+        server_key = serialization.load_pem_public_key(json_message["server_key"].encode('utf-8'), default_backend())
+        if address == utils_app.AM_ADDRESS:
+            self.session_key_manager = derived_key
+            # Add to the server keys
+            self.server_public_key_manager = server_key
 
-    #   Used to set the keys in case of not having already a given key pair
-    #   Creates the keys and creates a directory and saves them
-    def set_keys(self, password=None):
-        rsaa = RSAKeyGen()
-        self.private_key, self.public_key = rsaa.generate_key_pair()
+            content = server_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                     format=serialization.PublicFormat.
+                                                     SubjectPublicKeyInfo)
 
-
-        # directory creation and saving
-        os.mkdir(os.getcwd()+"/" + self.username)
-        rsaa.save_keys(os.getcwd()+"/" + self.username,password)
-
-        # create the auction keys
-        self.auction_priv_key = rsa.generate_private_key(public_exponent=65537,
-                                                    key_size=4096,
-                                                    backend=default_backend())
-        self.auction_pub_key = self.auction_priv_key.public_key()
-        # Public key doesn't need to be encrypted
-        public_pem = self.auction_pub_key.public_bytes(
-            encoding= serialization.Encoding.PEM,
-            format= serialization.PublicFormat.SubjectPublicKeyInfo)
-        private_pem_auc = self.auction_priv_key.private_bytes(encoding=serialization.Encoding.PEM,
-                                                         format=serialization.PrivateFormat.PKCS8,
-                                                         encryption_algorithm=serialization.BestAvailableEncryption(password.encode()))
-
-        # Save the files
-        private_file = open(os.getcwd()+"/"+self.username+"/auction_private_key.pem", "wb+")
-        private_file.write(private_pem_auc)
-        private_file.close()
-        public_file = open(os.getcwd()+"/"+self.username+"/auction_public_key.pem", "wb+")
-        public_file.write(public_pem)
-        public_file.close()
-
-
-
-
-    #   Used to set the keys in case of not having already a given key pair
-    #   Creates the keys and creates a directory and saves them
-    def set_keys_auction(self, password=None):
-        rsa = RSAKeyGen()
-        self.private_key, self.public_key = rsa.generate_key_pair()
-        # directory creation and saving
-        os.mkdir(os.getcwd()+"/" + self.username)
-        rsa.save_keys(os.getcwd()+"/" + self.username,password)
-
-    #   Used to load the keys if they already exist
-    def load_keys(self, password=None):
-        rsa_kg = RSAKeyGen()
-        self.private_key, self.public_key = rsa_kg.load_key(os.getcwd()+"/" + self.username, password)
-
-    #   Used to load the keys if they already exist
-    def load_keys_auction(self, password=None):
-        rsa_kg = RSAKeyGen()
-        self.auction_priv_key, self.auction_pub_key= rsa_kg.load_key_auction(os.getcwd()+"/" + self.username, password)
-
-    #   Signs a message with the KeyPair
-    #   After a signature, the public key must be passed to check that it is the real person who sent
-    #   If a message is 300 chars or longer it will use digest! (This changes the verify_signature ->
-    #   Not yet implemented with digest)
-    def sign_message(self, message, type="STR"):
-
-        if type=="BYTES":
-            # if Messages are to large use Pre-hashing
-            if len(message) > 2000:
-                used_hash = hashes.SHA256()
-                hasher = hashes.Hash(used_hash,default_backend())
-
-                message_init, message_end = message[:len(message) / 2], message[len(message) / 2:]
-                hasher.update(message_init)
-                hasher.update(message_end)
-
-                digest = hasher.finalize()
-
-                signature = self.private_key.sign(digest,
-                                                  padding.PSS(
-                                                      mgf=padding.MGF1(hashes.SHA256()),
-                                                      salt_length=padding.PSS.MAX_LENGTH
-                                                  ),
-                                                  utils.Prehashed(used_hash))
-
-            else:
-                signature = self.private_key.sign(message,
-                                                  padding.PSS(
-                                                      mgf=padding.MGF1(hashes.SHA256()),
-                                                      salt_length=padding.PSS.MAX_LENGTH
-                                                  ),
-                                                  hashes.SHA256())
+            utilities.save_server_key_client(os.getcwd()+"/" + self.username, content, utils_app.AM_S_C_KEY)
         else:
-            # if Messages are to large use Pre-hashing
-            if len(message) > 2000:
-                used_hash = hashes.SHA256()
-                hasher = hashes.Hash(used_hash,default_backend())
+            self.session_key_repository = derived_key
+            # Add to the server keys
+            self.server_public_key_repository = server_key
 
-                message_init, message_end = message[:len(message) / 2], message[len(message) / 2:]
-                hasher.update(message_init.encode())
-                hasher.update(message_end.encode())
+            content = server_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                     format=serialization.PublicFormat.
+                                                     SubjectPublicKeyInfo)
 
-                digest = hasher.finalize()
+            utilities.save_server_key_client(os.getcwd()+"/" + self.username, content, utils_app.AR_S_C_KEY)
 
-                signature = self.private_key.sign(digest,
-                                                  padding.PSS(
-                                                      mgf=padding.MGF1(hashes.SHA256()),
-                                                      salt_length=padding.PSS.MAX_LENGTH
-                                                  ),
-                                                  utils.Prehashed(used_hash))
-
-            else:
-                signature = self.private_key.sign(message.encode(),
-                                                  padding.PSS(
-                                                      mgf=padding.MGF1(hashes.SHA256()),
-                                                      salt_length=padding.PSS.MAX_LENGTH
-                                                  ),
-                                                  hashes.SHA256())
-        return str(base64.b64encode(signature), 'utf-8')
-
-    # Verifies the signature given a message
-    # If invalid signature it raises:
-    # raise InvalidSignature cryptography.exceptions.InvalidSignature
-    # If it is VALID returns NONE
-    # The type argument is either BYTES or STRING because of the message.encode
-    def verify_sign(self, signature, message, peer_public_key, type="BYTES"):
-        try:
-            if type=="BYTES":
-                return peer_public_key.verify(signature, message,
-                                              padding.PSS(
-                                                  mgf=padding.MGF1(hashes.SHA256()),
-                                                  salt_length=padding.PSS.MAX_LENGTH
-                                              ), hashes.SHA256())
-            else:
-                return peer_public_key.verify(signature,message.encode(),
-                                              padding.PSS(
-                                                  mgf=padding.MGF1(hashes.SHA256()),
-                                                  salt_length=padding.PSS.MAX_LENGTH
-                                              ),hashes.SHA256())
-        except:
-            return "INVALID"
-
-    # Should verify if user already exists
-    # if so, load keys, else create keys
-    # Returns: True if Exists
-    def verify_existence(self,username):
-
-        if os.path.isdir(os.getcwd() + "/" + username):
-            return True
-        else:
-            return False
-
-    def load_citizen_card(self):
-        self.citizen = CitizenCard()
+        ### Recieved the key from the server and created the public key ####
+        ############################################################################################################
+        sock.close()
 
 
-    def get_citizen_card(self):
-        return self.citizen
+
+
+

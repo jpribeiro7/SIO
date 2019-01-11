@@ -28,18 +28,24 @@ class CitizenCard:
         ])[0]
 
         mechanism = PyKCS11.Mechanism(PyKCS11.CKM_SHA1_RSA_PKCS,None)
-        return bytes(session.sign(citizen_authentication_priv_key, text, mechanism))
 
-    def check_signature(self,cert,signature,username):
+        return bytes(session.sign(citizen_authentication_priv_key,text, mechanism))
+
+    def check_signature(self, cert, signature, username):
         pub_key = cert.public_key()
-        pub_key.verify(
-            signature,
-            username,
-            padding.PKCS1v15,
-            hashes.SHA1()
-        )
+        try:
+            pub_key.verify(
+                signature,
+                username,
+                padding.PKCS1v15(),
+                hashes.SHA1(),
+            )
+            return True
+        except InvalidSignature:
+            print("Invalid digital signature")
+            return False
 
-    def find_authentication_certificate(self):
+    def load_authentication_certificate(self):
         session = self.pkcs11.openSession(self.slot)
         obj = session.findObjects([
             (PyKCS11.CKA_CLASS, PyKCS11.CKO_CERTIFICATE),
@@ -81,19 +87,17 @@ class CitizenCard:
         return True
 
     def load_trusted_chain(self, cert):
-        path_ze = "/home/user/Downloads/PTEID.pem"
-        path_jo = "/home/user/Desktop/PTEID.pem"
-        loaded_certificates = pem.parse_file(path_jo)
+        path_cert = "../../../certs/PTEID.pem"
+        loaded_certificates = pem.parse_file(path_cert)
         certificate_path = {}
         for loaded in loaded_certificates:
             certificate = x509.load_pem_x509_certificate(loaded.as_bytes(),default_backend())
             if certificate.not_valid_after > datetime.datetime.now():
                     certificate_path[certificate.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value] = certificate
 
-        path2_ze = "/home/user/Downloads/Baltimore_CyberTrust_Root.pem"
-        path2_jo = "/home/user/Desktop/Baltimore_CyberTrust_Root.pem"
+        path_balt = "../../../certs/Baltimore_CyberTrust_Root.pem"
         # loads ECRaizEstado's issuer
-        with open(path2_jo,"rb") as baltimore:
+        with open(path_balt,"rb") as baltimore:
             certificate = x509.load_pem_x509_certificate(baltimore.read(), default_backend())
             certificate_path[certificate.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value] = certificate
 
@@ -124,9 +128,8 @@ class CitizenCard:
                 return True
 
     def load_crl(self):
-        path_ze = "/home/user/Downloads/crl/"
-        path_jo = "/home/user/Desktop/crl"
-        files = [f for f in os.scandir(path_jo)]
+        crl_path = "../../../crl/"
+        files = [f for f in os.scandir(crl_path)]
         crl = []
         for f in files:
             with open(f, "rb") as file:
