@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SIO.iml" filepath="$PROJECT_DIR$/SIO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SioRefactoring.iml" filepath="$PROJECT_DIR$/SioRefactoring.iml" />
     </modules>
   </component>
 </project>

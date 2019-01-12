@@ -1,8 +1,11 @@
-from enum import Enum
-
+KEY_SIZE_RSA = 4096
+PK_NAME = "public_key.pem"
+PK_AUC_NAME = "auction_public_key.pem"
+PK_SERVER_KEY = "server_key.pem"
 AM_ADDRESS = ('localhost', 10050)
 AR_ADDRESS = ('localhost', 10000)
-
-class AUCTION_TYPE(Enum):
-    ENGLISH = 1
-    BLIND = 2
+DH_KEY_SIZE = 512
+DH_HKDF_KEY = 32
+SOCKET_BYTES = 16384
+AM_S_C_KEY = "/server_manager.pem"
+AR_S_C_KEY = "/server_repository.pem"
