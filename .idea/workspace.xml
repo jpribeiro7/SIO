@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="78f78a93-d739-489a-99cc-46993d9f2722" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/Auction.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/Auction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/Block.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/Block.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ClientSide/ClientActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/ClientActions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ClientSide/RunClient.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/RunClient.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/App/utilities.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -45,15 +37,24 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="83">
+            <state relative-caret-position="1166">
               <caret line="222" column="65" selection-start-line="222" selection-start-column="65" selection-end-line="222" selection-end-column="65" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
                 <element signature="e#1412#2399#0" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/App/utilities.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="414">
+              <caret line="110" column="46" selection-start-line="110" selection-start-column="46" selection-end-line="110" selection-end-column="46" />
             </state>
           </provider>
         </entry>
@@ -127,8 +128,8 @@
       <find>encrypt_message_sk</find>
       <find>response</find>
       <find>type</find>
-      <find>create_a</find>
       <find>create</find>
+      <find>create_a</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -143,7 +144,6 @@
         <option value="$PROJECT_DIR$/src/CitizenCard/CitizenCard.py" />
         <option value="$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py" />
         <option value="$PROJECT_DIR$/src/App/App.py" />
-        <option value="$PROJECT_DIR$/src/App/utilities.py" />
         <option value="$PROJECT_DIR$/src/RSAKeyGenerator/RSAKGen.py" />
         <option value="$PROJECT_DIR$/src/AuctionRepository/Block.py" />
         <option value="$PROJECT_DIR$/src/ClientSide/RunClient.py" />
@@ -153,6 +153,7 @@
         <option value="$PROJECT_DIR$/src/AuctionRepository/Auction.py" />
         <option value="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" />
         <option value="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" />
+        <option value="$PROJECT_DIR$/src/App/utilities.py" />
       </list>
     </option>
   </component>
@@ -229,7 +230,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1547838339024" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1547838683574" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
@@ -395,7 +396,7 @@
     <frame x="-1" y="-1" width="1922" height="953" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27267876" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27267876" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -404,7 +405,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3288719" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3920386" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3920386" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -561,13 +562,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/App/utilities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="199">
-          <caret line="45" column="4" selection-start-line="45" selection-start-column="4" selection-end-line="45" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-77">
@@ -660,12 +654,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="83">
+        <state relative-caret-position="1166">
           <caret line="222" column="65" selection-start-line="222" selection-start-column="65" selection-end-line="222" selection-end-column="65" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#1412#2399#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App/utilities.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="110" column="46" selection-start-line="110" selection-start-column="46" selection-end-line="110" selection-end-column="46" />
         </state>
       </provider>
     </entry>

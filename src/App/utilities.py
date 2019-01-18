@@ -72,8 +72,43 @@ def encrypt_message_sk(message, session_key):
     return str(base64.b64encode(message_enc), 'utf-8')
 
 
-def encrypt_message_complete(message, client, address=None):
-    pass
+# Encrypt with the session key and then with the pub key
+# Return [key, message, iv]
+def encrypt_message_complete(message, session_key, pub_key):
+    # Create a symmetric key to be sent to the user
+    # The iv has to be sent but doesn't need to be encrypted
+    key = Fernet.generate_key()
+    iv = os.urandom(16)
+    cipher = Cipher(algorithms.AES(key[:32]), modes.CBC(iv), backend=default_backend())
+    # Encrypt with session
+    sk_enc = encrypt_message_sk(message, session_key)
+    # Encrypt with the new symetric key
+    enc = cipher.encryptor()
+    padder = padding.PKCS7(128).padder()
+
+    message_enc = b''
+    while True:
+        if len(sk_enc) < 128:
+            message_enc += enc.update(padder.update(sk_enc) + padder.finalize()) + enc.finalize()
+            break
+        message_enc += enc.update(padder.update(sk_enc[:128]))
+        sk_enc = sk_enc[128:]
+
+    complete_message = base64.b64encode(message_enc)
+    # Encrypt the key
+    enc_key = pub_key.encrypt(key, padding=async_padd.OAEP(
+        mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None
+    ))
+    # Encrypt the iv
+    enc_iv = pub_key.encrypt(str(iv,'utf-8'), padding=async_padd.OAEP(
+        mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None
+    ))
+
+    return [enc_key, complete_message, enc_iv]
 
 #
 def unpadd_data(data, session):
