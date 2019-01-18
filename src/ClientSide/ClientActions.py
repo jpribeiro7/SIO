@@ -153,23 +153,52 @@ class ClientActions:
         rsa = RSAKGen()
         signature = rsa.sign_message(client.session_key_manager,client.auction_private_key)
 
-        message += "\"auction_name\" : \""+ auction_name + "\" ,\n"
-        message += "\"auction_description\" : \""+ auction_description + "\" ,\n"
-        message += "\"auction_min_number_bids\" : \""+ auction_min_number_bids + "\" ,\n"
-        message += "\"auction_time\" : \""+ auction_time + "\" ,\n"
-        message += "\"auction_max_number_bids\" : \""+ auction_max_number_bids + "\" ,\n"
-        message += "\"auction_allowed_bidders\" : \""+ auction_allowed_bidders + "\" ,\n"
-        message += "\"auction_type\" : \""+ auction_type + "\" ,\n"
-        message += "\"auction_threshold\" : \""+ auction_threshold + "\"\n,"
+        message += "\"auction_name\" : \""+ encrypt_message_complete(auction_name,
+                                                                     client.session_key_manager,
+                                                                     client.server_public_key_manager)+ "\" ,\n"
+
+        message += "\"auction_description\" : \""+ encrypt_message_complete(auction_description,
+                                                                            client.session_key_manager,
+                                                                            client.server_public_key_manager) + "\" ,\n"
+        message += "\"auction_min_number_bids\" : \"" + encrypt_message_complete(auction_min_number_bids,
+                                                                                client.session_key_manager,
+                                                                                client.server_public_key_manager) + "\",\n"
+
+        message += "\"auction_time\" : \""+ encrypt_message_complete(auction_time,
+                                                                     client.session_key_manager,
+                                                                     client.server_public_key_manager) + "\" ,\n"
+
+        message += "\"auction_max_number_bids\" : \""+ encrypt_message_complete(auction_max_number_bids,
+                                                                                client.session_key_manager,
+                                                                                client.server_public_key_manager) + "\" ,\n"
+
+        message += "\"auction_allowed_bidders\" : \""+ encrypt_message_complete(auction_allowed_bidders,
+                                                                                client.session_key_manager,
+                                                                                client.server_public_key_manager) + "\" ,\n"
+
+        message += "\"auction_type\" : \""+ encrypt_message_complete(auction_type,
+                                                                     client.session_key_manager,
+                                                                     client.server_public_key_manager) + "\" ,\n"
+
+        message += "\"auction_threshold\" : \""+ encrypt_message_complete(auction_threshold,
+                                                                          client.session_key_manager,
+                                                                          client.server_public_key_manager) + "\"\n,"
+
 
         # now put our public auction key and a signature to prove that he has the private key
-        message += "\"auction_user_key\" : \"" + get_public_key_bytes(client.auction_public_key) + "\", \n"
-        message += "\"auction_signature\" : \"" + str(base64.b64encode(signature), 'utf-8') + "\" \n"
+        message += "\"auction_user_key\" : \"" + encrypt_message_complete(get_public_key_bytes(client.auction_public_key),
+                                                                          client.session_key_manager,
+                                                                          client.server_public_key_manager) + "\", \n"
+
+        message += "\"auction_signature\" : \"" + encrypt_message_complete(str(base64.b64encode(signature), 'utf-8'),
+                                                                           client.session_key_manager,
+                                                                           client.server_public_key_manager)+ "\" \n"
 
         # auction_json_message += "}"
         # message += "\"message\" : \"" + auction_json_message + "\""
 
         message += "}"
+        print(message)
         return message, AM_ADDRESS
 
     def list_auctions(self, client):
