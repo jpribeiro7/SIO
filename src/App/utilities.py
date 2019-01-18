@@ -1,4 +1,5 @@
 import os
+from base64 import encode
 from cryptography.hazmat.primitives import serialization
 from App.app import *
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -10,6 +11,7 @@ import cryptography
 from cryptography import x509
 import base64
 from cryptography.hazmat.backends import default_backend
+from cryptography.fernet import Fernet
 
 # Verifies the existence of a directory
 def check_directory(path):
@@ -47,6 +49,7 @@ def get_public_key_bytes(pubkey):
     return pubkey.public_bytes(encoding=serialization.Encoding.PEM,
                                format = serialization.PublicFormat.SubjectPublicKeyInfo).decode('utf-8')
 
+
 # Encript message with session key of a server
 def encrypt_message_sk(message, session_key):
     cipher = Cipher(algorithms.AES(session_key), modes.CBC(session_key[:16]), backend=default_backend())
@@ -70,7 +73,6 @@ def encrypt_message_sk(message, session_key):
         temp = temp[128:]
 
     return str(base64.b64encode(message_enc), 'utf-8')
-
 
 # Encrypt with the session key and then with the pub key
 # Return [key, message, iv]
@@ -109,6 +111,7 @@ def encrypt_message_complete(message, session_key, pub_key):
     ))
 
     return [enc_key, complete_message, enc_iv]
+
 
 #
 def unpadd_data(data, session):
