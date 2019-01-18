@@ -152,10 +152,10 @@ class AuctionRepositoryActions:
 
         print(signature)
         if not citizen.check_signature(certificate, signature, message_json["username"].encode('utf-8')):
-            return base64.b64encode("{ \"response\" : \"No valid signature\"}".encode('utf-8'))
+            return base64.b64encode("{ \"type\" : \"No valid signature\"}".encode('utf-8'))
 
         if not citizen.validate_certificate(certificate):
-            return base64.b64encode("{ \"response\" : \"No valid certificate\"}".encode('utf-8'))
+            return base64.b64encode("{ \"type\" : \"No valid certificate\"}".encode('utf-8'))
 
         user_pub_key = unpadd_data(message_json["public"], self.auction_repository.session_key_clients[message_json["username"]])
 
@@ -169,7 +169,7 @@ class AuctionRepositoryActions:
         if rsa.verify_sign(message_json["rsa_signature"].encode('utf-8'),
                            self.auction_repository.session_key_clients[message_json["username"]], user_key):
             # It is invalid
-            return base64.b64encode("{\"response\" : \"No valid rsa signature\"}".encode("utf-8"))
+            return base64.b64encode("{\"type\" : \"No valid rsa signature\"}".encode("utf-8"))
 
         _dir = os.getcwd() + "/Clients/" + message_json["username"]
         if not check_directory(_dir):
@@ -179,7 +179,7 @@ class AuctionRepositoryActions:
             with open(_dir+"/" + PK_NAME, "wb") as file:
                 file.write(user_pub_key)
 
-        return base64.b64encode("{\"response\" : \"success\"}".encode("utf-8"))
+        return base64.b64encode("{\"type\" : \"success\"}".encode("utf-8"))
 
     # Should store all the auctions some sort of memory
     # TODO: save the auctions
@@ -213,13 +213,20 @@ class AuctionRepositoryActions:
         print(auction_allowed_bidders)
         return b""
 
-    def listAuctions(self):
+    def list_auctions(self,message_json):
+        # gets the list of auctions and serializes it
         auction_list = self.auction_repository.listAuctions()
-        message = "{ \"type\" : \"list_auction\" ,\n"
         serialized = pickle.dumps(auction_list)
-        message += "\"list\" : \"" +  + "\" ,\n"
-        message += "\"info\" : \"" + calendar_date + "\",\n"
+
+        # loads the shared secret between the server and the user
+        username = message_json["username"]
+        session_key = self.auction_repository.session_key_clients[username]
+
+        message = "{ \"type\" : \"list_auctions\" ,\n"
+        message += "\"list\" : \"" + encrypt_message_sk(serialized, session_key) + "\" \n"
         message += "}"
+        print("auction_repos", message)
+        return base64.b64encode(message.encode("utf-8"))
 
     # Save this atm
     def qualquermerda(self):

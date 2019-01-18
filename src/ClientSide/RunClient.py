@@ -3,7 +3,7 @@ from App.app import *
 import socket
 import base64
 import json
-
+import pickle
 
 class RunClient():
 
@@ -19,8 +19,9 @@ class RunClient():
         if option == "1":
             # Creates a auction
             msg, address = self.client_actions.create_auction(self.current_client)
-        else:
-            pass
+        elif option == "2":
+            msg, address = self.client_actions.list_auctions(self.current_client)
+
 
         message_encoded = base64.b64encode(msg.encode("utf-8"))
         return message_encoded, address
@@ -47,12 +48,12 @@ class RunClient():
         msg_encoded = base64.b64encode(msg.encode('utf-8'))
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(msg_encoded, AM_ADDRESS)
-        data,server = sock.recvfrom(SOCKET_BYTES)
+        data, server = sock.recvfrom(SOCKET_BYTES)
 
         decoded_message = base64.b64decode(data)
         message = json.loads(decoded_message, strict = False)
 
-        if message['response'] != 'success':
+        if message['type'] != 'success':
             print('No connection established')
             sys.exit(0)
 
@@ -68,27 +69,28 @@ class RunClient():
         decoded_message = base64.b64decode(data)
         message = json.loads(decoded_message, strict = False)
 
-        if message['response'] != 'success':
+        if message['type'] != 'success':
             print('No connection established')
             sys.exit(0)
 
-        self.menu()
+
 
     # Menu to be shown after the login
     def menu(self):
 
-        # Create a UDP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         option = "-1"
 
         while option != "3":
+            # Create a UDP socket
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
             print('\n')
             print("1- Create a Auction")
             print("2- List all auctions")
             print("3- Leave")
             option = input("> ")
             message, address = self.switch(option)
-
+            print(message)
             try:
                 # Doesn't send any empty message
                 if message != b"":
@@ -100,9 +102,16 @@ class RunClient():
                     message = json.loads(decoded_message, strict = False)
 
                     # Verifies the response
-                    if message['response'] != 'success':
+                    if message['type'] != 'success':
                         if option == "1":
                             print('No Auction created')
+                    if message['type'] == 'list_auctions':
+                        message_list = unpadd_data(message['list'], self.current_client.session_key_repository)
+                        print("message_list, ",message_list)
+                        auction_list = pickle.loads(message_list)
+                        print("auction_list, ",auction_list)
+                        for auction in auction_list:
+                            print(auction)
 
             finally:
                 sock.close()
@@ -112,3 +121,4 @@ class RunClient():
 
 r = RunClient()
 r.login_menu()
+r.menu()

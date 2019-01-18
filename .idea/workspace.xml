@@ -3,10 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="78f78a93-d739-489a-99cc-46993d9f2722" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/App/utilities.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ClientSide/ClientActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/ClientActions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/RunClient.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/RunClient.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -20,8 +22,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ClientSide/RunClient.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="13" column="19" selection-start-line="13" selection-start-column="19" selection-end-line="13" selection-end-column="19" />
+            <state relative-caret-position="232">
+              <caret line="108" column="68" selection-start-line="108" selection-start-column="68" selection-end-line="108" selection-end-column="68" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -32,44 +34,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="14" column="34" selection-start-line="14" selection-start-column="34" selection-end-line="14" selection-end-column="34" />
+            <state relative-caret-position="186">
+              <caret line="31" column="34" selection-start-line="31" selection-start-column="34" selection-end-line="31" selection-end-column="34" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="131">
-              <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="219" column="36" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
-              <folding>
-                <element signature="e#47#74#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/App/utilities.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="50" column="22" selection-start-line="50" selection-start-column="4" selection-end-line="50" selection-end-column="22" />
             </state>
           </provider>
         </entry>
@@ -77,8 +46,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="494">
-              <caret line="26" column="27" selection-start-line="26" selection-start-column="27" selection-end-line="26" selection-end-column="27" />
+            <state relative-caret-position="243">
+              <caret line="25" column="30" selection-start-line="25" selection-start-column="30" selection-end-line="25" selection-end-column="30" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
               </folding>
@@ -87,24 +56,12 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Auction.py">
+        <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="172">
-              <caret line="20" column="25" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="25" />
+            <state relative-caret-position="300">
+              <caret line="224" column="47" selection-start-line="224" selection-start-column="47" selection-end-line="224" selection-end-column="47" />
               <folding>
-                <element signature="e#0#41#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="804">
-              <caret line="110" column="50" selection-start-line="108" selection-start-column="23" selection-end-line="110" selection-end-column="50" />
-              <folding>
-                <element signature="e#0#36#0" expanded="true" />
+                <element signature="e#47#74#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -124,7 +81,12 @@
       <find>check</find>
       <find>check_sig</find>
       <find>sys.ex</find>
+      <find>load</find>
+      <find>cipher</find>
+      <find>unpa</find>
+      <find>list</find>
       <find>encrypt_message_sk</find>
+      <find>response</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -138,17 +100,17 @@
         <option value="$PROJECT_DIR$/src/App/app.py" />
         <option value="$PROJECT_DIR$/src/CitizenCard/CitizenCard.py" />
         <option value="$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py" />
-        <option value="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" />
-        <option value="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" />
         <option value="$PROJECT_DIR$/src/AuctionRepository/Block.py" />
         <option value="$PROJECT_DIR$/src/App/App.py" />
-        <option value="$PROJECT_DIR$/src/ClientSide/RunClient.py" />
-        <option value="$PROJECT_DIR$/src/RSAKeyGenerator/RSAKGen.py" />
         <option value="$PROJECT_DIR$/src/AuctionRepository/Auction.py" />
-        <option value="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py" />
-        <option value="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" />
         <option value="$PROJECT_DIR$/src/App/utilities.py" />
+        <option value="$PROJECT_DIR$/src/RSAKeyGenerator/RSAKGen.py" />
         <option value="$PROJECT_DIR$/src/ClientSide/ClientActions.py" />
+        <option value="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" />
+        <option value="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py" />
+        <option value="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" />
+        <option value="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" />
+        <option value="$PROJECT_DIR$/src/ClientSide/RunClient.py" />
       </list>
     </option>
   </component>
@@ -225,7 +187,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1547814000911" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1547826592609" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
@@ -389,6 +351,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="-1" width="1922" height="953" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27267876" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -399,14 +362,14 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3288719" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3823884" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3920386" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="TODO" order="8" weight="0.32893157" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.2917167" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.2907117" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -417,7 +380,7 @@
       <window_info anchor="right" id="Palette&#9;" order="7" />
     </layout>
     <layout-to-restore>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27267876" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27267876" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -426,14 +389,14 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3288719" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3823884" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3920386" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="TODO" order="8" weight="0.32893157" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.2917167" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.2907117" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -443,6 +406,17 @@
       <window_info anchor="right" id="Capture Analysis" order="6" />
       <window_info anchor="right" id="Palette&#9;" order="7" />
     </layout-to-restore>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py</url>
+          <line>205</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/RSAKeyGenerator/auction_private_key.pem" />
@@ -504,16 +478,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/RSAKeyGenerator/RSAKGen.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="11" column="14" selection-start-line="11" selection-start-column="14" selection-end-line="11" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#56#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.6/dist-packages/pem/_core.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="665">
@@ -559,33 +523,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Auction.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="172">
-          <caret line="20" column="25" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="25" />
-          <folding>
-            <element signature="e#0#41#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/App/utilities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="50" column="22" selection-start-line="50" selection-start-column="4" selection-end-line="50" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="804">
-          <caret line="110" column="50" selection-start-line="108" selection-start-column="23" selection-end-line="110" selection-end-column="50" />
-          <folding>
-            <element signature="e#0#36#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/ClientSide/Client.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-743">
@@ -603,32 +540,68 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py">
+    <entry file="file://$PROJECT_DIR$/src/App/utilities.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="388">
-          <caret line="171" lean-forward="true" selection-start-line="171" selection-end-line="171" />
+        <state relative-caret-position="199">
+          <caret line="45" column="4" selection-start-line="45" selection-start-column="4" selection-end-line="45" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-77">
+          <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#1412#2399#0" />
-            <element signature="e#4415#6925#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py">
+    <entry file="file://$PROJECT_DIR$/src/RSAKeyGenerator/RSAKGen.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="219" column="36" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
+        <state relative-caret-position="94">
+          <caret line="163" column="20" selection-start-line="163" selection-start-column="20" selection-end-line="163" selection-end-column="20" />
           <folding>
-            <element signature="e#47#74#0" expanded="true" />
+            <element signature="e#0#56#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Auction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-113">
+          <caret line="20" column="25" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#41#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="181" lean-forward="true" selection-start-line="181" selection-end-line="181" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="199">
+          <caret line="68" column="24" lean-forward="true" selection-start-line="68" selection-start-column="24" selection-end-line="68" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#1412#2399#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="26" column="27" selection-start-line="26" selection-start-column="27" selection-end-line="26" selection-end-column="27" />
+        <state relative-caret-position="243">
+          <caret line="25" column="30" selection-start-line="25" selection-start-column="30" selection-end-line="25" selection-end-column="30" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
           </folding>
@@ -637,28 +610,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="14" column="34" selection-start-line="14" selection-start-column="34" selection-end-line="14" selection-end-column="34" />
+        <state relative-caret-position="186">
+          <caret line="31" column="34" selection-start-line="31" selection-start-column="34" selection-end-line="31" selection-end-column="34" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py">
+    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="131">
-          <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
+        <state relative-caret-position="300">
+          <caret line="224" column="47" selection-start-line="224" selection-start-column="47" selection-end-line="224" selection-end-column="47" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#47#74#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ClientSide/RunClient.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="13" column="19" selection-start-line="13" selection-start-column="19" selection-end-line="13" selection-end-column="19" />
+        <state relative-caret-position="232">
+          <caret line="108" column="68" selection-start-line="108" selection-start-column="68" selection-end-line="108" selection-end-column="68" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
           </folding>

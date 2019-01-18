@@ -128,10 +128,10 @@ class AuctionManagerAuctions:
         json_message += "}"
 
         try:
-            # send response
+            # send type
             sock.sendto(base64.b64encode(json_message.encode('utf-8')), utils_app.AR_ADDRESS)
 
-            # Receive response
+            # Receive type
             data, server = sock.recvfrom(utils_app.SOCKET_BYTES)
             json_message = json.loads(base64.b64decode(data), strict=False)
 
@@ -165,10 +165,10 @@ class AuctionManagerAuctions:
 
         print(signature)
         if not citizen.check_signature(certificate, signature, message_json["username"].encode('utf-8')):
-            return base64.b64encode("{ \"response\" : \"No valid signature\"}".encode('utf-8'))
+            return base64.b64encode("{ \"type\" : \"No valid signature\"}".encode('utf-8'))
 
         if not citizen.validate_certificate(certificate):
-            return base64.b64encode("{ \"response\" : \"No valid certificate\"}".encode('utf-8'))
+            return base64.b64encode("{ \"type\" : \"No valid certificate\"}".encode('utf-8'))
 
         user_pub_key = unpadd_data(message_json["public"], self.auction_manager.session_clients[message_json["username"]])
 
@@ -182,7 +182,7 @@ class AuctionManagerAuctions:
         if rsa.verify_sign(message_json["rsa_signature"].encode('utf-8'),
                            self.auction_manager.session_clients[message_json["username"]], user_key):
             # It is invalid
-            return base64.b64encode("{\"response\" : \"No valid rsa signature\"}".encode("utf-8"))
+            return base64.b64encode("{\"type\" : \"No valid rsa signature\"}".encode("utf-8"))
 
         # Get the public key from the user key from the user
         _dir = os.getcwd() + "/Clients/" + message_json["username"]
@@ -193,7 +193,7 @@ class AuctionManagerAuctions:
             with open(_dir+"/" + utils_app.PK_NAME, "wb") as file:
                 file.write(user_pub_key)
 
-        return base64.b64encode("{\"response\" : \"success\"}".encode("utf-8"))
+        return base64.b64encode("{\"type\" : \"success\"}".encode("utf-8"))
 
     # Checks everything from the auction and then sends to the other server
     def create_auction(self, message_json, address):
@@ -217,7 +217,7 @@ class AuctionManagerAuctions:
 
         # if its not valid then the address is the client's and the message is an error
         if not verification:
-            return base64.b64encode("{\"response\" : \"Not a valid auction signature\"}".encode("utf-8")), address
+            return base64.b64encode("{\"type\" : \"Not a valid auction signature\"}".encode("utf-8")), address
 
         # Construct the message to send to the AR
         message_final_json = "{"
@@ -237,7 +237,7 @@ class AuctionManagerAuctions:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(base64.b64encode(message_final_json.encode("utf-8")), AR_ADDRESS)
 
-        return base64.b64encode("{\"response\" : \"success\"}".encode("utf-8"))
+        return base64.b64encode("{\"type\" : \"success\"}".encode("utf-8"))
 
     # save for later
     def qualquerer(self):

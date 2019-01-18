@@ -23,7 +23,7 @@ class AuctionRepositoryEntity:
         AuctionRepositoryEntity.count += 1
 
     def listAuctions(self):
-        auction_list = [k + ":" + v.auction_name + "," + v.description for k, v in self.auctions.items()]
+        auction_list = [str(k) + ":" + v.auction_name + "," + v.description for k, v in self.auctions.items()]
         return auction_list
 
     def makeBid(self, auction_id, bidder):

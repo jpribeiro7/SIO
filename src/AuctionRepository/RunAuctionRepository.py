@@ -28,8 +28,8 @@ while True:
         data = actions.create_session_key(message_json, address)
     elif message_json["type"] == "session_server":
         data = actions.create_session_key_server(message_json, address)
-    elif message_json["type"] == "auction_list":
-        data = actions.list_auctions(address)
+    elif message_json["type"] == "list_auctions":
+        data = actions.list_auctions(message_json)
     elif message_json["type"] == "build_trust":
         data = actions.build_trust(message_json)
 

@@ -171,3 +171,12 @@ class ClientActions:
 
         message += "}"
         return message, AM_ADDRESS
+
+    def list_auctions(self, client):
+        message = "{ \"type\" : \"list_auctions\" ,\n"
+        message += "\"username\" : \"" + client.username + "\"\n"
+        message += "}"
+
+        return message, AR_ADDRESS
+
+
