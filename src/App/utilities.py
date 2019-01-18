@@ -1,4 +1,5 @@
 import os
+from base64 import encode
 from cryptography.hazmat.primitives import serialization
 from App.app import *
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -47,6 +48,7 @@ def get_public_key_bytes(pubkey):
     return pubkey.public_bytes(encoding=serialization.Encoding.PEM,
                                format = serialization.PublicFormat.SubjectPublicKeyInfo).decode('utf-8')
 
+
 # Encript message with session key of a server
 def encrypt_message_sk(message, session_key):
     cipher = Cipher(algorithms.AES(session_key), modes.CBC(session_key[:16]), backend=default_backend())
@@ -71,9 +73,19 @@ def encrypt_message_sk(message, session_key):
 
     return str(base64.b64encode(message_enc), 'utf-8')
 
+# Encrypt with the session key and then with the pub key
+def encrypt_message_complete(message, session_key, pub_key):
+    sk_enc = encrypt_message_sk(message, session_key)
 
-def encrypt_message_complete(message, client, address=None):
-    pass
+    enc_message = pub_key.encrypt(sk_enc.encode(), padding=async_padd.OAEP(
+        mgf=async_padd.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None
+    ))
+
+    print("I ENCRYPTED IT ")
+    return str(base64.b64encode(enc_message), 'utf-8')
+
 
 #
 def unpadd_data(data, session):
@@ -87,3 +99,5 @@ def unpadd_data(data, session):
         cipher.decryptor().update(base64.b64decode(data)) + cipher.decryptor().finalize()) + unpadder.finalize()
 
     return deciphered
+
+
