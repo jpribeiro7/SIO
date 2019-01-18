@@ -16,6 +16,7 @@ import pickle
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
+from AuctionRepository.Auction import Auction
 from RSAKeyGenerator.RSAKGen import RSAKGen
 #from Blockchain.blockchain import BlockChain
 import datetime
@@ -41,7 +42,8 @@ class AuctionRepositoryActions:
             except ValueError:
                 print("The password is incorrect!"
                       "All information has been deleted and the server will now become instable")
-                sys.exit(0)
+                sys.exit("The password is incorrect!"
+                         "All information has been deleted and the server will now become instable")
 
         else:
             os.mkdir(self._server_path)
@@ -195,10 +197,24 @@ class AuctionRepositoryActions:
         auction_user_key = serialization.load_pem_public_key(message_json["auction_user_key"].encode('utf-8'),
                                                              default_backend())
 
+        auction = Auction(auction_name=auction_name,
+                          description = auction_description,
+                          auction_min_number_bids = auction_min_number_bids,
+                          auction_time = auction_time,
+                          auction_max_number_bids = auction_max_number_bids,
+                          auction_allowed_bidders = auction_allowed_bidders,
+                          auction_threshold = auction_threshold,
+                          auction_type = auction_type,
+                          auction_user_key = auction_user_key
+                         )
+        self.auction_repository.addAuction(auction)
         # All values are here
         print(auction_name)
         print(auction_allowed_bidders)
         return b""
+
+    def listAuctions(self):
+        return self.auction_repository.listAuctions()
 
     # Save this atm
     def qualquermerda(self):

@@ -8,6 +8,8 @@ from CitizenCard.CitizenCard import CitizenCard
 
 class ClientActions:
     _client_path = ""
+    digital_signature = None
+    last = None
 
     # Logs in with the servers
     def login(self):
@@ -65,7 +67,13 @@ class ClientActions:
         rsa = RSAKGen()
         certificate = client.citizenCard.load_authentication_certificate()
         # print(client.username)
-        digital_signature = client.citizenCard.digital_signature(client.username.encode('utf-8'))
+        if client.username != self.last and self.digital_signature == None:
+            self.digital_signature = client.citizenCard.digital_signature(client.username.encode('utf-8'))
+            self.last = client.username
+
+
+
+        digital_signature = self.digital_signature
         rsa_sign = rsa.sign_message(client.username.encode('utf-8'), client.private_key)
         # print(rsa.sign_message(client.username.encode('utf-8'), client.private_key) )
         # builds trust message

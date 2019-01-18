@@ -9,3 +9,5 @@ DH_HKDF_KEY = 32
 SOCKET_BYTES = 16384
 AM_S_C_KEY = "/server_manager.pem"
 AR_S_C_KEY = "/server_repository.pem"
+BLIND_AUCTION = "blind"
+ENGLISH_AUCTION = "english"
