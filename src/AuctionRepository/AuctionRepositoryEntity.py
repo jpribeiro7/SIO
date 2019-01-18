@@ -1,5 +1,5 @@
 from AuctionRepository.Auction import Auction
-
+import pickle
 
 class AuctionRepositoryEntity:
 
@@ -23,8 +23,8 @@ class AuctionRepositoryEntity:
         AuctionRepositoryEntity.count += 1
 
     def listAuctions(self):
-        string = [k + ":" + v.description for k, v in self.auctions.items()]
-        return string
+        auction_list = [k + ":" + v.auction_name + "," + v.description for k, v in self.auctions.items()]
+        return auction_list
 
     def makeBid(self, auction_id, bidder):
         auction = self.auctions[auction_id]

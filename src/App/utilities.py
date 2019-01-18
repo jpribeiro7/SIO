@@ -48,12 +48,9 @@ def get_public_key_bytes(pubkey):
                                format = serialization.PublicFormat.SubjectPublicKeyInfo).decode('utf-8')
 
 # Encript message with session key of a server
-def encrypt_message_sk(message, client, address=None):
-    if address == AM_ADDRESS or address is None:
-        cipher = Cipher(algorithms.AES(client.session_key_manager), modes.CBC(client.session_key_manager[:16]), backend=default_backend())
-    else:
-        cipher = Cipher(algorithms.AES(client.session_key_repository),
-                        modes.CBC(client.session_key_repository[:16]), backend=default_backend())
+def encrypt_message_sk(message, session_key):
+    cipher = Cipher(algorithms.AES(session_key), modes.CBC(session_key[:16]), backend=default_backend())
+
     temp = None
     if isinstance(message, x509.Certificate):
         temp = message.public_bytes(serialization.Encoding.PEM)
@@ -74,6 +71,9 @@ def encrypt_message_sk(message, client, address=None):
 
     return str(base64.b64encode(message_enc), 'utf-8')
 
+
+def encrypt_message_complete(message, client, address=None):
+    pass
 
 #
 def unpadd_data(data, session):

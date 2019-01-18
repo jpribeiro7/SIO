@@ -214,7 +214,12 @@ class AuctionRepositoryActions:
         return b""
 
     def listAuctions(self):
-        return self.auction_repository.listAuctions()
+        auction_list = self.auction_repository.listAuctions()
+        message = "{ \"type\" : \"list_auction\" ,\n"
+        serialized = pickle.dumps(auction_list)
+        message += "\"list\" : \"" +  + "\" ,\n"
+        message += "\"info\" : \"" + calendar_date + "\",\n"
+        message += "}"
 
     # Save this atm
     def qualquermerda(self):

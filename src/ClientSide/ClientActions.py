@@ -71,7 +71,11 @@ class ClientActions:
             self.digital_signature = client.citizenCard.digital_signature(client.username.encode('utf-8'))
             self.last = client.username
 
-
+        session_key = None
+        if AM_ADDRESS == address:
+            session_key = client.session_key_manager
+        else:
+            session_key = client.session_key_repository
 
         digital_signature = self.digital_signature
         rsa_sign = rsa.sign_message(client.username.encode('utf-8'), client.private_key)
@@ -80,11 +84,11 @@ class ClientActions:
         json_message = "{ " + "\n"
         json_message += "\"type\" : \"build_trust\"," + "\n"
         json_message += "\"public\" : \"" + encrypt_message_sk(get_public_key_bytes(client.public_key),
-                                                               client, address=address) + "\", \n"
-        json_message += "\"rsa_signature\" : \"" + encrypt_message_sk(rsa_sign,client,address=address) + "\", \n"
+                                                               session_key) + "\", \n"
+        json_message += "\"rsa_signature\" : \"" + encrypt_message_sk(rsa_sign, session_key) + "\", \n"
         json_message += "\"username\" : \"" + client.username + "\", \n"
-        json_message += "\"certificate\" : \"" + encrypt_message_sk(certificate, client,address=address) + "\", \n"
-        json_message += "\"digital_signature\" : \"" + encrypt_message_sk(digital_signature, client,address=address) + "\""
+        json_message += "\"certificate\" : \"" + encrypt_message_sk(certificate, session_key) + "\", \n"
+        json_message += "\"digital_signature\" : \"" + encrypt_message_sk(digital_signature, session_key) + "\""
         json_message += "\n" + "}"
         # print(digital_signature)
 
