@@ -19,7 +19,7 @@ class AuctionRepositoryEntity:
         self.auctions = {}
 
     def addAuction(self, auction):
-        self.auctions[auction.id] = auction
+        self.auctions[str(auction.id)] = auction
         AuctionRepositoryEntity.count += 1
 
     def listAuctions(self):
@@ -27,5 +27,5 @@ class AuctionRepositoryEntity:
         return auction_list
 
     def makeBid(self, auction_id, bidder):
-        auction = self.auctions[auction_id]
-        auction.makeBid()
+        auction = self.auctions[str(auction_id)]
+        return auction.makeBid()

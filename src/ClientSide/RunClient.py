@@ -21,6 +21,10 @@ class RunClient():
             msg, address = self.client_actions.create_auction(self.current_client)
         elif option == "2":
             msg, address = self.client_actions.list_auctions(self.current_client)
+        elif option == "3":
+            msg, address = self.client_actions.make_bid(self.current_client)
+
+
 
 
         message_encoded = base64.b64encode(msg.encode("utf-8"))
@@ -80,14 +84,15 @@ class RunClient():
 
         option = "-1"
 
-        while option != "3":
+        while option != "4":
             # Create a UDP socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
             print('\n')
             print("1- Create a Auction")
             print("2- List all auctions")
-            print("3- Leave")
+            print("3- Bid")
+            print("4- Leave")
             option = input("> ")
             message, address = self.switch(option)
             print(message)
@@ -105,6 +110,8 @@ class RunClient():
                     if message['type'] != 'success':
                         if option == "1":
                             print('No Auction created')
+                        if option == "3":
+                            print("Couldn't make bid")
                     if message['type'] == 'list_auctions':
                         message_list = unpadd_data(message['list'], self.current_client.session_key_repository)
                         print("message_list, ",message_list)
@@ -112,6 +119,9 @@ class RunClient():
                         print("auction_list, ",auction_list)
                         for auction in auction_list:
                             print(auction)
+
+
+
 
             finally:
                 sock.close()

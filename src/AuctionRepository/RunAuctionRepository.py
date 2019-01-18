@@ -32,6 +32,8 @@ while True:
         data = actions.list_auctions(message_json)
     elif message_json["type"] == "build_trust":
         data = actions.build_trust(message_json)
+    elif message_json["type"] == "bid":
+        data = actions.make_bid(message_json)
 
     if data != b"":
         sent = sock.sendto(data, address)

@@ -228,6 +228,21 @@ class AuctionRepositoryActions:
         print("auction_repos", message)
         return base64.b64encode(message.encode("utf-8"))
 
+    def make_bid(self,message_json):
+        username = message_json["username"]
+        auction_id = message_json["auction_id"]
+        amount = message_json["amount"]
+        signature = message_json["signature"]
+        print(auction_id)
+
+        auction = self.auction_repository.auctions[auction_id]
+        response = auction.makeBid(username, amount, signature)
+
+        success = "success" if response else "nope"
+
+        #TODO future should print a receipt
+        return base64.b64encode(("{ \"type\" : \""+success+"\"}").encode("utf-8"))
+
     # Save this atm
     def qualquermerda(self):
         # Get the public key from the user key from the user

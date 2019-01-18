@@ -67,7 +67,7 @@ class ClientActions:
         rsa = RSAKGen()
         certificate = client.citizenCard.load_authentication_certificate()
         # print(client.username)
-        if client.username != self.last and self.digital_signature == None:
+        if client.username != self.last and self.digital_signature is None:
             self.digital_signature = client.citizenCard.digital_signature(client.username.encode('utf-8'))
             self.last = client.username
 
@@ -179,4 +179,20 @@ class ClientActions:
 
         return message, AR_ADDRESS
 
+    def make_bid(self, client):
+        amount = ""
+        auction_id = ""
+        while auction_id == "":
+            auction_id = input("Auction ID: ")
 
+        while amount == "":
+            amount = input("Bid Amount: ")
+
+        message = "{ \"type\" : \"bid\" ,\n"
+        message += "\"username\" : \"" + client.username + "\",\n"
+        message += "\"auction_id\" : \"" + auction_id + "\",\n"
+        message += "\"amount\" : \"" + amount + "\",\n"
+        message += "\"signature\" : \"" + str(base64.b64encode(self.digital_signature)) + "\"\n"
+        message += "}"
+
+        return message, AR_ADDRESS

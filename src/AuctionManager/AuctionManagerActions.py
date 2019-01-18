@@ -197,7 +197,6 @@ class AuctionManagerAuctions:
 
     # Checks everything from the auction and then sends to the other server
     def create_auction(self, message_json, address):
-
         auction_name = message_json["auction_name"]
         auction_description = message_json["auction_description"]
         auction_min_number_bids = message_json["auction_min_number_bids"]
