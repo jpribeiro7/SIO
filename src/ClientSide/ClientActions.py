@@ -135,11 +135,6 @@ class ClientActions:
         if auction_allowed_bidders == "":
             auction_allowed_bidders = "None"
 
-        # If there is no threshold then 0
-        auction_threshold = input("Auction threshold (min,max): ")
-        if auction_threshold == "":
-            auction_threshold = "0"
-
         # There must have a type
         auction_type = input("Auction type ((B)lind or (N)ormal): ")
         if auction_type.lower() in ["b", "blind"]:
@@ -153,54 +148,49 @@ class ClientActions:
         rsa = RSAKGen()
         signature = rsa.sign_message(client.session_key_manager,client.auction_private_key)
 
-        message += "\"auction_name\" : \""+ encrypt_message_complete(auction_name,
-                                                                     client.session_key_manager,
-                                                                     client.server_public_key_manager)+ "\" ,\n"
+        auction_json_message = "{\"auction_name\" : \"" + encrypt_message_sk(auction_name, client.session_key_manager)+ "\" ,\n"
 
-        message += "\"auction_description\" : \""+ encrypt_message_complete(auction_description,
-                                                                            client.session_key_manager,
-                                                                            client.server_public_key_manager) + "\" ,\n"
-        message += "\"auction_min_number_bids\" : \"" + encrypt_message_complete(auction_min_number_bids,
-                                                                                client.session_key_manager,
-                                                                                client.server_public_key_manager) + "\",\n"
+        auction_json_message += "\"auction_description\" : \"" + encrypt_message_sk(auction_description,
+                                                                      client.session_key_manager) + "\" ,\n"
 
-        message += "\"auction_time\" : \""+ encrypt_message_complete(auction_time,
-                                                                     client.session_key_manager,
-                                                                     client.server_public_key_manager) + "\" ,\n"
+        auction_json_message += "\"auction_min_number_bids\" : \"" + encrypt_message_sk(auction_min_number_bids,
+                                                                           client.session_key_manager) + "\",\n"
 
-        message += "\"auction_max_number_bids\" : \""+ encrypt_message_complete(auction_max_number_bids,
-                                                                                client.session_key_manager,
-                                                                                client.server_public_key_manager) + "\" ,\n"
+        auction_json_message += "\"auction_time\" : \"" + encrypt_message_sk(auction_time, client.session_key_manager) + "\" ,\n"
 
-        message += "\"auction_allowed_bidders\" : \""+ encrypt_message_complete(auction_allowed_bidders,
-                                                                                client.session_key_manager,
-                                                                                client.server_public_key_manager) + "\" ,\n"
+        auction_json_message += "\"auction_max_number_bids\" : \"" + encrypt_message_sk(auction_max_number_bids,
+                                                                          client.session_key_manager) + "\" ,\n"
 
-        message += "\"auction_type\" : \""+ encrypt_message_complete(auction_type,
-                                                                     client.session_key_manager,
-                                                                     client.server_public_key_manager) + "\" ,\n"
+        auction_json_message += "\"auction_allowed_bidders\" : \"" + encrypt_message_sk(auction_allowed_bidders,
+                                                                          client.session_key_manager) + "\" ,\n"
 
-        message += "\"auction_threshold\" : \""+ encrypt_message_complete(auction_threshold,
-                                                                          client.session_key_manager,
-                                                                          client.server_public_key_manager) + "\"\n,"
-
+        auction_json_message += "\"auction_type\" : \""+ encrypt_message_sk(auction_type, client.session_key_manager) + "\" ,\n"
 
         # now put our public auction key and a signature to prove that he has the private key
-        message += "\"auction_user_key\" : \"" + encrypt_message_complete(get_public_key_bytes(client.auction_public_key),
-                                                                          client.session_key_manager,
-                                                                          client.server_public_key_manager) + "\", \n"
+        auction_json_message += "\"auction_user_key\" : \"" + encrypt_message_sk(get_public_key_bytes(client.auction_public_key),
+                                                                    client.session_key_manager) + "\", \n"
 
-        message += "\"auction_signature\" : \"" + encrypt_message_complete(str(base64.b64encode(signature), 'utf-8'),
-                                                                           client.session_key_manager,
-                                                                           client.server_public_key_manager)+ "\" \n"
+        auction_json_message += "\"auction_signature\" : \"" + encrypt_message_sk(str(base64.b64encode(signature), 'utf-8'),
+                                                                     client.session_key_manager)+ "\" \n"
+        auction_json_message += "}"
 
-        # auction_json_message += "}"
-        # message += "\"message\" : \"" + auction_json_message + "\""
+        enc_json_message = encrypt_message_complete(base64.b64encode(auction_json_message.encode("utf-8")),
+                                                    client.session_key_manager,
+                                                    client.server_public_key_manager)
+
+        key = enc_json_message[0]
+        iv = enc_json_message[2]
+        data = enc_json_message[1]
+
+        message += "\"message\" : \"" + data + "\",\n"
+        message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
 
         message += "}"
-        print(message)
+        # print(message)
         return message, AM_ADDRESS
 
+    # List the auctions pressent in the server
     def list_auctions(self, client):
         message = "{ \"type\" : \"list_auctions\" ,\n"
         message += "\"username\" : \"" + client.username + "\"\n"
@@ -208,6 +198,8 @@ class ClientActions:
 
         return message, AR_ADDRESS
 
+    # Makes a bid to the repository
+    # TODO: Get a cryptopuzzle and solve it
     def make_bid(self, client):
         amount = ""
         auction_id = ""
