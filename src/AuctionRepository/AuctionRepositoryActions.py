@@ -185,6 +185,7 @@ class AuctionRepositoryActions:
     # TODO: save the auctions
     # All methods should have address to then send to where it should go
     def create_auction(self, message_json, address):
+
         # get all the values
         auction_name = message_json["auction_name"]
         auction_description = message_json["auction_description"]
@@ -192,9 +193,9 @@ class AuctionRepositoryActions:
         auction_time = message_json["auction_time"]
         auction_max_number_bids = message_json["auction_max_number_bids"]
         auction_allowed_bidders = message_json["auction_allowed_bidders"]
-        auction_threshold = message_json["auction_threshold"]
         auction_type = message_json["auction_type"]
-        auction_user_key = serialization.load_pem_public_key(message_json["auction_user_key"].encode('utf-8'),
+
+        auction_user_key = serialization.load_pem_public_key(message_json["auction_user_key"].encode("utf-8"),
                                                              default_backend())
 
         auction = Auction(auction_name=auction_name,
@@ -203,7 +204,7 @@ class AuctionRepositoryActions:
                           auction_time = auction_time,
                           auction_max_number_bids = auction_max_number_bids,
                           auction_allowed_bidders = auction_allowed_bidders,
-                          auction_threshold = auction_threshold,
+                          auction_threshold = None,
                           auction_type = auction_type,
                           auction_user_key = auction_user_key
                          )
@@ -228,6 +229,7 @@ class AuctionRepositoryActions:
         print("auction_repos", message)
         return base64.b64encode(message.encode("utf-8"))
 
+    # User made a bid and then put it in and send RECEIPT TODO
     def make_bid(self,message_json):
         username = message_json["username"]
         auction_id = message_json["auction_id"]
@@ -242,14 +244,3 @@ class AuctionRepositoryActions:
 
         #TODO future should print a receipt
         return base64.b64encode(("{ \"type\" : \""+success+"\"}").encode("utf-8"))
-
-    # Save this atm
-    def qualquermerda(self):
-        # Get the public key from the user key from the user
-        _dir = os.getcwd() + "/Clients/" + message_json["username"]
-        if not check_directory(_dir):
-            if not check_directory(os.getcwd() + "/Clients"):
-                os.mkdir(os.getcwd() + "/Clients")
-            os.mkdir(_dir)
-            with open(_dir+"/" + PK_NAME, "wb") as file:
-                file.write(message_json["public"].encode())

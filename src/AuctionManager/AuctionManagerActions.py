@@ -197,22 +197,37 @@ class AuctionManagerAuctions:
 
     # Checks everything from the auction and then sends to the other server
     def create_auction(self, message_json, address):
-        auction_name = message_json["auction_name"]
-        auction_description = message_json["auction_description"]
-        auction_min_number_bids = message_json["auction_min_number_bids"]
-        auction_time = message_json["auction_time"]
-        auction_max_number_bids = message_json["auction_max_number_bids"]
-        auction_allowed_bidders = message_json["auction_allowed_bidders"]
-        auction_threshold = message_json["auction_threshold"]
-        auction_type = message_json["auction_type"]
-        auction_user_key = serialization.load_pem_public_key(message_json["auction_user_key"].encode('utf-8'),
-                                                             default_backend())
 
-        auction_signature = message_json["auction_signature"]
+        session_key_client = self.auction_manager.session_clients[message_json["username"]]
+
+        # Decrypts the message
+        data = decrypt_data(session_key_client,
+                            message_json["message"], base64.b64decode(message_json["iv"]),
+                            base64.b64decode(message_json["Key"]),
+                            self.auction_manager.private_key)
+
+        # Loads the messsage to json
+        message_json = json.loads(data,strict="False")
+
+        # Decrypt the rest of the data with the SessionKey
+        auction_name = unpadd_data(message_json["auction_name"],session_key_client)
+        auction_description = unpadd_data(message_json["auction_description"], session_key_client)
+        auction_min_number_bids = unpadd_data(message_json["auction_min_number_bids"],session_key_client)
+        auction_time = unpadd_data(message_json["auction_time"],session_key_client)
+        auction_max_number_bids = unpadd_data(message_json["auction_max_number_bids"], session_key_client)
+        auction_allowed_bidders = unpadd_data(message_json["auction_allowed_bidders"], session_key_client)
+        auction_type = unpadd_data(message_json["auction_type"], session_key_client)
+
+        auct_padd = unpadd_data(
+            message_json["auction_user_key"].encode('utf-8'),session_key_client)
+
+        auction_user_key = serialization.load_pem_public_key(auct_padd, default_backend())
+
+        auction_signature = unpadd_data(message_json["auction_signature"], session_key_client)
 
         rsa = RSAKGen()
         verification = rsa.verify_sign(base64.b64decode(auction_signature),
-                                       self.auction_manager.session_clients[message_json["username"]], auction_user_key)
+                                       session_key_client, auction_user_key)
 
         # if its not valid then the address is the client's and the message is an error
         if not verification:
@@ -221,36 +236,19 @@ class AuctionManagerAuctions:
         # Construct the message to send to the AR
         message_final_json = "{"
         message_final_json += "\"type\" : \"create_auction\", \n"
-        message_final_json += "\"auction_name\" : \"" + auction_name + "\", \n"
-        message_final_json += "\"auction_description\" : \"" + auction_description + "\", \n"
-        message_final_json += "\"auction_min_number_bids\" : \"" + auction_min_number_bids + "\", \n"
-        message_final_json += "\"auction_time\" : \"" + auction_time + "\", \n"
-        message_final_json += "\"auction_max_number_bids\" : \"" + auction_max_number_bids + "\", \n"
-        message_final_json += "\"auction_allowed_bidders\" : \"" + auction_allowed_bidders + "\", \n"
-        message_final_json += "\"auction_threshold\" : \"" + auction_threshold + "\", \n"
-        message_final_json += "\"auction_type\" : \"" + auction_type + "\", \n"
-        message_final_json += "\"auction_user_key\" : \"" + message_json["auction_user_key"] + "\" \n"
+        message_final_json += "\"auction_name\" : \"" + str(auction_name, "utf-8") + "\", \n"
+        message_final_json += "\"auction_description\" : \"" + str(auction_description, "utf-8") + "\", \n"
+        message_final_json += "\"auction_min_number_bids\" : \"" + str(auction_min_number_bids, "utf-8") + "\", \n"
+        message_final_json += "\"auction_time\" : \"" + str(auction_time, "utf-8") + "\", \n"
+        message_final_json += "\"auction_max_number_bids\" : \"" + str(auction_max_number_bids, "utf-8") + "\", \n"
+        message_final_json += "\"auction_allowed_bidders\" : \"" + str(auction_allowed_bidders, "utf-8") + "\", \n"
+        message_final_json += "\"auction_type\" : \"" + str(auction_type, "utf-8") + "\", \n"
+        message_final_json += "\"auction_user_key\" : \"" + str(auct_padd, "utf-8") + "\" \n"
         message_final_json += "}"
+
         print(message_final_json)
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(base64.b64encode(message_final_json.encode("utf-8")), AR_ADDRESS)
 
         return base64.b64encode("{\"type\" : \"success\"}".encode("utf-8"))
-
-    # save for later
-    def qualquerer(self):
-        # This will encrypt with the session and then with the user public key
-        # Key, message, iv
-        # Get the key from the user
-        session_key_user = b""
-        for key, value in self.auction_manager.session_clients:
-            if key == data["username"]:
-                session_key_user = value
-                break
-
-        encrypted_pk = self.encrypt_function(pk, session_key_user, user_key)
-
-        message = "{\"server\" : \"" + str((encrypted_pk[1]), 'utf-8') + "\","
-        message += "\"key\" : \"" + str(base64.b64encode(encrypted_pk[0]), 'utf-8') + "\","
-        message += "\"iv\" : \"" + str(base64.b64encode(encrypted_pk[2]), 'utf-8') + "\"}"
