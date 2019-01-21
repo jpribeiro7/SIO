@@ -8,6 +8,8 @@ class AuctionManagerEntity:
         self.session_clients = {}
         # Session key with repository
         self.session_key_repository = None
+        # Public key Repos
+        self.public_repository_key = None
 
 
 

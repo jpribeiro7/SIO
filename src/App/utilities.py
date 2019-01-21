@@ -117,7 +117,8 @@ def encrypt_message_complete(message, session_key, pub_key):
 
     return [enc_key, complete_message, enc_iv]
 
-# Decryptsd  the data
+
+# Decrypts the data
 def decrypt_data(sesssion_key, data, enc_iv, enc_key, private_key):
     # All data must come decoded
     # Decript the key and iv

@@ -46,6 +46,8 @@ class AuctionManagerAuctions:
             try:
                 self.auction_manager.private_key, self.auction_manager.public_key = rsa_kg.load_key_servers(
                     self._server_path,self._server_password)
+                self.auction_manager.public_repository_key = rsa_kg.load_public_key(os.getcwd()+"/server",
+                                                                                    "repository_server.pem")
             except ValueError:
                 print("The password is incorrect!"
                       "All information has been deleted and the server will now become instable")
@@ -144,9 +146,14 @@ class AuctionManagerAuctions:
                                                                        length=utils_app.DH_HKDF_KEY,
                                                                        salt=None, info=json_message["info"].encode(),
                                                                        backend=default_backend()).derive(shared_key)
-            self.auction_manager.session_key_server = derived_key
+            self.auction_manager.session_key_repository = derived_key
 
-            save_server_key_client(self._server_path, json_message["server_key"].encode(),"/repository_server.pem")
+            save_server_key_client(self._server_path, json_message["server_key"].encode(), "/repository_server.pem")
+
+            #Load the key
+            r = RSAKGen()
+            self.auction_manager.public_repository_key = r.load_public_key(os.getcwd()+"/server",
+                                                                           "repository_server.pem")
             print("Session Set with repository")
         finally:
             sock.close()
@@ -236,15 +243,40 @@ class AuctionManagerAuctions:
         # Construct the message to send to the AR
         message_final_json = "{"
         message_final_json += "\"type\" : \"create_auction\", \n"
-        message_final_json += "\"auction_name\" : \"" + str(auction_name, "utf-8") + "\", \n"
-        message_final_json += "\"auction_description\" : \"" + str(auction_description, "utf-8") + "\", \n"
-        message_final_json += "\"auction_min_number_bids\" : \"" + str(auction_min_number_bids, "utf-8") + "\", \n"
-        message_final_json += "\"auction_time\" : \"" + str(auction_time, "utf-8") + "\", \n"
-        message_final_json += "\"auction_max_number_bids\" : \"" + str(auction_max_number_bids, "utf-8") + "\", \n"
-        message_final_json += "\"auction_allowed_bidders\" : \"" + str(auction_allowed_bidders, "utf-8") + "\", \n"
-        message_final_json += "\"auction_type\" : \"" + str(auction_type, "utf-8") + "\", \n"
-        message_final_json += "\"auction_user_key\" : \"" + str(auct_padd, "utf-8") + "\" \n"
-        message_final_json += "}"
+        # create the encrypted message
+
+        message_interm = "{"
+        message_interm += "\"auction_name\" : \"" + encrypt_message_sk(auction_name,
+                                                                       self.auction_manager.session_key_repository) + "\", \n"
+        message_interm += "\"auction_description\" : \"" + encrypt_message_sk(auction_description,
+                                                                              self.auction_manager.session_key_repository) + "\", \n"
+        message_interm += "\"auction_min_number_bids\" : \"" + encrypt_message_sk(auction_min_number_bids,
+                                                                                  self.auction_manager.session_key_repository) + "\", \n"
+        message_interm += "\"auction_time\" : \"" + encrypt_message_sk(auction_time,
+                                                                       self.auction_manager.session_key_repository) + "\", \n"
+        message_interm += "\"auction_max_number_bids\" : \"" + encrypt_message_sk(auction_max_number_bids,
+                                                                                  self.auction_manager.session_key_repository) + "\", \n"
+        message_interm += "\"auction_allowed_bidders\" : \"" + encrypt_message_sk(auction_allowed_bidders,
+                                                                                  self.auction_manager.session_key_repository) + "\", \n"
+        message_interm += "\"auction_type\" : \"" + encrypt_message_sk(auction_type,
+                                                                       self.auction_manager.session_key_repository) + "\", \n"
+        message_interm += "\"auction_user_key\" : \"" + encrypt_message_sk(auct_padd,
+                                                                           self.auction_manager.session_key_repository) + "\" \n"
+        message_interm += "}"
+
+        # Encrypt Complete
+        enc_json_message = encrypt_message_complete(base64.b64encode(message_interm.encode("utf-8")),
+                                                    self.auction_manager.session_key_repository,
+                                                    self.auction_manager.public_repository_key)
+
+        key = enc_json_message[0]
+        iv = enc_json_message[2]
+        data = enc_json_message[1]
+
+        message_final_json += "\"message\" : \"" + data + "\",\n"
+        message_final_json += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message_final_json += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
+        message_final_json += "\n}"
 
         print(message_final_json)
 

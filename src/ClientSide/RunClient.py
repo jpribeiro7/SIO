@@ -61,13 +61,11 @@ class RunClient():
             print('No connection established')
             sys.exit(0)
 
-
         # build trust for repos
         msg = self.client_actions.trust_server(self.current_client,address=AR_ADDRESS)
         msg_encoded = base64.b64encode(msg.encode('utf-8'))
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(msg_encoded, AR_ADDRESS)
-        # print("SENT")
         data,server = sock.recvfrom(SOCKET_BYTES)
 
         decoded_message = base64.b64decode(data)
@@ -120,13 +118,8 @@ class RunClient():
                         for auction in auction_list:
                             print(auction)
 
-
-
-
             finally:
                 sock.close()
-
-
 
 
 r = RunClient()

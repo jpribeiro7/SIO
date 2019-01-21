@@ -1,4 +1,3 @@
-#from AuctionRepository.Auction import Auction
 from App.utilities import *
 from App.app import *
 import base64
@@ -18,16 +17,16 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 from AuctionRepository.Auction import Auction
 from RSAKeyGenerator.RSAKGen import RSAKGen
-#from Blockchain.blockchain import BlockChain
 import datetime
 
 class AuctionRepositoryActions:
 
+    # Server path and server hex password
     _server_path = os.getcwd() + "/server"
     _server_password = "t0zj7bIPnzZQk3"
 
     def __init__(self, sock):
-
+        # Create the Entity and socket
         self.auction_repository = AuctionRepositoryEntity()
         self.sock = sock
 
@@ -36,16 +35,20 @@ class AuctionRepositoryActions:
 
         # Check for the existence of the directory
         if check_directory(self._server_path):
+
             try:
+                # Get the keys from the folders
                 self.auction_repository.private_key, self.auction_repository.public_key = rsa_kg.load_key_servers(
                     self._server_path, self._server_password)
+                # Get the server public key
+                self.auction_repository.manager_public = rsa_kg.load_public_key(self._server_path, "manager_server.pem")
             except ValueError:
-                print("The password is incorrect!"
-                      "All information has been deleted and the server will now become instable")
-                sys.exit("The password is incorrect!"
-                         "All information has been deleted and the server will now become instable")
+                # Exits
+                sys.exit("The password is incorrect! All information has been deleted and the server will"
+                         "now become unstable")
 
         else:
+            # Since it doesn't exist, we create the folders
             os.mkdir(self._server_path)
             os.mkdir(os.getcwd() + "/Clients")
             self.auction_repository.private_key, self.auction_repository.public_key = rsa_kg.generate_key_pair_server()
@@ -59,10 +62,12 @@ class AuctionRepositoryActions:
         par = load_pem_parameters(parameters, backend=default_backend())
 
         # Get the server public key
-        # server_pub = serialization.load_pem_public_key(message_json["public"].encode(),default_backend())
-
         manager_pub = message_json["public"].encode()
-        save_server_key_client(self._server_path, manager_pub,"/manager_server.pem")
+        save_server_key_client(self._server_path, manager_pub, "/manager_server.pem")
+
+        # Load the key
+        r = RSAKGen()
+        self.auction_repository.manager_public = r.load_public_key(self._server_path, "manager_server.pem")
 
         # Generate our public/private key
         private_key = par.generate_private_key()
@@ -134,7 +139,6 @@ class AuctionRepositoryActions:
         message += "}"
         # Get the username and set the session key
         self.auction_repository.session_key_clients[message_json["username"]] = derived_key
-        # print(derived_key)
 
         return base64.b64encode(message.encode('utf-8'))
 
@@ -149,7 +153,6 @@ class AuctionRepositoryActions:
 
         certificate = x509.load_pem_x509_certificate(cert,default_backend())
         citizen = CitizenCard()
-
         print(signature)
         if not citizen.check_signature(certificate, signature, message_json["username"].encode('utf-8')):
             return base64.b64encode("{ \"type\" : \"No valid signature\"}".encode('utf-8'))
@@ -165,7 +168,7 @@ class AuctionRepositoryActions:
             backend=default_backend())
 
         rsa = RSAKGen()
-        # Verify the uses signature of the session key
+        # Verify the user signature of the session key
         if rsa.verify_sign(message_json["rsa_signature"].encode('utf-8'),
                            self.auction_repository.session_key_clients[message_json["username"]], user_key):
             # It is invalid
@@ -186,16 +189,35 @@ class AuctionRepositoryActions:
     # All methods should have address to then send to where it should go
     def create_auction(self, message_json, address):
 
-        # get all the values
-        auction_name = message_json["auction_name"]
-        auction_description = message_json["auction_description"]
-        auction_min_number_bids = message_json["auction_min_number_bids"]
-        auction_time = message_json["auction_time"]
-        auction_max_number_bids = message_json["auction_max_number_bids"]
-        auction_allowed_bidders = message_json["auction_allowed_bidders"]
-        auction_type = message_json["auction_type"]
+        # Decrypts the message
+        data = decrypt_data(self.auction_repository.session_key_server,
+                            message_json["message"], base64.b64decode(message_json["iv"]),
+                            base64.b64decode(message_json["Key"]),
+                            self.auction_repository.private_key)
 
-        auction_user_key = serialization.load_pem_public_key(message_json["auction_user_key"].encode("utf-8"),
+        # Loads the messsage to json
+        message_json = json.loads(data,strict="False")
+
+        # get all the values
+        auction_name = unpadd_data(message_json["auction_name"],
+                                   self.auction_repository.session_key_server)
+        auction_description = unpadd_data(message_json["auction_description"],
+                                          self.auction_repository.session_key_server)
+        auction_min_number_bids = unpadd_data(message_json["auction_min_number_bids"],
+                                              self.auction_repository.session_key_server)
+        auction_time = unpadd_data(message_json["auction_time"],
+                                   self.auction_repository.session_key_server)
+        auction_max_number_bids = unpadd_data(message_json["auction_max_number_bids"],
+                                              self.auction_repository.session_key_server)
+        auction_allowed_bidders = unpadd_data(message_json["auction_allowed_bidders"],
+                                              self.auction_repository.session_key_server)
+        auction_type = unpadd_data(message_json["auction_type"],
+                                   self.auction_repository.session_key_server)
+        # Unpad the data
+        auct_padd = unpadd_data(
+            message_json["auction_user_key"].encode('utf-8'),self.auction_repository.session_key_server)
+
+        auction_user_key = serialization.load_pem_public_key(auct_padd,
                                                              default_backend())
 
         auction = Auction(auction_name=auction_name,
@@ -210,10 +232,11 @@ class AuctionRepositoryActions:
                          )
         self.auction_repository.addAuction(auction)
         # All values are here
-        print(auction_name)
-        print(auction_allowed_bidders)
+        print("NAME ", auction_name)
         return b""
 
+    # Lists all the auctions in the repository
+    # TODO maybe present the current max bid (if not Blind)
     def list_auctions(self,message_json):
         # gets the list of auctions and serializes it
         auction_list = self.auction_repository.listAuctions()
@@ -226,10 +249,12 @@ class AuctionRepositoryActions:
         message = "{ \"type\" : \"list_auctions\" ,\n"
         message += "\"list\" : \"" + encrypt_message_sk(serialized, session_key) + "\" \n"
         message += "}"
+
         print("auction_repos", message)
         return base64.b64encode(message.encode("utf-8"))
 
-    # User made a bid and then put it in and send RECEIPT TODO
+    # User made a bid
+    # and then put it in and send RECEIPT TODO
     def make_bid(self,message_json):
         username = message_json["username"]
         auction_id = message_json["auction_id"]

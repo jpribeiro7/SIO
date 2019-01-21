@@ -18,6 +18,9 @@ class AuctionRepositoryEntity:
         # (Auction_ID, Auction)
         self.auctions = {}
 
+        # Server pub key
+        self.manager_public = None
+
     def addAuction(self, auction):
         self.auctions[str(auction.id)] = auction
         AuctionRepositoryEntity.count += 1
