@@ -59,6 +59,12 @@ class Auction:
         for i in range(1, len(chain)):
             previous_block = chain[i-1]
             current_block = chain[i]
+            calculated_hash = Block.build_hash(username=current_block.username,
+                                                       signature=current_block.signature,
+                                                       amount=current_block.amount,
+                                                       previous_hash=current_block.previous_hash)
+            if current_block.hash != calculated_hash:
+                return False
             # validate hash
             if current_block.previous_hash != previous_block.hash:
                 return False

@@ -11,13 +11,13 @@ class Block:
         self.previous_hash = previous_hash
         self.amount = amount
         self.signature = signature
-        self.hash = self.build_hash()
+        self.hash = Block.build_hash(previous_hash, amount, signature, username)
         self.timestamp = datetime.datetime.now()
 
-
-    def build_hash(self):
+    @classmethod
+    def build_hash(cls, previous_hash, amount, signature, username):
         digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-        data = str(self.previous_hash)+str(self.amount)+str(self.signature)+str(self.username)
+        data = str(previous_hash)+str(amount)+str(signature)+str(username)
 
         digest.update(data.encode('utf-8'))
 
