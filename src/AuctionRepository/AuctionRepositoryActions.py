@@ -40,6 +40,9 @@ class AuctionRepositoryActions:
                 # Get the keys from the folders
                 self.auction_repository.private_key, self.auction_repository.public_key = rsa_kg.load_key_servers(
                     self._server_path, self._server_password)
+                self.auction_repository.auction_private_key, self.auction_repository.auction_public_key = rsa_kg.load_key_servers(
+                    self._server_path, self._server_password, private_key="/auction_private_key.pem", public_key="/auction_public_key.pem"
+                )
                 # Get the server public key
                 self.auction_repository.manager_public = rsa_kg.load_public_key(self._server_path, "manager_server.pem")
             except ValueError:
@@ -53,7 +56,8 @@ class AuctionRepositoryActions:
             os.mkdir(os.getcwd() + "/Clients")
             self.auction_repository.private_key, self.auction_repository.public_key = rsa_kg.generate_key_pair_server()
             rsa_kg.save_keys_server(self._server_path, self._server_password)
-
+            self.auction_repository.auction_private_key, self.auction_repository.auction_public_key = rsa_kg.generate_key_pair_server()
+            rsa_kg.save_keys_server(self._server_path, self._server_password, private_key="/auction_private_key.pem", public_key="/auction_public_key.pem" )
     # Function to create a session key between server and server
     def create_session_key_server(self, message_json, address):
 
@@ -220,15 +224,16 @@ class AuctionRepositoryActions:
         auction_user_key = serialization.load_pem_public_key(auct_padd,
                                                              default_backend())
 
-        auction = Auction(auction_name=auction_name,
-                          description = auction_description,
-                          auction_min_number_bids = auction_min_number_bids,
-                          auction_time = auction_time,
-                          auction_max_number_bids = auction_max_number_bids,
-                          auction_allowed_bidders = auction_allowed_bidders,
+        print(auction_description)
+        auction = Auction(auction_name=str(auction_name,"utf8"),
+                          description = str(auction_description,"utf8"),
+                          auction_min_number_bids = str(auction_min_number_bids,"utf8"),
+                          auction_time = str(auction_time,"utf8"),
+                          auction_max_number_bids = str(auction_max_number_bids,"utf8"),
+                          auction_allowed_bidders = str(auction_allowed_bidders,"utf8"),
                           auction_threshold = None,
-                          auction_type = auction_type,
-                          auction_user_key = auction_user_key
+                          auction_type=str(auction_type,"utf8"),
+                          auction_user_key=auction_user_key
                          )
         self.auction_repository.addAuction(auction)
         # All values are here

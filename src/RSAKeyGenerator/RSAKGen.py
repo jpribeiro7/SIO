@@ -74,7 +74,7 @@ class RSAKGen:
 
     #   Saves the keys in .pem files from the client
     #   path must be the folder  /etc/testing
-    def save_keys_server(self, path, password):
+    def save_keys_server(self, path, password, private_key="/private_key.pem",public_key="/public_key.pem"):
         # Private key
         private_pem = self.private_key.private_bytes(encoding=serialization.Encoding.PEM,
                                                      format=serialization.PrivateFormat.PKCS8,
@@ -85,7 +85,7 @@ class RSAKGen:
             encoding= serialization.Encoding.PEM,
             format= serialization.PublicFormat.SubjectPublicKeyInfo)
 
-        files = ["/private_key.pem", "/public_key.pem"]
+        files=[private_key, public_key]
         pem_files = [private_pem, public_pem]
         count = 0
         for name in files:
@@ -128,16 +128,16 @@ class RSAKGen:
     #   Given a path "/etc"
     #   Loads the keys for the server
     #   Returns (private_k, pub_k)
-    def load_key_servers(self, path, password):
+    def load_key_servers(self, path, password, private_key="/private_key.pem", public_key="/public_key.pem"):
         # Private key
-        with open(path + "/private_key.pem", "rb") as key_file:
+        with open(path + private_key, "rb") as key_file:
             self.private_key = serialization.load_pem_private_key(
                 key_file.read(),
                 password=password.encode(),
                 backend=default_backend())
 
         # Public key
-        with open(path + "/public_key.pem", "rb") as key_file:
+        with open(path + public_key, "rb") as key_file:
             self.public_key = serialization.load_pem_public_key(
                 key_file.read(),
                 backend=default_backend())
@@ -184,3 +184,17 @@ class RSAKGen:
             return True
         except InvalidSignature:
             return False
+
+    def cipher_public_key(self,public_key,message):
+        return public_key.encrypt(message, padding=padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        ))
+
+    def decipher_with_private_key(self,private_key, message):
+        return private_key.decrypt(message, padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        ))

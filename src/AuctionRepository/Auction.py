@@ -2,6 +2,7 @@ from AuctionRepository.Block import Block
 import uuid
 import datetime
 from App.app import *
+from RSAKeyGenerator.RSAKGen import RSAKGen
 
 
 class Auction:
@@ -31,14 +32,13 @@ class Auction:
                                  day = self.begin_date.day,
                                  hour = self.begin_date.hour + int(auction_time))
 
-
     def makeBid(self, username, amount, signature):
         if (self.max_date - datetime.datetime.now()).total_seconds() < 0:
             return False
         if len(self.blockchain)+1 > self.auction_max_number_bids:
             return False
         if self.type == ENGLISH_AUCTION:
-            if self.blockchain[-1].amount >= int(amount):
+            if int(self.blockchain[-1].amount) >= int(amount):
                 return False
 
         if self.blockchain == []:
@@ -46,7 +46,7 @@ class Auction:
         else:
             previous_hash = self.blockchain[-1].hash
 
-        block = Block(previous_hash , int(amount), signature, username)
+        block = self.cipher_content(previous_hash, username, amount, signature)
         self.blockchain.append(block)
         return True
 
@@ -64,5 +64,13 @@ class Auction:
                 return False
         return True
 
+    def cipher_content(self, previous_hash, username, amount, signature):
+        rsa_kg = RSAKGen()
+        if self.type == BLIND_AUCTION:
+            amount = rsa_kg.cipher_public_key(self.auction_user_key, amount)
 
+        username = rsa_kg.cipher_public_key(self.auction_user_key, username)
+        signature = rsa_kg.cipher_public_key(self.auction_user_key, signature)
 
+        block = Block(previous_hash, amount, signature, username)
+        return block

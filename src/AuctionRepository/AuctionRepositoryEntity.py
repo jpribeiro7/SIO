@@ -21,6 +21,10 @@ class AuctionRepositoryEntity:
         # Server pub key
         self.manager_public = None
 
+        # Assymetric key pair to cipher the bid's information
+        self.auction_public_key = None
+        self.auction_private_key = None
+
     def addAuction(self, auction):
         self.auctions[str(auction.id)] = auction
         AuctionRepositoryEntity.count += 1
