@@ -138,10 +138,10 @@ class ClientActions:
         # There must have a type
         auction_type = input("Auction type ((B)lind or (N)ormal): ")
         if auction_type.lower() in ["b", "blind"]:
-            auction_type = "blind"
+            auction_type = BLIND_AUCTION
             print("Blind auction is being created...")
         else:
-            auction_type = "Normal"
+            auction_type = ENGLISH_AUCTION
             print("Normal auction is being created...")
 
         # sign the session key
@@ -209,11 +209,30 @@ class ClientActions:
         while amount == "":
             amount = input("Bid Amount: ")
 
+        citizen = CitizenCard()
+        certificate = citizen.load_authentication_certificate()
+        signature = citizen.digital_signature(amount)
         message = "{ \"type\" : \"bid\" ,\n"
         message += "\"username\" : \"" + client.username + "\",\n"
-        message += "\"auction_id\" : \"" + auction_id + "\",\n"
-        message += "\"amount\" : \"" + amount + "\",\n"
-        message += "\"signature\" : \"" + str(base64.b64encode(self.digital_signature)) + "\"\n"
+        interm_message = "{ \"auction_id\" : \"" + encrypt_message_sk(auction_id,client.session_key_repository)+ "\",\n"
+        interm_message += "\"amount\" : \"" + encrypt_message_sk(amount,client.session_key_repository)  + "\",\n"
+        interm_message += "\"certificate\" : \"" + encrypt_message_sk(certificate, client.session_key_repository) + "\",\n"
+        interm_message += "\"signature\" : \"" + encrypt_message_sk(signature,client.session_key_repository) + "\"\n"
+        interm_message += "}"
+
+        enc_json_message = encrypt_message_complete(base64.b64encode(interm_message.encode("utf-8")),
+                                                    client.session_key_repository,
+                                                    client.server_public_key_repository)
+
+        key = enc_json_message[0]
+        iv = enc_json_message[2]
+        data = enc_json_message[1]
+
+        message += "\"message\" : \"" + data + "\",\n"
+        message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
+
         message += "}"
 
+        print(message)
         return message, AR_ADDRESS

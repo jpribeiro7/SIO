@@ -261,16 +261,34 @@ class AuctionRepositoryActions:
     # User made a bid
     # and then put it in and send RECEIPT TODO
     def make_bid(self,message_json):
+        # Decrypts the message
         username = message_json["username"]
-        auction_id = message_json["auction_id"]
-        amount = message_json["amount"]
-        signature = message_json["signature"]
-        print(auction_id)
+        data = decrypt_data(self.auction_repository.session_key_clients[username],
+                            message_json["message"], base64.b64decode(message_json["iv"]),
+                            base64.b64decode(message_json["Key"]),
+                            self.auction_repository.private_key)
+        # Loads the messsage to json
+        message_json = json.loads(data,strict="False")
 
-        auction = self.auction_repository.auctions[auction_id]
+        auction_id = unpadd_data(
+            message_json["auction_id"],
+            self.auction_repository.session_key_clients[username])
+        amount = unpadd_data(
+            message_json["amount"],
+            self.auction_repository.session_key_clients[username])
+        signature = unpadd_data(
+            message_json["signature"],
+            self.auction_repository.session_key_clients[username])
+
+        certificate = unpadd_data(
+            message_json["certificate"],
+            self.auction_repository.session_key_clients[username])
+
+        auction = self.auction_repository.auctions[str(auction_id, "utf-8")]
         response = auction.makeBid(username, amount, signature)
 
         success = "success" if response else "nope"
+        print("result: ",success)
 
         #TODO future should print a receipt
         return base64.b64encode(("{ \"type\" : \""+success+"\"}").encode("utf-8"))

@@ -2,6 +2,7 @@ from AuctionRepository.Block import Block
 import uuid
 import datetime
 from App.app import *
+import random
 from RSAKeyGenerator.RSAKGen import RSAKGen
 
 
@@ -37,14 +38,18 @@ class Auction:
             return False
         if len(self.blockchain)+1 > self.auction_max_number_bids:
             return False
-        if self.type == ENGLISH_AUCTION:
-            if int(self.blockchain[-1].amount) >= int(amount):
-                return False
 
         if self.blockchain == []:
             previous_hash = None
+            if self.type == ENGLISH_AUCTION:
+                if int(self.auction_min_number_bids) >= int(amount):
+                    return False
         else:
             previous_hash = self.blockchain[-1].hash
+            if self.type == ENGLISH_AUCTION:
+                if int(self.blockchain[-1].amount) >= int(amount):
+                    return False
+
 
         block = self.cipher_content(previous_hash, username, amount, signature)
         self.blockchain.append(block)
@@ -60,9 +65,9 @@ class Auction:
             previous_block = chain[i-1]
             current_block = chain[i]
             calculated_hash = Block.build_hash(username=current_block.username,
-                                                       signature=current_block.signature,
-                                                       amount=current_block.amount,
-                                                       previous_hash=current_block.previous_hash)
+                                               signature=current_block.signature,
+                                               amount=current_block.amount,
+                                               previous_hash=current_block.previous_hash)
             if current_block.hash != calculated_hash:
                 return False
             # validate hash
@@ -75,8 +80,10 @@ class Auction:
         if self.type == BLIND_AUCTION:
             amount = rsa_kg.cipher_public_key(self.auction_user_key, amount)
 
-        username = rsa_kg.cipher_public_key(self.auction_user_key, username)
+        username = rsa_kg.cipher_public_key(self.auction_user_key, username.encode("utf-8"))
         signature = rsa_kg.cipher_public_key(self.auction_user_key, signature)
 
         block = Block(previous_hash, amount, signature, username)
         return block
+
+

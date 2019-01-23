@@ -19,6 +19,7 @@ while True:
     data, address = sock.recvfrom(utils_app.SOCKET_BYTES)
 
     decoded_data = base64.b64decode(data)
+    print("server: ",decoded_data)
     message_json = json.loads(decoded_data, strict=False)
     print(message_json)
 
