@@ -4,6 +4,8 @@ import datetime
 from App.app import *
 import random
 from RSAKeyGenerator.RSAKGen import RSAKGen
+from cryptography.fernet import Fernet
+
 
 
 class Auction:
@@ -33,7 +35,13 @@ class Auction:
                                  day = self.begin_date.day,
                                  hour = self.begin_date.hour + int(auction_time))
 
-    def makeBid(self, username, amount, signature):
+
+        # Assymetric key pair to cipher the bid's information
+        rsa_kg = RSAKGen()
+        self.auction_private_key, self.auction_public_key = rsa_kg.generate_key_pair_server()
+
+
+    def makeBid(self, username, amount, signature, certificate):
         if (self.max_date - datetime.datetime.now()).total_seconds() < 0:
             return False
         if len(self.blockchain)+1 > self.auction_max_number_bids:
@@ -50,8 +58,7 @@ class Auction:
                 if int(self.blockchain[-1].amount) >= int(amount):
                     return False
 
-
-        block = self.cipher_content(previous_hash, username, amount, signature)
+        block = self.cipher_content(previous_hash, username, amount, signature, certificate)
         self.blockchain.append(block)
         return True
 
@@ -75,15 +82,37 @@ class Auction:
                 return False
         return True
 
-    def cipher_content(self, previous_hash, username, amount, signature):
+    def cipher_content(self, previous_hash, username, amount, signature, certificate):
         rsa_kg = RSAKGen()
+        auction_sym = Fernet.generate_key()
+        fernet = Fernet(auction_sym)
+
         if self.type == BLIND_AUCTION:
+            amount = fernet.encrypt(str(amount).encode())
             amount = rsa_kg.cipher_public_key(self.auction_user_key, amount)
 
-        username = rsa_kg.cipher_public_key(self.auction_user_key, username.encode("utf-8"))
-        signature = rsa_kg.cipher_public_key(self.auction_user_key, signature)
+        # Hybrid cipher
 
-        block = Block(previous_hash, amount, signature, username)
+        # cipher with sym key
+        username = fernet.encrypt(username.encode("utf-8"))
+        signature = fernet.encrypt(signature)
+        certificate = fernet.encrypt(certificate)
+
+        # cipher key with auction pub key
+        key = rsa_kg.cipher_public_key(self.auction_public_key, auction_sym)
+        # assinada a simetric key com a pub key do auction
+
+
+
+        second_key = Fernet.generate_key()
+        fernet = Fernet(second_key)
+        key = fernet.encrypt(key)
+
+        #
+        # cipher key again with auction owner pub key
+        key = rsa_kg.cipher_public_key(self.auction_user_key, second_key)
+
+        block = Block(previous_hash, amount, signature, username, certificate, key, second_key)
         return block
 
 

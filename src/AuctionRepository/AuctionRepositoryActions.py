@@ -9,6 +9,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_parameters
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
+from cryptography import x509
 import codecs
 import json
 import pickle
@@ -40,9 +41,7 @@ class AuctionRepositoryActions:
                 # Get the keys from the folders
                 self.auction_repository.private_key, self.auction_repository.public_key = rsa_kg.load_key_servers(
                     self._server_path, self._server_password)
-                self.auction_repository.auction_private_key, self.auction_repository.auction_public_key = rsa_kg.load_key_servers(
-                    self._server_path, self._server_password, private_key="/auction_private_key.pem", public_key="/auction_public_key.pem"
-                )
+
                 # Get the server public key
                 self.auction_repository.manager_public = rsa_kg.load_public_key(self._server_path, "manager_server.pem")
             except ValueError:
@@ -56,8 +55,7 @@ class AuctionRepositoryActions:
             os.mkdir(os.getcwd() + "/Clients")
             self.auction_repository.private_key, self.auction_repository.public_key = rsa_kg.generate_key_pair_server()
             rsa_kg.save_keys_server(self._server_path, self._server_password)
-            self.auction_repository.auction_private_key, self.auction_repository.auction_public_key = rsa_kg.generate_key_pair_server()
-            rsa_kg.save_keys_server(self._server_path, self._server_password, private_key="/auction_private_key.pem", public_key="/auction_public_key.pem" )
+
     # Function to create a session key between server and server
     def create_session_key_server(self, message_json, address):
 
@@ -284,11 +282,20 @@ class AuctionRepositoryActions:
             message_json["certificate"],
             self.auction_repository.session_key_clients[username])
 
+        # validate certificate and signature
+        cert = x509.load_pem_x509_certificate(certificate, default_backend())
+        citizen = CitizenCard()
+        if not citizen.check_signature(cert, signature, amount):
+            return base64.b64encode("{ \"type\" : \"No valid signature\"}".encode('utf-8'))
+
+        if not citizen.validate_certificate(cert):
+            return base64.b64encode("{ \"type\" : \"No valid certificate\"}".encode('utf-8'))
+
         auction = self.auction_repository.auctions[str(auction_id, "utf-8")]
-        response = auction.makeBid(username, amount, signature)
+        response = auction.makeBid(username, amount, signature, certificate)
 
         success = "success" if response else "nope"
-        print("result: ",success)
+        print("result: ", success)
 
         #TODO future should print a receipt
         return base64.b64encode(("{ \"type\" : \""+success+"\"}").encode("utf-8"))
