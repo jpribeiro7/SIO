@@ -14,6 +14,7 @@ class Auction:
                  auction_time,
                  auction_type,
                  auction_user_key,
+                 auction_user,
                  auction_name=None,
                  description=None,
                  auction_max_number_bids = 10,
@@ -21,6 +22,7 @@ class Auction:
                  auction_allowed_bidders = None,
                  auction_threshold=None):
         self.auction_user_key = auction_user_key
+        self.auction_user = auction_user
         self.description = description
         self.auction_name = auction_name
         self.id = uuid.uuid1()
@@ -35,14 +37,17 @@ class Auction:
                                  day = self.begin_date.day,
                                  hour = self.begin_date.hour + int(auction_time))
 
-
+        self.open = True
         # Assymetric key pair to cipher the bid's information
         rsa_kg = RSAKGen()
         self.auction_private_key, self.auction_public_key = rsa_kg.generate_key_pair_server()
 
 
     def makeBid(self, username, amount, signature, certificate):
+        if not self.open:
+            return False
         if (self.max_date - datetime.datetime.now()).total_seconds() < 0:
+            self.open = False
             return False
         if len(self.blockchain)+1 > self.auction_max_number_bids:
             return False
@@ -110,9 +115,29 @@ class Auction:
 
         #
         # cipher key again with auction owner pub key
-        key = rsa_kg.cipher_public_key(self.auction_user_key, second_key)
+        second_key = rsa_kg.cipher_public_key(self.auction_user_key, second_key)
 
         block = Block(previous_hash, amount, signature, username, certificate, key, second_key)
         return block
+
+    def close(self):
+        open = False
+        rsa_kg = RSAKGen()
+        for bid in self.blockchain:
+            # decipher first sym key with second sym key
+            fernet = Fernet(bid.second_symmetric_key)
+            sym_key = fernet.decrypt(bid.first_symmetric_key)
+
+            # decipher first sym key with auction pub key
+            sym_key = rsa_kg.decipher_with_private_key(self.auction_private_key, sym_key)
+
+        for bid in self.blockchain:
+            print(bid.username)
+            print(bid.amount)
+            print(bid.signature)
+            print(bid.certificate)
+
+            print()
+
 
 

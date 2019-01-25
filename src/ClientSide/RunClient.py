@@ -23,6 +23,9 @@ class RunClient():
             msg, address = self.client_actions.list_auctions(self.current_client)
         elif option == "3":
             msg, address = self.client_actions.make_bid(self.current_client)
+        elif option == "4":
+            msg, address = self.client_actions.get_auction(self.current_client)
+
 
 
 
@@ -82,7 +85,7 @@ class RunClient():
 
         option = "-1"
 
-        while option != "4":
+        while option != "5":
             # Create a UDP socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -90,7 +93,9 @@ class RunClient():
             print("1- Create a Auction")
             print("2- List all auctions")
             print("3- Bid")
-            print("4- Leave")
+            print("4- Terminate auction")
+            print("5- Leave")
+
             option = input("> ")
             message, address = self.switch(option)
             print(message)
@@ -100,7 +105,7 @@ class RunClient():
                     sock.sendto(message, address)
                     print("Waiting for a response")
                     data, server = sock.recvfrom(SOCKET_BYTES)
-                    # The client should always recieve a confirmation from the server
+                    # The client should always receive a confirmation from the server
                     decoded_message = base64.b64decode(data)
                     message = json.loads(decoded_message, strict = False)
 
@@ -119,9 +124,27 @@ class RunClient():
                         print("auction_list, ",auction_list)
                         for auction in auction_list:
                             print(auction)
+                    if message['type'] == "get_auction_to_close":
+                        msg, address = self.client_actions.close_auction(self.current_client,message)
+                        self.auxiliar_conn(base64.b64encode(msg.encode("utf-8")), address)
 
             finally:
                 sock.close()
+
+    def auxiliar_conn(self, message, address):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            sock.sendto(message, address)
+            print("Waiting for a response")
+            data, server = sock.recvfrom(SOCKET_BYTES)
+            # The client should always receive a confirmation from the server
+            decoded_message = base64.b64decode(data)
+            message = json.loads(decoded_message, strict = False)
+
+            if message['type'] == "auction_closed":
+                print("Auction closed")
+        finally:
+            sock.close()
 
 
 r = RunClient()

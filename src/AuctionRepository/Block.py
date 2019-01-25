@@ -11,6 +11,7 @@ class Block:
         self.previous_hash = previous_hash
         self.amount = amount
         self.signature = signature
+        self.certificate = certificate
         self.first_symmetric_key = first_symmetric_key
         self.second_symmetric_key = second_symmetric_key
         self.hash = Block.build_hash(previous_hash, amount, signature, username, certificate, first_symmetric_key, second_symmetric_key)

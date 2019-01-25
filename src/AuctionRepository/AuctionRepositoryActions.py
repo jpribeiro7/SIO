@@ -209,6 +209,8 @@ class AuctionRepositoryActions:
         message_json = json.loads(data,strict="False")
 
         # get all the values
+        username = unpadd_data(message_json["username"],
+                                              self.auction_repository.session_key_server)
         auction_name = unpadd_data(message_json["auction_name"],
                                    self.auction_repository.session_key_server)
         auction_description = unpadd_data(message_json["auction_description"],
@@ -234,6 +236,7 @@ class AuctionRepositoryActions:
         auction = Auction(auction_name=str(auction_name,"utf8"),
                           description = str(auction_description,"utf8"),
                           auction_min_number_bids = str(auction_min_number_bids,"utf8"),
+                          auction_user = str(username,"utf8"),
                           auction_time = str(auction_time,"utf8"),
                           auction_max_number_bids = str(auction_max_number_bids,"utf8"),
                           auction_allowed_bidders = str(auction_allowed_bidders,"utf8"),
@@ -314,3 +317,34 @@ class AuctionRepositoryActions:
 
         #TODO future should print a receipt
         return base64.b64encode(("{ \"type\" : \""+success+"\"}").encode("utf-8"))
+
+    def get_auction_to_close(self, message_json):
+        username = message_json["username"]
+        auction_id = message_json["auction_id"]
+        auction = self.auction_repository.auctions[auction_id]
+
+        if auction.auction_user != username:
+            pass
+
+        blockchain = pickle.dumps(auction.blockchain)
+        message = "{ \"type\" : \"get_auction_to_close\", \n"
+        message += "\"auction_id\" : \"" + auction_id + "\" ,\n"
+        message += "\"blockchain\" : \"" + encrypt_message_sk(blockchain,self.auction_repository.session_key_clients[username]) + "\" \n"
+        message += "}"
+
+        return base64.b64encode(message.encode("utf-8"))
+
+    def close_auction(self, message_json):
+        username = message_json["username"]
+        auction_id = message_json["auction_id"]
+        deciphered_blockchain = unpadd_data(message_json["blockchain"],self.auction_repository.session_key_clients[username])
+        auction = self.auction_repository.auctions[auction_id]
+        auction.blockchain = pickle.loads(deciphered_blockchain)
+
+        auction.close()
+
+        message = "{ \"type\" : \"auction_closed\" \n"
+        message += "}"
+
+        return base64.b64encode(message.encode("utf-8"))
+

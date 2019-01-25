@@ -215,6 +215,7 @@ class AuctionManagerAuctions:
 
 
         hm = unpadd_data(message_json["hmac"],self.auction_manager.session_clients[message_json["username"]])
+        username = message_json["username"]
         cr = message_json["message"].encode("utf-8")
         sk = self.auction_manager.session_clients[message_json["username"]]
         if not HMAC_Conf.verify_integrity(hm,cr,sk):
@@ -261,6 +262,8 @@ class AuctionManagerAuctions:
         # create the encrypted message
 
         message_interm = "{"
+        message_interm += "\"username\" : \"" + encrypt_message_sk(username,
+                                                                       self.auction_manager.session_key_repository) + "\", \n"
         message_interm += "\"auction_name\" : \"" + encrypt_message_sk(auction_name,
                                                                        self.auction_manager.session_key_repository) + "\", \n"
         message_interm += "\"auction_description\" : \"" + encrypt_message_sk(auction_description,

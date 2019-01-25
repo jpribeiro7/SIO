@@ -5,6 +5,8 @@ from RSAKeyGenerator.RSAKGen import RSAKGen
 import sys
 from CitizenCard.CitizenCard import CitizenCard
 from App.HMAC_Conf import HMAC_Conf
+import pickle
+from AuctionRepository.Block import  Block
 
 class ClientActions:
     _client_path = ""
@@ -197,6 +199,7 @@ class ClientActions:
         return message, AM_ADDRESS
 
     # List the auctions pressent in the server
+    # TODO: Integridade
     def list_auctions(self, client):
         message = "{ \"type\" : \"list_auctions\" ,\n"
         message += "\"username\" : \"" + client.username + "\"\n"
@@ -243,4 +246,33 @@ class ClientActions:
         message += "}"
 
         print(message)
+        return message, AR_ADDRESS
+
+
+    def get_auction(self, client):
+        auction_id = ""
+        while auction_id == "":
+            auction_id = input("Auction ID: ")
+
+        message = "{ \"type\" : \"get_auction_to_close\" ,\n"
+        message += "\"username\" : \"" + client.username + "\" ,\n"
+        message += "\"auction_id\" : \"" + auction_id + "\"\n"
+        message += "}"
+
+        return message, AR_ADDRESS
+
+    def close_auction(self, client, message_json):
+        something = unpadd_data(message_json["blockchain"], client.session_key_repository)
+        blockchain = pickle.loads(something)
+        rsa_kg = RSAKGen()
+        for bid in blockchain:
+            bid.second_symmetric_key = rsa_kg.decipher_with_private_key(client.auction_private_key, bid.second_symmetric_key)
+
+        message = "{ \"type\" : \"close_auction\" ,\n"
+        message += "\"username\" : \"" + client.username + "\" ,\n"
+        message += "\"auction_id\" : \"" + message_json["auction_id"] + "\" ,\n"
+        message += "\"blockchain\" : \"" + encrypt_message_sk(pickle.dumps(blockchain), client.session_key_repository) + "\"\n"
+
+        message += "}"
+
         return message, AR_ADDRESS
