@@ -19,6 +19,7 @@ from cryptography.hazmat.backends import default_backend
 from AuctionRepository.Auction import Auction
 from RSAKeyGenerator.RSAKGen import RSAKGen
 import datetime
+from App.HMAC_Conf import HMAC_Conf
 
 class AuctionRepositoryActions:
 
@@ -148,6 +149,13 @@ class AuctionRepositoryActions:
     # Must be done alongside the login
     def build_trust(self, message_json):
 
+        hm = unpadd_data(message_json["hmac"],self.auction_repository.session_key_clients[message_json["username"]])
+        cr = message_json["certificate"].encode("utf-8")
+        sk = self.auction_repository.session_key_clients[message_json["username"]]
+        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
+
         # decipher with the session key
         cert = unpadd_data(message_json["certificate"], self.auction_repository.session_key_clients[message_json["username"]])
         signature = unpadd_data(message_json["digital_signature"],
@@ -259,6 +267,13 @@ class AuctionRepositoryActions:
     # User made a bid
     # and then put it in and send RECEIPT TODO
     def make_bid(self,message_json):
+
+        hm = unpadd_data(message_json["hmac"],self.auction_repository.session_key_clients[message_json["username"]])
+        cr = message_json["message"].encode("utf-8")
+        sk = self.auction_repository.session_key_clients[message_json["username"]]
+        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
         # Decrypts the message
         username = message_json["username"]
         data = decrypt_data(self.auction_repository.session_key_clients[username],

@@ -110,6 +110,8 @@ class RunClient():
                             print('No Auction created')
                         if option == "3":
                             print("Couldn't make bid")
+                    if message['type'] == "Tempered data":
+                        print("Data at the server was not the sent by you.\n")
                     if message['type'] == 'list_auctions':
                         message_list = unpadd_data(message['list'], self.current_client.session_key_repository)
                         print("message_list, ",message_list)

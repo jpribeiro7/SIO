@@ -4,7 +4,7 @@ from App.app import *
 from RSAKeyGenerator.RSAKGen import RSAKGen
 import sys
 from CitizenCard.CitizenCard import CitizenCard
-
+from App.HMAC_Conf import HMAC_Conf
 
 class ClientActions:
     _client_path = ""
@@ -79,6 +79,10 @@ class ClientActions:
 
         digital_signature = self.digital_signature
         rsa_sign = rsa.sign_message(client.username.encode('utf-8'), client.private_key)
+
+        hmac = HMAC_Conf.integrity_control(encrypt_message_sk(certificate, session_key).encode("utf-8"),
+                                    session_key)
+
         # print(rsa.sign_message(client.username.encode('utf-8'), client.private_key) )
         # builds trust message
         json_message = "{ " + "\n"
@@ -88,10 +92,10 @@ class ClientActions:
         json_message += "\"rsa_signature\" : \"" + encrypt_message_sk(rsa_sign, session_key) + "\", \n"
         json_message += "\"username\" : \"" + client.username + "\", \n"
         json_message += "\"certificate\" : \"" + encrypt_message_sk(certificate, session_key) + "\", \n"
+        json_message += "\"hmac\" : \"" + encrypt_message_sk(hmac, session_key) + "\", \n"
         json_message += "\"digital_signature\" : \"" + encrypt_message_sk(digital_signature, session_key) + "\""
         json_message += "\n" + "}"
         # print(digital_signature)
-
         return json_message
 
     # This will create the auction with the server
@@ -184,6 +188,8 @@ class ClientActions:
 
         message += "\"message\" : \"" + data + "\",\n"
         message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"hmac\" : \"" + encrypt_message_sk(HMAC_Conf.integrity_control(data.encode("utf-8"), client.session_key_manager),
+                                                        client.session_key_manager) + "\",\n"
         message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
 
         message += "}"
@@ -230,6 +236,8 @@ class ClientActions:
 
         message += "\"message\" : \"" + data + "\",\n"
         message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"hmac\" : \"" + encrypt_message_sk(HMAC_Conf.integrity_control(data.encode("utf-8"),client.session_key_repository),
+                                                        client.session_key_repository)+ "\", \n"
         message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
 
         message += "}"

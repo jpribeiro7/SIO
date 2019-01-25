@@ -28,6 +28,7 @@ import pickle
 import datetime
 from RSAKeyGenerator.RSAKGen import RSAKGen
 import sys
+from App.HMAC_Conf import HMAC_Conf
 
 
 class AuctionManagerAuctions:
@@ -162,6 +163,13 @@ class AuctionManagerAuctions:
     # Must be done alongside the login
     def build_trust(self, message_json):
 
+        hm = unpadd_data(message_json["hmac"],self.auction_manager.session_clients[message_json["username"]])
+        cr = message_json["certificate"].encode("utf-8")
+        sk = self.auction_manager.session_clients[message_json["username"]]
+        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
+
         # decipher with the session key
         cert = unpadd_data(message_json["certificate"], self.auction_manager.session_clients[message_json["username"]])
         signature = unpadd_data(message_json["digital_signature"],
@@ -204,6 +212,13 @@ class AuctionManagerAuctions:
 
     # Checks everything from the auction and then sends to the other server
     def create_auction(self, message_json, address):
+
+
+        hm = unpadd_data(message_json["hmac"],self.auction_manager.session_clients[message_json["username"]])
+        cr = message_json["message"].encode("utf-8")
+        sk = self.auction_manager.session_clients[message_json["username"]]
+        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8')), address
 
         session_key_client = self.auction_manager.session_clients[message_json["username"]]
 

@@ -158,5 +158,36 @@ def unpadd_data(data, session):
 
     return deciphered
 
+
 def b_decod(data):
     return base64.b64decode(data)
+
+
+
+"""
+:param timestamp :              time the bid was done
+:param auction_id :             id do auction
+:param server_signature :       the server signature of the block hash
+:param bid_ammount:             bid_ammount
+:param bid_signature:           bid_signature from client
+:param server_unique_hash:      server_unique_hash generated from server
+:param bloc_hash:               block hash in blochain
+
+"""
+def create_recipt(timestamp, auction_id, server_signature, bid_ammount, bid_signature, server_unique_hash, bloc_hash):
+
+    recipt_dig = hashes.Hash(hashes.SHA256(), backend=default_backend())
+    recipt_dig.update(str(bloc_hash).encode() + str(server_unique_hash).encode())
+    unique_hash = recipt_dig.finalize()
+
+    message = "{\n"
+    message += "\"timestamp\" : \"" + str(timestamp) + "\", \n"
+    message += "\"auction_id\" : \"" + str(auction_id) + "\", \n"
+    message += "\"server_signature\" : \"" + str(server_signature) + "\", \n"
+    message += "\"bid_ammount\" : \"" + str(bid_ammount) + "\", \n"
+    message += "\"bid_signature\" : \"" + str(bid_signature) + "\", \n"
+    message += "\"bloc_hash\" : \"" + str(bloc_hash) + "\", \n"
+    message += "\"recipt_unique_hash\" : \"" + str(unique_hash) + "\" \n"
+    message += "}"
+    print(message)
+    return message
