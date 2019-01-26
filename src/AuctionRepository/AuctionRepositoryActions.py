@@ -149,12 +149,11 @@ class AuctionRepositoryActions:
     # Must be done alongside the login
     def build_trust(self, message_json):
 
-        hm = unpadd_data(message_json["hmac"],self.auction_repository.session_key_clients[message_json["username"]])
+        hm = base64.b64decode(message_json["hmac"])
         cr = message_json["certificate"].encode("utf-8")
         sk = self.auction_repository.session_key_clients[message_json["username"]]
         if not HMAC_Conf.verify_integrity(hm,cr,sk):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
-
 
         # decipher with the session key
         cert = unpadd_data(message_json["certificate"], self.auction_repository.session_key_clients[message_json["username"]])
@@ -252,6 +251,8 @@ class AuctionRepositoryActions:
     # Lists all the auctions in the repository
     # TODO maybe present the current max bid (if not Blind)
     def list_auctions(self,message_json):
+
+
         # gets the list of auctions and serializes it
         auction_list = self.auction_repository.listAuctions()
         serialized = pickle.dumps(auction_list)
@@ -271,8 +272,8 @@ class AuctionRepositoryActions:
     # and then put it in and send RECEIPT TODO
     def make_bid(self,message_json):
 
-        hm = unpadd_data(message_json["hmac"],self.auction_repository.session_key_clients[message_json["username"]])
-        cr = message_json["message"].encode("utf-8")
+        hm = base64.b64decode(message_json["hmac"])
+        cr = message_json["message"].encode()
         sk = self.auction_repository.session_key_clients[message_json["username"]]
         if not HMAC_Conf.verify_integrity(hm,cr,sk):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
@@ -283,7 +284,7 @@ class AuctionRepositoryActions:
                             message_json["message"], base64.b64decode(message_json["iv"]),
                             base64.b64decode(message_json["Key"]),
                             self.auction_repository.private_key)
-        # Loads the messsage to json
+        # Loads the message to json
         message_json = json.loads(data,strict="False")
 
         auction_id = unpadd_data(

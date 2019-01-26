@@ -163,7 +163,7 @@ class AuctionManagerAuctions:
     # Must be done alongside the login
     def build_trust(self, message_json):
 
-        hm = unpadd_data(message_json["hmac"],self.auction_manager.session_clients[message_json["username"]])
+        hm = base64.b64decode(message_json["hmac"])
         cr = message_json["certificate"].encode("utf-8")
         sk = self.auction_manager.session_clients[message_json["username"]]
         if not HMAC_Conf.verify_integrity(hm,cr,sk):
@@ -212,15 +212,13 @@ class AuctionManagerAuctions:
 
     # Checks everything from the auction and then sends to the other server
     def create_auction(self, message_json, address):
-
-
-        hm = unpadd_data(message_json["hmac"],self.auction_manager.session_clients[message_json["username"]])
-        username = message_json["username"]
-        cr = message_json["message"].encode("utf-8")
-        sk = self.auction_manager.session_clients[message_json["username"]]
+        hm = base64.b64decode(message_json["hmac"])
+        cr = message_json["message"].encode()
+        sk = self.auction_repository.session_key_clients[message_json["username"]]
         if not HMAC_Conf.verify_integrity(hm,cr,sk):
-            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8')), address
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
+        username = message_json["username"]
         session_key_client = self.auction_manager.session_clients[message_json["username"]]
 
         # Decrypts the message

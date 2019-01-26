@@ -94,7 +94,7 @@ class ClientActions:
         json_message += "\"rsa_signature\" : \"" + encrypt_message_sk(rsa_sign, session_key) + "\", \n"
         json_message += "\"username\" : \"" + client.username + "\", \n"
         json_message += "\"certificate\" : \"" + encrypt_message_sk(certificate, session_key) + "\", \n"
-        json_message += "\"hmac\" : \"" + encrypt_message_sk(hmac, session_key) + "\", \n"
+        json_message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8') + "\", \n"
         json_message += "\"digital_signature\" : \"" + encrypt_message_sk(digital_signature, session_key) + "\""
         json_message += "\n" + "}"
         # print(digital_signature)
@@ -188,10 +188,10 @@ class ClientActions:
         iv = enc_json_message[2]
         data = enc_json_message[1]
 
+        hmac = HMAC_Conf.integrity_control(data.encode(), client.session_key_repository)
         message += "\"message\" : \"" + data + "\",\n"
         message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
-        message += "\"hmac\" : \"" + encrypt_message_sk(HMAC_Conf.integrity_control(data.encode("utf-8"), client.session_key_manager),
-                                                        client.session_key_manager) + "\",\n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8')+ "\", \n"
         message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
 
         message += "}"
@@ -201,8 +201,10 @@ class ClientActions:
     # List the auctions pressent in the server
     # TODO: Integridade
     def list_auctions(self, client):
+        hmac = HMAC_Conf.integrity_control(client.username.encode(), client.session_key_repository)
         message = "{ \"type\" : \"list_auctions\" ,\n"
         message += "\"username\" : \"" + client.username + "\"\n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8')+ "\", \n"
         message += "}"
 
         return message, AR_ADDRESS
@@ -223,8 +225,8 @@ class ClientActions:
         signature = citizen.digital_signature(amount)
         message = "{ \"type\" : \"bid\" ,\n"
         message += "\"username\" : \"" + client.username + "\",\n"
-        interm_message = "{ \"auction_id\" : \"" + encrypt_message_sk(auction_id,client.session_key_repository)+ "\",\n"
-        interm_message += "\"amount\" : \"" + encrypt_message_sk(amount,client.session_key_repository)  + "\",\n"
+        interm_message = "{ \"auction_id\" : \"" + encrypt_message_sk(auction_id,client.session_key_repository) + "\",\n"
+        interm_message += "\"amount\" : \"" + encrypt_message_sk(amount,client.session_key_repository) + "\",\n"
         interm_message += "\"certificate\" : \"" + encrypt_message_sk(certificate, client.session_key_repository) + "\",\n"
         interm_message += "\"signature\" : \"" + encrypt_message_sk(signature,client.session_key_repository) + "\"\n"
         interm_message += "}"
@@ -236,13 +238,12 @@ class ClientActions:
         key = enc_json_message[0]
         iv = enc_json_message[2]
         data = enc_json_message[1]
+        hmac = HMAC_Conf.integrity_control(data.encode(),client.session_key_repository)
 
         message += "\"message\" : \"" + data + "\",\n"
         message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
-        message += "\"hmac\" : \"" + encrypt_message_sk(HMAC_Conf.integrity_control(data.encode("utf-8"),client.session_key_repository),
-                                                        client.session_key_repository)+ "\", \n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8')+ "\", \n"
         message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
-
         message += "}"
 
         print(message)
