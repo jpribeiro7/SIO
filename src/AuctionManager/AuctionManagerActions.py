@@ -99,7 +99,6 @@ class AuctionManagerAuctions:
         message += "}"
         # Get the username and set the session key
         self.auction_manager.session_clients[message_json["username"]] = derived_key
-        # print(derived_key)
 
         return base64.b64encode(message.encode('utf-8'))
 
@@ -163,12 +162,11 @@ class AuctionManagerAuctions:
     # Must be done alongside the login
     def build_trust(self, message_json):
 
-        hm = base64.b64decode(message_json["hmac"])
-        cr = message_json["certificate"].encode("utf-8")
-        sk = self.auction_manager.session_clients[message_json["username"]]
-        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+        username = message_json["username"]
+        session_key_client = self.auction_manager.session_clients[username]
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("certificate", message_json, session_key_client ):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
-
 
         # decipher with the session key
         cert = unpadd_data(message_json["certificate"], self.auction_manager.session_clients[message_json["username"]])
@@ -185,7 +183,7 @@ class AuctionManagerAuctions:
         if not citizen.validate_certificate(certificate):
             return base64.b64encode("{ \"type\" : \"No valid certificate\"}".encode('utf-8'))
 
-        user_pub_key = unpadd_data(message_json["public"], self.auction_manager.session_clients[message_json["username"]])
+        user_pub_key = unpadd_data(message_json["public"], session_key_client)
 
         # Get the user key from the dir
         user_key = serialization.load_pem_public_key(
@@ -195,7 +193,7 @@ class AuctionManagerAuctions:
         rsa = RSAKGen()
         # Verify the uses signature of the session key
         if rsa.verify_sign(message_json["rsa_signature"].encode('utf-8'),
-                           self.auction_manager.session_clients[message_json["username"]], user_key):
+                           session_key_client, user_key):
             # It is invalid
             return base64.b64encode("{\"type\" : \"No valid rsa signature\"}".encode("utf-8"))
 
@@ -212,14 +210,12 @@ class AuctionManagerAuctions:
 
     # Checks everything from the auction and then sends to the other server
     def create_auction(self, message_json, address):
-        hm = base64.b64decode(message_json["hmac"])
-        cr = message_json["message"].encode()
-        sk = self.auction_repository.session_key_clients[message_json["username"]]
-        if not HMAC_Conf.verify_integrity(hm,cr,sk):
-            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
         username = message_json["username"]
-        session_key_client = self.auction_manager.session_clients[message_json["username"]]
+        session_key_client = self.auction_manager.session_clients[username]
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("message", message_json, session_key_client ):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
         # Decrypts the message
         data = decrypt_data(session_key_client,
@@ -231,13 +227,13 @@ class AuctionManagerAuctions:
         message_json = json.loads(data,strict="False")
 
         # Decrypt the rest of the data with the SessionKey
-        auction_name = unpadd_data(message_json["auction_name"],session_key_client)
-        auction_description = unpadd_data(message_json["auction_description"], session_key_client)
+        auction_name            = unpadd_data(message_json["auction_name"],session_key_client)
+        auction_description     = unpadd_data(message_json["auction_description"], session_key_client)
         auction_min_number_bids = unpadd_data(message_json["auction_min_number_bids"],session_key_client)
-        auction_time = unpadd_data(message_json["auction_time"],session_key_client)
+        auction_time            = unpadd_data(message_json["auction_time"],session_key_client)
         auction_max_number_bids = unpadd_data(message_json["auction_max_number_bids"], session_key_client)
         auction_allowed_bidders = unpadd_data(message_json["auction_allowed_bidders"], session_key_client)
-        auction_type = unpadd_data(message_json["auction_type"], session_key_client)
+        auction_type            = unpadd_data(message_json["auction_type"], session_key_client)
 
         auct_padd = unpadd_data(
             message_json["auction_user_key"].encode('utf-8'),session_key_client)
@@ -259,39 +255,34 @@ class AuctionManagerAuctions:
         message_final_json += "\"type\" : \"create_auction\", \n"
         # create the encrypted message
 
+        repository_key = self.auction_manager.session_key_repository
+        # Create the interm message
         message_interm = "{"
-        message_interm += "\"username\" : \"" + encrypt_message_sk(username,
-                                                                       self.auction_manager.session_key_repository) + "\", \n"
-        message_interm += "\"auction_name\" : \"" + encrypt_message_sk(auction_name,
-                                                                       self.auction_manager.session_key_repository) + "\", \n"
-        message_interm += "\"auction_description\" : \"" + encrypt_message_sk(auction_description,
-                                                                              self.auction_manager.session_key_repository) + "\", \n"
-        message_interm += "\"auction_min_number_bids\" : \"" + encrypt_message_sk(auction_min_number_bids,
-                                                                                  self.auction_manager.session_key_repository) + "\", \n"
-        message_interm += "\"auction_time\" : \"" + encrypt_message_sk(auction_time,
-                                                                       self.auction_manager.session_key_repository) + "\", \n"
-        message_interm += "\"auction_max_number_bids\" : \"" + encrypt_message_sk(auction_max_number_bids,
-                                                                                  self.auction_manager.session_key_repository) + "\", \n"
-        message_interm += "\"auction_allowed_bidders\" : \"" + encrypt_message_sk(auction_allowed_bidders,
-                                                                                  self.auction_manager.session_key_repository) + "\", \n"
-        message_interm += "\"auction_type\" : \"" + encrypt_message_sk(auction_type,
-                                                                       self.auction_manager.session_key_repository) + "\", \n"
-        message_interm += "\"auction_user_key\" : \"" + encrypt_message_sk(auct_padd,
-                                                                           self.auction_manager.session_key_repository) + "\" \n"
+        message_interm += "\"username\" : \"" + encrypt_message_sk(username, repository_key) + "\", \n"
+        message_interm += "\"auction_name\" : \"" + encrypt_message_sk(auction_name, repository_key) + "\", \n"
+        message_interm += "\"auction_description\" : \"" + encrypt_message_sk(auction_description, repository_key) + "\", \n"
+        message_interm += "\"auction_min_number_bids\" : \"" + encrypt_message_sk(auction_min_number_bids, repository_key) + "\", \n"
+        message_interm += "\"auction_time\" : \"" + encrypt_message_sk(auction_time, repository_key) + "\", \n"
+        message_interm += "\"auction_max_number_bids\" : \"" + encrypt_message_sk(auction_max_number_bids, repository_key) + "\", \n"
+        message_interm += "\"auction_allowed_bidders\" : \"" + encrypt_message_sk(auction_allowed_bidders, repository_key) + "\", \n"
+        message_interm += "\"auction_type\" : \"" + encrypt_message_sk(auction_type, repository_key) + "\", \n"
+        message_interm += "\"auction_user_key\" : \"" + encrypt_message_sk(auct_padd, repository_key) + "\" \n"
         message_interm += "}"
 
         # Encrypt Complete
         enc_json_message = encrypt_message_complete(base64.b64encode(message_interm.encode("utf-8")),
-                                                    self.auction_manager.session_key_repository,
+                                                    repository_key,
                                                     self.auction_manager.public_repository_key)
 
         key = enc_json_message[0]
         iv = enc_json_message[2]
         data = enc_json_message[1]
+        hmac = HMAC_Conf.integrity_control(data.encode(), repository_key)
 
         message_final_json += "\"message\" : \"" + data + "\",\n"
         message_final_json += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
-        message_final_json += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
+        message_final_json += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\",\n"
+        message_final_json += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8') + "\"\n"
         message_final_json += "\n}"
 
         print(message_final_json)

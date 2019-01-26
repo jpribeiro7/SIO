@@ -98,12 +98,12 @@ class RunClient():
 
             option = input("> ")
             message, address = self.switch(option)
-            print(message)
+            #print(message)
             try:
                 # Doesn't send any empty message
                 if message != b"":
                     sock.sendto(message, address)
-                    print("Waiting for a response")
+                    #print("Waiting for a response")
                     data, server = sock.recvfrom(SOCKET_BYTES)
                     # The client should always receive a confirmation from the server
                     decoded_message = base64.b64decode(data)
@@ -119,9 +119,9 @@ class RunClient():
                         print("Data at the server was not the sent by you.\n")
                     if message['type'] == 'list_auctions':
                         message_list = unpadd_data(message['list'], self.current_client.session_key_repository)
-                        print("message_list, ",message_list)
+                        #print("message_list, ",message_list)
                         auction_list = pickle.loads(message_list)
-                        print("auction_list, ",auction_list)
+                        #print("auction_list, ",auction_list)
                         for auction in auction_list:
                             print(auction)
                     if message['type'] == "get_auction_to_close":
@@ -135,7 +135,7 @@ class RunClient():
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
             sock.sendto(message, address)
-            print("Waiting for a response")
+            #print("Waiting for a response")
             data, server = sock.recvfrom(SOCKET_BYTES)
             # The client should always receive a confirmation from the server
             decoded_message = base64.b64decode(data)

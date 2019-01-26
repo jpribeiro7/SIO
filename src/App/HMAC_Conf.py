@@ -1,6 +1,6 @@
 from cryptography.hazmat.primitives import hashes, hmac
 from cryptography.hazmat.backends import default_backend
-
+import base64
 
 class HMAC_Conf:
 
@@ -21,4 +21,13 @@ class HMAC_Conf:
             h.verify(data)
             return True
         except:
+            print("NOT VERIFIED NIBBS OMG OMG OMG OM GOM GOMG OMG OMG OM GOMG OM")
             return False
+
+    @classmethod
+    def verify_function(cls, target, message_json, sk):
+        hm = base64.b64decode(message_json["hmac"])
+        cr = message_json[target].encode()
+        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+            return False
+        return True
