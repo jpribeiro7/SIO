@@ -326,12 +326,13 @@ class ClientActions:
         message = "{\"type\" : \"auction_to_view\",\n"
         message += "\"username\" :\"" + client.username +"\", \n"
 
-        inter = encrypt_message_complete(base64.b64encode(id_auc.encode("utf-8")), client.session_key_repository, client.server_public_key_repository)
-        hmac = HMAC_Conf.integrity_control(id_auc.encode(),client.session_key_repository)
+        idd = encrypt_message_sk(id_auc, client.session_key_repository)
+        inter = encrypt_message_complete(base64.b64encode(idd.encode("utf-8")), client.session_key_repository, client.server_public_key_repository)
 
         key = inter[0]
         iv = inter[2]
         data = inter[1]
+        hmac = HMAC_Conf.integrity_control(data.encode(),client.session_key_repository)
 
         message += "\"message\" : \"" + data + "\",\n"
         message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
@@ -342,12 +343,32 @@ class ClientActions:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
             sock.sendto(base64.b64encode(message.encode()), AR_ADDRESS)
-            #print("Waiting for a response")
+
             data, server = sock.recvfrom(SOCKET_BYTES)
 
             # The client should always receive a confirmation from the server
             decoded_message = base64.b64decode(data)
             message = json.loads(decoded_message, strict = False)
+
+            if not HMAC_Conf.verify_function("message", message, client.session_key_repository):
+                return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
+            # Decrypts the message
+            data = decrypt_data(client.session_key_repository,
+                                message["message"], base64.b64decode(message["iv"]),
+                                base64.b64decode(message["Key"]),
+                                client.private_key)
+
+            data_json = json.loads(data, strict="false")
+            print(data_json)
+            # Now decript the blockchain
+            dec_bloc = unpadd_data(data_json["blockchain"], client.session_key_repository)
+            block_chain = pickle.loads(dec_bloc)
+
+            print("OPEN ",data_json["avail"])
+            # Check if it is open
+            # if it is close, verify blockchain
+            # and then the users
 
             if message['type'] == "auction_closed":
                 print("Auction closed")

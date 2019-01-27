@@ -21,6 +21,7 @@ class HMAC_Conf:
             h.verify(data)
             return True
         except:
+            print(" OMG ITS A MEME ")
             return False
 
     @classmethod
