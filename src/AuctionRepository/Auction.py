@@ -44,9 +44,9 @@ class Auction:
     def makeBid(self, username, amount, signature, certificate):
         if not self.open:
             return False
-        if (self.max_date - datetime.datetime.now()).total_seconds() < 0:
-            self.open = False
-            return False
+        #if (self.max_date - datetime.datetime.now()).total_seconds() < 0:
+        #    self.open = False
+        #    return False
         if len(self.blockchain)+1 > self.auction_max_number_bids:
             return False
 

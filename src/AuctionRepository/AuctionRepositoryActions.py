@@ -3,6 +3,7 @@ from App.app import *
 import base64
 import os
 import sys
+import uuid
 from CitizenCard.CitizenCard import *
 from AuctionRepository.AuctionRepositoryEntity import AuctionRepositoryEntity
 from cryptography.hazmat.primitives.serialization import load_pem_parameters
@@ -302,7 +303,7 @@ class AuctionRepositoryActions:
     def make_bid(self,message_json):
         sk = self.auction_repository.session_key_clients[message_json["username"]]
 
-        # VERIFYES THE message integrity
+        # VERIFIES THE message integrity
         if not HMAC_Conf.verify_function("message", message_json, sk):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
@@ -341,11 +342,44 @@ class AuctionRepositoryActions:
         auction = self.auction_repository.auctions[str(auction_id, "utf-8")]
         response = auction.makeBid(username, amount, signature, certificate)
 
-        success = "success" if response else "nope"
-        print("result: ", success)
+        if not response:
+            return base64.b64encode("{ \"type\" : \"No success\"}".encode('utf-8'))
 
-        #TODO future should print a receipt
-        return base64.b64encode(("{ \"type\" : \""+success+"\"}").encode("utf-8"))
+        # create receipt
+        rsa_kg = RSAKGen()
+
+        block = auction.blockchain[-1]
+        server_signature = rsa_kg.sign_message(block.hash, self.auction_repository.private_key)
+        server_signature = encrypt_message_sk(server_signature, sk)
+
+        uuids = encrypt_message_sk(str(uuid.uuid1()), sk)
+
+        last = encrypt_message_sk(block.hash, sk)
+
+        receipt = create_receipt(encrypt_message_sk(str(block.timestamp),sk), encrypt_message_sk(str(auction_id),sk),
+                                 server_signature, encrypt_message_sk(str(amount), sk), encrypt_message_sk(signature,sk),
+                                 uuids, last)
+
+        # cipher receipt with pub_key
+        client_pub = rsa_kg.load_public_key(os.getcwd() + "/Clients/" + username)
+        enc_json_message = encrypt_message_complete(base64.b64encode(receipt.encode("utf-8")),
+                                                    sk, client_pub)
+
+        key = enc_json_message[0]
+        iv = enc_json_message[2]
+        data = enc_json_message[1]
+
+        hmac = HMAC_Conf.integrity_control(data.encode(), self.auction_repository.session_key_clients[username])
+
+        message = "{ \"type\" : \"receipt\", \n"
+        message += "\"message\" : \"" + data + "\",\n"
+        message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8') + "\", \n"
+        message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
+        message += "}"
+
+
+        return base64.b64encode(message.encode("utf-8"))
 
     """
     Gets the auction ID to close
@@ -441,6 +475,9 @@ class AuctionRepositoryActions:
         message += "}"
 
         return base64.b64encode(message.encode("utf-8"))
+
+
+
 
     ## ADDED
     def auction_to_view(self, message_json):
