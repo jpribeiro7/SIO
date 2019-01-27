@@ -148,11 +148,10 @@ class AuctionRepositoryActions:
     # Builds the trust with the client
     # Must be done alongside the login
     def build_trust(self, message_json):
-
-        hm = base64.b64decode(message_json["hmac"])
-        cr = message_json["certificate"].encode("utf-8")
         sk = self.auction_repository.session_key_clients[message_json["username"]]
-        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("certificate", message_json, sk):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
         # decipher with the session key
@@ -194,9 +193,14 @@ class AuctionRepositoryActions:
         return base64.b64encode("{\"type\" : \"success\"}".encode("utf-8"))
 
     # Should store all the auctions some sort of memory
-    # TODO: save the auctions
     # All methods should have address to then send to where it should go
     def create_auction(self, message_json, address):
+
+        sk = self.auction_repository.session_key_server
+
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("message", message_json, sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
         # Decrypts the message
         data = decrypt_data(self.auction_repository.session_key_server,
@@ -246,12 +250,17 @@ class AuctionRepositoryActions:
         self.auction_repository.addAuction(auction)
         # All values are here
         print("NAME ", auction_name)
-        return b""
+        return base64.b64encode("{ \"type\" : \"success\"}".encode('utf-8'))
 
     # Lists all the auctions in the repository
-    # TODO maybe present the current max bid (if not Blind)
     def list_auctions(self,message_json):
 
+
+        sk = self.auction_repository.session_key_clients[message_json["username"]]
+
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("username", message_json, sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
         # gets the list of auctions and serializes it
         auction_list = self.auction_repository.listAuctions()
@@ -261,21 +270,26 @@ class AuctionRepositoryActions:
         username = message_json["username"]
         session_key = self.auction_repository.session_key_clients[username]
 
+        hmac = HMAC_Conf.integrity_control(encrypt_message_sk(serialized, session_key).encode(), session_key)
+
         message = "{ \"type\" : \"list_auctions\" ,\n"
-        message += "\"list\" : \"" + encrypt_message_sk(serialized, session_key) + "\" \n"
+        message += "\"list\" : \"" + encrypt_message_sk(serialized, session_key) + "\", \n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), "utf-8") + "\"\n"
         message += "}"
 
         print("auction_repos", message)
         return base64.b64encode(message.encode("utf-8"))
 
-    # User made a bid
-    # and then put it in and send RECEIPT TODO
+    """
+    Puts a bid in an auction
+    
+    :TODO send receipt
+    """
     def make_bid(self,message_json):
-
-        hm = base64.b64decode(message_json["hmac"])
-        cr = message_json["message"].encode()
         sk = self.auction_repository.session_key_clients[message_json["username"]]
-        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("message", message_json, sk):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
         # Decrypts the message
@@ -319,27 +333,67 @@ class AuctionRepositoryActions:
         #TODO future should print a receipt
         return base64.b64encode(("{ \"type\" : \""+success+"\"}").encode("utf-8"))
 
+    """
+    Gets the auction ID to close
+    The auction ID comes ciphered with Public and Key
+    The auction ID comes (on top of before) ciphered again with session
+    Verifies the HMAC.
+    """
     def get_auction_to_close(self, message_json):
+        sk = self.auction_repository.session_key_clients[message_json["username"]]
+
+        # Decrypts the message
+        data = decrypt_data(sk,
+                            message_json["auction_id"], base64.b64decode(message_json["iv"]),
+                            base64.b64decode(message_json["Key"]),
+                            self.auction_repository.private_key)
+
+        hm = base64.b64decode(message_json["hmac"])
+        cr = base64.b64encode(data)
+
+        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
+
+
         username = message_json["username"]
-        auction_id = message_json["auction_id"]
-        auction = self.auction_repository.auctions[auction_id]
+        auction_id = unpadd_data(cr, self.auction_repository.session_key_clients[username])
+        auction = self.auction_repository.auctions[str(auction_id, "utf-8")]
 
+        # Verifies the user owner
         if auction.auction_user != username:
-            pass
+            return base64.b64encode("{ \"type\" : \"wrong owner\"}".encode('utf-8'))
 
+        # Gets the blockchain
         blockchain = pickle.dumps(auction.blockchain)
+        enc_bl = encrypt_message_sk(blockchain,self.auction_repository.session_key_clients[username])
+
+        hmac = HMAC_Conf.integrity_control(enc_bl.encode(), self.auction_repository.session_key_clients[username])
+
         message = "{ \"type\" : \"get_auction_to_close\", \n"
-        message += "\"auction_id\" : \"" + auction_id + "\" ,\n"
-        message += "\"blockchain\" : \"" + encrypt_message_sk(blockchain,self.auction_repository.session_key_clients[username]) + "\" \n"
+        message += "\"auction_id\" : \"" + str(auction_id,"utf-8") + "\" ,\n"
+        message += "\"blockchain\" : \"" + enc_bl + "\", \n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), "utf-8") + "\" \n"
         message += "}"
 
         return base64.b64encode(message.encode("utf-8"))
 
+    """
+    Given an ID, closes the auction
+    Verifies the HMAC
+    """
     def close_auction(self, message_json):
         username = message_json["username"]
-        auction_id = message_json["auction_id"]
+
+        sk = self.auction_repository.session_key_clients[message_json["username"]]
+        auction_id = unpadd_data(message_json["auction_id"],sk)
+
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("blockchain", message_json, sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
         deciphered_blockchain = unpadd_data(message_json["blockchain"],self.auction_repository.session_key_clients[username])
-        auction = self.auction_repository.auctions[auction_id]
+        auction = self.auction_repository.auctions[str(auction_id, "utf-8")]
         auction.blockchain = pickle.loads(deciphered_blockchain)
 
         auction.close()

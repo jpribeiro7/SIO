@@ -119,7 +119,7 @@ class Auction:
         return block
 
     def close(self):
-        open = False
+        self.open = False
         rsa_kg = RSAKGen()
         for bid in self.blockchain:
             # decipher first sym key with second sym key
@@ -128,3 +128,17 @@ class Auction:
 
             # decipher first sym key with auction pub key
             sym_key = rsa_kg.decipher_with_private_key(self.auction_private_key, sym_key)
+
+        for bid in self.blockchain:
+            print(bid.username)
+            print(bid.amount)
+            print(bid.signature)
+            print(bid.certificate)
+
+            print()
+    # Used to get the last bid of the English Auction
+    def get_last_bid(self):
+        b = 0
+        for bloc in self.blockchain:
+            b = bloc.amount
+        return b
