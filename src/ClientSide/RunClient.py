@@ -135,6 +135,9 @@ class RunClient():
                         msg, address = self.client_actions.close_auction(self.current_client,message)
                         self.auxiliar_conn(base64.b64encode(msg.encode("utf-8")), address)
 
+                    if message['type'] == "receipt":
+                        self.client_actions.save_receipt(self.current_client, message)
+
             finally:
                 sock.close()
 

@@ -49,6 +49,7 @@ class ClientActions:
 
         else:
             os.mkdir(self._client_path)
+            os.mkdir(self._client_path+"/receipts")
             keys = rsa_gen.generate_key_pair_client()
             # Private key
             current_client.private_key = keys[0]
@@ -374,3 +375,37 @@ class ClientActions:
         finally:
             sock.close()
 
+    def save_receipt(self, client, message_json):
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("message", message_json, client.session_key_repository):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
+        # Decrypts the message
+        data = decrypt_data(client.session_key_repository,
+                            message_json["message"], base64.b64decode(message_json["iv"]),
+                            base64.b64decode(message_json["Key"]),
+                            client.private_key)
+
+        message_json = json.loads(data, strict="false")
+        timestamp = unpadd_data(message_json["timestamp"], client.session_key_repository)
+        server_signature = unpadd_data(message_json["server_signature"], client.session_key_repository)
+        auction_id = unpadd_data(message_json["auction_id"], client.session_key_repository)
+        bid_amount = unpadd_data(message_json["bid_amount"], client.session_key_repository)
+        bid_signature = unpadd_data(message_json["bid_signature"], client.session_key_repository)
+        bloc_hash = unpadd_data(message_json["bloc_hash"], client.session_key_repository)
+        receipt_unique_hash = unpadd_data(message_json["receipt_unique_hash"], client.session_key_repository)
+
+        rsa_kg = RSAKGen()
+        citizen = CitizenCard()
+        result = rsa_kg.verify_sign(server_signature, bloc_hash, client.server_public_key_repository)
+        if not result:
+            print("The receipt signature is not valid")
+        cert = citizen.load_authentication_certificate()
+        result = citizen.check_signature(cert, bid_signature, bid_amount)
+        if not result:
+            print("The client signature is not valid")
+
+        receipt = create_receipt(timestamp,auction_id,server_signature,bid_amount,bid_signature,receipt_unique_hash,bloc_hash)
+
+        file = open(os.getcwd() + "/" + client.username + "/receipts/"+str(auction_id)+"_"+str(timestamp)+".json","w")
+        json.dump(receipt, file)
