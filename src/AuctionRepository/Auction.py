@@ -138,7 +138,5 @@ class Auction:
             print()
     # Used to get the last bid of the English Auction
     def get_last_bid(self):
-        b = 0
-        for bloc in self.blockchain:
-            b = bloc.amount
-        return b
+        return self.blockchain[-1].amount
+        
