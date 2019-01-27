@@ -142,8 +142,6 @@ def decrypt_data(sesssion_key, data, enc_iv, enc_key, private_key):
         base64.b64decode(data)) + cipher.decryptor().finalize()) + key_unpadder.finalize()
 
     #plain_text = unpadd_data(base64.b64decode(unpadded_data), sesssion_key)
-    print("Unapddeddd \n")
-    print(base64.b64decode(unpadded_data))
     return base64.b64decode(unpadded_data)
 
 

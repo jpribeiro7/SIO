@@ -446,6 +446,11 @@ class AuctionRepositoryActions:
     def auction_to_view(self, message_json):
         username = message_json["username"]
         sk = self.auction_repository.session_key_clients[username]
+        hm = base64.b64decode(message_json["hmac"])
+        cr = message_json["message"].encode()
+
+        if not HMAC_Conf.verify_integrity(hm,cr,sk):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
         # Decrypts the message
         data = decrypt_data(sk,
@@ -453,35 +458,36 @@ class AuctionRepositoryActions:
                             base64.b64decode(message_json["Key"]),
                             self.auction_repository.private_key)
 
-        hm = base64.b64decode(message_json["hmac"])
-        cr = base64.b64encode(data)
-
-        if not HMAC_Conf.verify_integrity(hm,cr,sk):
-            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
-
         auction_id = unpadd_data(data, sk)
-        print("ID ",auction_id)
+
         auction = self.auction_repository.auctions[str(auction_id, "utf-8")]
         blockchain = pickle.dumps(auction.blockchain)
 
         # cipher first the blockchain
         enc_bl = encrypt_message_sk(blockchain,self.auction_repository.session_key_clients[username])
 
-        hmac = HMAC_Conf.integrity_control(enc_bl.encode(), self.auction_repository.session_key_clients[username])
-
-        # cipher with both now
-        r = RSAKGen()
-        client_pkey = r.load_public_key(os.getcwd() + "/Clients/" + username)
-
         message = "{ \"type\" : \"auction_to_view\", \n"
 
-        enc_blockchain = encrypt_message_complete(enc_bl, sk, )
+        message_int = "{\n\"auction_id\" : \"" + encrypt_message_sk(auction_id, sk ) + "\" ,\n"
+        message_int += "\"blockchain\" : \"" + enc_bl + "\", \n"
+        message_int += "\"avail\" : \"" + encrypt_message_sk(str(auction.open), sk) + "\"\n"
+        message_int += "}"
 
-        message += "\"auction_id\" : \"" + str(auction_id,"utf-8") + "\" ,\n"
-        message += "\"blockchain\" : \"" + enc_bl + "\", \n"
-        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), "utf-8") + "\" \n"
+        rsa_kg = RSAKGen()
+        client_pub = rsa_kg.load_public_key(os.getcwd() + "/Clients/" + username)
+        enc_json_message = encrypt_message_complete(base64.b64encode(message_int.encode("utf-8")),
+                                                    sk, client_pub)
+
+        key = enc_json_message[0]
+        iv = enc_json_message[2]
+        data = enc_json_message[1]
+
+        hmac = HMAC_Conf.integrity_control(data.encode(), self.auction_repository.session_key_clients[username])
+
+        message += "\"message\" : \"" + data + "\",\n"
+        message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8') + "\", \n"
+        message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
         message += "}"
 
-
-
-        pass
+        return base64.b64encode(message.encode("utf-8"))
