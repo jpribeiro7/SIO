@@ -7,6 +7,8 @@ from CitizenCard.CitizenCard import CitizenCard
 from App.HMAC_Conf import HMAC_Conf
 import pickle
 from AuctionRepository.Block import Block
+import socket
+import json
 
 
 class ClientActions:
@@ -256,13 +258,13 @@ class ClientActions:
             auction_id = input("Auction ID: ")
 
         enc_auct_id = encrypt_message_sk(auction_id, client.session_key_repository)
-        hmac = HMAC_Conf.integrity_control(enc_auct_id.encode(),client.session_key_repository)
         #print(enc_auct_id.encode())
         # Cipher the auction ID complete
-        enc_json_message = encrypt_message_complete(enc_auct_id,client.session_key_repository, client.server_public_key_repository)
+        enc_json_message = encrypt_message_complete(base64.b64encode(enc_auct_id.encode("utf-8")),client.session_key_repository, client.server_public_key_repository)
         key = enc_json_message[0]
         iv = enc_json_message[2]
         data = enc_json_message[1]
+        hmac = HMAC_Conf.integrity_control(data.encode(),client.session_key_repository)
 
         message = "{ \"type\" : \"get_auction_to_close\" ,\n"
         message += "\"username\" : \"" + client.username + "\" ,\n"
@@ -277,23 +279,77 @@ class ClientActions:
     def close_auction(self, client, message_json):
 
         # VERIFYES THE message integrity
-        if not HMAC_Conf.verify_function("blockchain", message_json, client.session_key_repository):
+        if not HMAC_Conf.verify_function("message", message_json, client.session_key_repository):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
-        something = unpadd_data(message_json["blockchain"], client.session_key_repository)
+        # Decrypts the message
+        data = decrypt_data(client.session_key_repository,
+                            message_json["message"], base64.b64decode(message_json["iv"]),
+                            base64.b64decode(message_json["Key"]),
+                            client.private_key)
+
+        data_json = json.loads(data, strict="false")
+        something = unpadd_data(data_json["blockchain"], client.session_key_repository)
         blockchain = pickle.loads(something)
         rsa_kg = RSAKGen()
         for bid in blockchain:
             bid.second_symmetric_key = rsa_kg.decipher_with_private_key(client.auction_private_key, bid.second_symmetric_key)
 
         bloc_chain_enc = encrypt_message_sk(pickle.dumps(blockchain), client.session_key_repository)
-        hmac = HMAC_Conf.integrity_control(bloc_chain_enc.encode(),client.session_key_repository)
 
         message = "{ \"type\" : \"close_auction\" ,\n"
         message += "\"username\" : \"" + client.username + "\" ,\n"
-        message += "\"auction_id\" : \"" + encrypt_message_sk(message_json["auction_id"], client.session_key_repository) + "\" ,\n"
-        message += "\"blockchain\" : \"" + bloc_chain_enc + "\",\n"
+
+        message_interm = "{"
+        message_interm += "\"auction_id\" : \"" + data_json["auction_id"]+ "\",\n"
+        message_interm += "\"blockchain\" : \"" + bloc_chain_enc + "\"\n"
+        message_interm += "}"
+
+        enc_json_message = encrypt_message_complete(base64.b64encode(message_interm.encode("utf-8")), client.session_key_repository, client.server_public_key_repository)
+        key = enc_json_message[0]
+        iv = enc_json_message[2]
+        data = enc_json_message[1]
+
+        hmac = HMAC_Conf.integrity_control(data.encode(),client.session_key_repository)
+
+        message += "\"message\" : \"" + data + "\" ,\n"
+        message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\",\n"
         message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8') + "\"\n"
         message += "}"
 
         return message, AR_ADDRESS
+
+    ## ADDED
+    def auction_to_view(self, client, id_auc):
+        message = "{\"type\" : \"auction_to_view\",\n"
+        message += "\"username\" :\"" + client.username +"\", \n"
+
+        inter = encrypt_message_complete(base64.b64encode(id_auc.encode("utf-8")), client.session_key_repository, client.server_public_key_repository)
+        hmac = HMAC_Conf.integrity_control(id_auc.encode(),client.session_key_repository)
+
+        key = inter[0]
+        iv = inter[2]
+        data = inter[1]
+
+        message += "\"message\" : \"" + data + "\",\n"
+        message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8') + "\", \n"
+        message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\"\n"
+        message += "}"
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            sock.sendto(base64.b64encode(message.encode()), AR_ADDRESS)
+            #print("Waiting for a response")
+            data, server = sock.recvfrom(SOCKET_BYTES)
+
+            # The client should always receive a confirmation from the server
+            decoded_message = base64.b64decode(data)
+            message = json.loads(decoded_message, strict = False)
+
+            if message['type'] == "auction_closed":
+                print("Auction closed")
+        finally:
+            sock.close()
+

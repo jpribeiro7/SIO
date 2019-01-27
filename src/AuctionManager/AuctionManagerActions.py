@@ -291,3 +291,4 @@ class AuctionManagerAuctions:
         sock.sendto(base64.b64encode(message_final_json.encode("utf-8")), AR_ADDRESS)
 
         return base64.b64encode("{\"type\" : \"success\"}".encode("utf-8"))
+

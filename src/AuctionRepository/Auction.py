@@ -138,5 +138,7 @@ class Auction:
             print()
     # Used to get the last bid of the English Auction
     def get_last_bid(self):
+        if self.blockchain == []:
+            return "No bids"
         return self.blockchain[-1].amount
         

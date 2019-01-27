@@ -84,9 +84,9 @@ def encrypt_message_complete(message, session_key, pub_key):
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(key[:32]), modes.CBC(iv), backend=default_backend())
     # Encrypt with session
-    sk_str = encrypt_message_sk(message, session_key)
+    #sk_str = encrypt_message_sk(message, session_key)
 
-    sk_enc = base64.b64encode(sk_str.encode("utf-8"))
+    sk_enc = message
 
     # Encrypt with the new symetric key
     enc = cipher.encryptor()
@@ -141,9 +141,10 @@ def decrypt_data(sesssion_key, data, enc_iv, enc_key, private_key):
     unpadded_data = key_unpadder.update(cipher.decryptor().update(
         base64.b64decode(data)) + cipher.decryptor().finalize()) + key_unpadder.finalize()
 
-    plain_text = unpadd_data(base64.b64decode(unpadded_data), sesssion_key)
-
-    return base64.b64decode(plain_text)
+    #plain_text = unpadd_data(base64.b64decode(unpadded_data), sesssion_key)
+    print("Unapddeddd \n")
+    print(base64.b64decode(unpadded_data))
+    return base64.b64decode(unpadded_data)
 
 
 # Deciphers the data with the session key

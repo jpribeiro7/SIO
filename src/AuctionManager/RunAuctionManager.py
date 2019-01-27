@@ -33,6 +33,7 @@ while True:
     elif message_json["type"] == "build_trust":
         data = actions.build_trust(message_json)
 
+
     if data:
         sent = sock.sendto(data, address)
         print('sent {} bytes back to {}'.format(

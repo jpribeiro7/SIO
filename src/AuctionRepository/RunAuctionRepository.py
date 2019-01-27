@@ -39,6 +39,8 @@ while True:
         data = actions.get_auction_to_close(message_json)
     elif message_json["type"] == "close_auction":
         data = actions.close_auction(message_json)
+    elif message_json["type"] == "auction_to_view":
+        data = actions.auction_to_view(message_json)
 
     if data != b"":
         sent = sock.sendto(data, address)

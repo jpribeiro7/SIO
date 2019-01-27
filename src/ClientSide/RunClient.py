@@ -26,10 +26,6 @@ class RunClient():
         elif option == "4":
             msg, address = self.client_actions.get_auction(self.current_client)
 
-
-
-
-
         message_encoded = base64.b64encode(msg.encode("utf-8"))
         return message_encoded, address
 
@@ -118,12 +114,23 @@ class RunClient():
                     if message['type'] == "Tempered data":
                         print("Data at the server was not the sent by you.\n")
                     if message['type'] == 'list_auctions':
-                        message_list = unpadd_data(message['list'], self.current_client.session_key_repository)
+                        # Decrypts the message
+                        data = decrypt_data(self.current_client.session_key_repository,
+                            message["list"], base64.b64decode(message["iv"]),
+                            base64.b64decode(message["Key"]),
+                            self.current_client.private_key)
+
+                        message_list = unpadd_data(data, self.current_client.session_key_repository)
                         #print("message_list, ",message_list)
                         auction_list = pickle.loads(message_list)
                         #print("auction_list, ",auction_list)
                         for auction in auction_list:
                             print(auction)
+                        ## ADDEDDD
+                        op = input("\nAuction to view: ")
+                        if op != -1:
+                            self.client_actions.auction_to_view(client=self.current_client, id_auc=op)
+
                     if message['type'] == "get_auction_to_close":
                         msg, address = self.client_actions.close_auction(self.current_client,message)
                         self.auxiliar_conn(base64.b64encode(msg.encode("utf-8")), address)

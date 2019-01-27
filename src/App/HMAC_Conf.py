@@ -21,7 +21,6 @@ class HMAC_Conf:
             h.verify(data)
             return True
         except:
-            print("NOT VERIFIED NIBBS OMG OMG OMG OM GOM GOMG OMG OMG OM GOMG OM")
             return False
 
     @classmethod
