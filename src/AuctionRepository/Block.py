@@ -2,7 +2,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 import base64
 import datetime
-
+import random
 
 class Block:
 
@@ -29,5 +29,4 @@ class Block:
 
     def getBlockHash(self):
         return self.hash
-
 

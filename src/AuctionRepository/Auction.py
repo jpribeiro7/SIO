@@ -2,10 +2,8 @@ from AuctionRepository.Block import Block
 import uuid
 import datetime
 from App.app import *
-import random
 from RSAKeyGenerator.RSAKGen import RSAKGen
 from cryptography.fernet import Fernet
-
 
 
 class Auction:
@@ -130,14 +128,3 @@ class Auction:
 
             # decipher first sym key with auction pub key
             sym_key = rsa_kg.decipher_with_private_key(self.auction_private_key, sym_key)
-
-        for bid in self.blockchain:
-            print(bid.username)
-            print(bid.amount)
-            print(bid.signature)
-            print(bid.certificate)
-
-            print()
-
-
-
