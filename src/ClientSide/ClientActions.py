@@ -577,7 +577,7 @@ class ClientActions:
 
         decoded_message = base64.b64decode(dee)
         message_json = json.loads(decoded_message, strict = False)
-        print("I decoded")
+
         # VERIFYES THE message integrity
         if not HMAC_Conf.verify_function("message", message_json, client.session_key_repository):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
@@ -600,7 +600,9 @@ class ClientActions:
         i = 0
         for bid in blockchain:
             i += 1
+        print("Solving crypto")
         Auction.cryptopuzzle(100+i,100-i)
+        print("Solved")
         return True
 
     def show_receipts(self, client):
@@ -612,4 +614,13 @@ class ClientActions:
                 dictt[i] = filename
                 print(filename)
                 i += 1
-        print("Barraca")
+        option = input("> ")
+        if option == "-1":
+            return
+        else:
+            file = open(self._client_path + "/receipts/" + option, "rb")
+
+            message_json = json.load(file)
+            print(message_json)
+
+

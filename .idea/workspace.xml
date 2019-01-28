@@ -2,60 +2,56 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="78f78a93-d739-489a-99cc-46993d9f2722" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/AuctionManager/Clients/jdf/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionManager/Clients/joaoaooa/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionManager/Clients/ser/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionManager/Clients/user1/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionManager/Clients/ususus/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionRepository/Clients/jdf/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionRepository/Clients/joaoaooa/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionRepository/Clients/ser/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionRepository/Clients/user1/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AuctionRepository/Clients/ususus/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/jdf/auction_private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/jdf/auction_public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/jdf/private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/jdf/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/jdf/server_manager.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/jdf/server_repository.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/joaoaooa/auction_private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/joaoaooa/auction_public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/joaoaooa/private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/joaoaooa/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/joaoaooa/server_manager.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/joaoaooa/server_repository.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ser/auction_private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ser/auction_public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ser/private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ser/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ser/server_manager.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ser/server_repository.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user/receipts/b'b3a7e1f8-2316-11e9-8210-080027303952'_2019-01-28 16_36_36.559790.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user/receipts/b'b3a7e1f8-2316-11e9-8210-080027303952'_2019-01-28 16_40_43.265616.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'3923f804-2294-11e9-a805-080027303952'__b'2019-01-28 00_33_51.838717'.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'b3a7e1f8-2316-11e9-8210-080027303952'__b'2019-01-28 16_09_03.905419'.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'd5fcafc4-2292-11e9-a805-080027303952'__b'2019-01-28 00_23_05.194085'.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user1/auction_private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user1/auction_public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user1/private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user1/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user1/server_manager.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/user1/server_repository.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ususus/auction_private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ususus/auction_public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ususus/private_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ususus/public_key.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ususus/server_manager.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ClientSide/ususus/server_repository.pem" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/App/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/App/utilities.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App/HMAC_Conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/App/HMAC_Conf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionManager/Clients/jdf/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionManager/Clients/joaoaooa/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionManager/Clients/ser/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionManager/Clients/user1/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionManager/Clients/ususus/public_key.pem" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AuctionRepository/Auction.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/Auction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/Clients/jdf/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/Clients/joaoaooa/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/Clients/ser/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/Clients/user1/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AuctionRepository/Clients/ususus/public_key.pem" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ClientSide/ClientActions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/ClientActions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ClientSide/RunClient.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/RunClient.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'131e2e50-2289-11e9-a946-0800274eb9b3'__b'2019-01-27 23_13_22.322210'.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'131e2e50-2289-11e9-a946-0800274eb9b3'__b'2019-01-27 23_13_22.322210'.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/jdf/auction_private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/jdf/auction_public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/jdf/private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/jdf/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/jdf/server_manager.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/jdf/server_repository.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/joaoaooa/auction_private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/joaoaooa/auction_public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/joaoaooa/private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/joaoaooa/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/joaoaooa/server_manager.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/joaoaooa/server_repository.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ser/auction_private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ser/auction_public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ser/private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ser/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ser/server_manager.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ser/server_repository.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user/receipts/b'b3a7e1f8-2316-11e9-8210-080027303952'_2019-01-28 16_36_36.559790.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user/receipts/b'b3a7e1f8-2316-11e9-8210-080027303952'_2019-01-28 16_40_43.265616.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'131e2e50-2289-11e9-a946-0800274eb9b3'__b'2019-01-27 23_13_22.322210'.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'3923f804-2294-11e9-a805-080027303952'__b'2019-01-28 00_33_51.838717'.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'b3a7e1f8-2316-11e9-8210-080027303952'__b'2019-01-28 16_09_03.905419'.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'd5fcafc4-2292-11e9-a805-080027303952'__b'2019-01-28 00_23_05.194085'.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user1/auction_private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user1/auction_public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user1/private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user1/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user1/server_manager.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/user1/server_repository.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ususus/auction_private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ususus/auction_public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ususus/private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ususus/public_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ususus/server_manager.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientSide/ususus/server_repository.pem" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -69,8 +65,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="104" column="88" selection-start-line="104" selection-start-column="88" selection-end-line="104" selection-end-column="88" />
+            <state relative-caret-position="152">
+              <caret line="603" column="24" selection-start-line="603" selection-start-column="24" selection-end-line="603" selection-end-column="24" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
               </folding>
@@ -79,36 +75,12 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ClientSide/Client.py">
+        <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Block.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="212">
-              <caret line="87" column="28" selection-start-line="87" selection-start-column="22" selection-end-line="87" selection-end-column="28" />
+            <state relative-caret-position="393">
+              <caret line="32" lean-forward="true" selection-start-line="32" selection-end-line="32" />
               <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="137" column="66" selection-start-line="137" selection-start-column="66" selection-end-line="138" selection-end-column="66" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="8">
-              <caret line="20" column="24" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
+                <element signature="e#0#56#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -126,8 +98,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="515">
-              <caret line="652" column="67" lean-forward="true" selection-start-line="652" selection-start-column="67" selection-end-line="652" selection-end-column="67" />
+            <state relative-caret-position="223">
+              <caret line="631" selection-start-line="631" selection-end-line="631" />
               <folding>
                 <element signature="e#0#27#0" expanded="true" />
               </folding>
@@ -136,6 +108,18 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Auction.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="162">
+              <caret line="149" column="55" selection-start-line="149" selection-start-column="55" selection-end-line="149" selection-end-column="55" />
+              <folding>
+                <element signature="e#0#41#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/App/app.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="171">
@@ -145,12 +129,12 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/RSAKeyGenerator/RSAKGen.py">
+        <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="184">
-              <caret line="153" selection-start-line="153" selection-end-line="153" />
+            <state relative-caret-position="278">
+              <caret line="24" column="35" selection-start-line="24" selection-start-column="35" selection-end-line="24" selection-end-column="35" />
               <folding>
-                <element signature="e#0#56#0" expanded="true" />
+                <element signature="e#0#45#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -159,7 +143,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
+            <state relative-caret-position="87">
+              <caret line="53" column="23" selection-start-line="53" selection-start-column="19" selection-end-line="53" selection-end-column="23" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -170,8 +155,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ClientSide/RunClient.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2185">
-              <caret line="120" column="73" selection-start-line="120" selection-start-column="73" selection-end-line="120" selection-end-column="73" />
+            <state relative-caret-position="253">
+              <caret line="146" column="51" lean-forward="true" selection-start-line="146" selection-start-column="51" selection-end-line="146" selection-end-column="51" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -190,10 +175,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>auct_t</find>
-      <find>initi</find>
-      <find>get_aucti</find>
-      <find>ge</find>
       <find>utils_app</find>
       <find>tr</find>
       <find>x509</find>
@@ -202,7 +183,6 @@
       <find>Fer</find>
       <find>truste</find>
       <find>content</find>
-      <find>print</find>
       <find>a</find>
       <find>ask_pub</find>
       <find>prin</find>
@@ -219,7 +199,12 @@
       <find>trus</find>
       <find>check</find>
       <find>challeng</find>
+      <find>sys</find>
+      <find>sock</find>
+      <find>5</find>
+      <find>print</find>
       <find>trust</find>
+      <find>crypto</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -232,18 +217,19 @@
         <option value="$PROJECT_DIR$/src/RSAKeyGenerator/RSAKGen.py" />
         <option value="$PROJECT_DIR$/src/AuctionRepository/Block.py" />
         <option value="$PROJECT_DIR$/src/App/utilities.py" />
-        <option value="$PROJECT_DIR$/src/AuctionRepository/Auction.py" />
         <option value="$PROJECT_DIR$/src/ClientSide/RunClient.py" />
         <option value="$PROJECT_DIR$/src/AuctionManager/RunAuctionManager.py" />
         <option value="$PROJECT_DIR$/src/AuctionManager/AuctionManagerEntity.py" />
         <option value="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py" />
         <option value="$PROJECT_DIR$/src/CitizenCard/CitizenCard.py" />
         <option value="$PROJECT_DIR$/src/ClientSide/Client.py" />
-        <option value="$PROJECT_DIR$/src/ClientSide/ClientActions.py" />
         <option value="$PROJECT_DIR$/src/AuctionManager/AuctionManagerActions.py" />
         <option value="$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py" />
         <option value="$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py" />
         <option value="$PROJECT_DIR$/src/App/app.py" />
+        <option value="$PROJECT_DIR$/src/App/HMAC_Conf.py" />
+        <option value="$PROJECT_DIR$/src/ClientSide/ClientActions.py" />
+        <option value="$PROJECT_DIR$/src/AuctionRepository/Auction.py" />
       </list>
     </option>
   </component>
@@ -299,27 +285,7 @@
               <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
               <item name="SIO" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="CitizenCard" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SIO" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="ClientSide" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SIO" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="ClientSide" type="462c0819:PsiDirectoryNode" />
-              <item name="jdf" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SIO" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="ClientSide" type="462c0819:PsiDirectoryNode" />
-              <item name="joaoaooa" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
@@ -328,6 +294,12 @@
               <item name="ClientSide" type="462c0819:PsiDirectoryNode" />
               <item name="user" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="SIO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SIO" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="RSAKeyGenerator" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -335,7 +307,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1548713009685" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1548718264677" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
@@ -499,9 +471,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="-1" width="1922" height="953" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.30149412" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.30149412" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -510,7 +481,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3288719" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4967983" visible="true" weight="0.27020508" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4967983" visible="true" weight="0.41737032" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39927623" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -556,8 +527,6 @@
     </layout-to-restore>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/ClientSide/11/private_key.pem" />
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/cryptography/hazmat/primitives/serialization.py" />
     <entry file="file://$PROJECT_DIR$/src/ClientSide/user/server_manager.pem" />
     <entry file="file://$PROJECT_DIR$/src/AuctionRepository/server/manager_server.pem" />
     <entry file="file://$PROJECT_DIR$/src/AuctionManager/server/public_key.pem">
@@ -612,16 +581,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Block.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="22" column="8" selection-start-line="22" selection-start-column="8" selection-end-line="27" selection-end-column="52" />
-          <folding>
-            <element signature="e#0#56#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python3.6/base64.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="157">
@@ -630,27 +589,10 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ClientSide/user/receipts/b&quot;b'131e2e50-2289-11e9-a946-0800274eb9b3'&quot;_b'2019-01-27 23:13:22.322210'.json" />
-    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Auction.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2755">
-          <caret line="150" column="12" selection-start-line="150" selection-start-column="12" selection-end-line="150" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#41#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.6/dist-packages/cryptography/hazmat/primitives/serialization.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="157">
           <caret line="23" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/App/HMAC_Conf.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
         </state>
       </provider>
     </entry>
@@ -683,16 +625,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/App/utilities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="42" column="4" selection-start-line="42" selection-start-column="4" selection-end-line="42" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.IdeaIC2018.3/system/python_stubs/-1247971763/posix.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="743">
@@ -704,26 +636,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="192">
           <caret line="348" selection-start-line="348" selection-end-line="348" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ClientSide/RunClient.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2185">
-          <caret line="120" column="73" selection-start-line="120" selection-start-column="73" selection-end-line="120" selection-end-column="73" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="24" column="35" selection-start-line="24" selection-start-column="35" selection-end-line="24" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#45#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -743,16 +655,6 @@
           <caret line="153" selection-start-line="153" selection-end-line="153" />
           <folding>
             <element signature="e#0#56#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="104" column="88" selection-start-line="104" selection-start-column="88" selection-end-line="104" selection-end-column="88" />
-          <folding>
-            <element signature="e#0#36#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -803,29 +705,107 @@
     <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Clients/user/public_key.pem">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/App/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ClientSide/RunClient.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="146" column="51" lean-forward="true" selection-start-line="146" selection-start-column="51" selection-end-line="146" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/AuctionRepository/RunAuctionRepository.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
+        <state relative-caret-position="87">
+          <caret line="53" column="23" selection-start-line="53" selection-start-column="19" selection-end-line="53" selection-end-column="23" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryEntity.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="24" column="35" selection-start-line="24" selection-start-column="35" selection-end-line="24" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ClientSide/user/receipts/b_b'd5fcafc4-2292-11e9-a805-080027303952'__b'2019-01-28 00_23_05.194085'.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="498" selection-start-column="498" selection-end-column="498" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App/HMAC_Conf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App/utilities.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="122" column="56" selection-start-line="122" selection-start-column="56" selection-end-line="122" selection-end-column="56" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Block.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="393">
+          <caret line="32" lean-forward="true" selection-start-line="32" selection-end-line="32" />
+          <folding>
+            <element signature="e#0#56#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/AuctionRepository/AuctionRepositoryActions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="515">
-          <caret line="652" column="67" lean-forward="true" selection-start-line="652" selection-start-column="67" selection-end-line="652" selection-end-column="67" />
+        <state relative-caret-position="223">
+          <caret line="631" selection-start-line="631" selection-end-line="631" />
           <folding>
             <element signature="e#0#27#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/App/app.py">
+    <entry file="file://$PROJECT_DIR$/src/ClientSide/user/receipts/b'1ba0e3fe-2349-11e9-871d-0800274eb9b3'_2019-01-28 22:10:20.759628.json">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ClientSide/ClientActions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        <state relative-caret-position="152">
+          <caret line="603" column="24" selection-start-line="603" selection-start-column="24" selection-end-line="603" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AuctionRepository/Auction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="149" column="55" selection-start-line="149" selection-start-column="55" selection-end-line="149" selection-end-column="55" />
+          <folding>
+            <element signature="e#0#41#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

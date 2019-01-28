@@ -147,15 +147,15 @@ class Auction:
 
     @classmethod
     def cryptopuzzle(cls, max_blocs, avail_blocs):
-        max_value = 2**(max_blocs//avail_blocs) + 2**16
-
+        max_value = 2**(max_blocs//avail_blocs) + 2**21
+        #80719
+        #Joao
+        #Jose
         target_value = random.randint(0, max_value)
         h = hashlib.sha256()
         h.update(str(target_value).encode())
         target_digest = h.digest()
 
-        print("Max value ", max_value)
-        print("Target ", target_value)
         while True:
             nonce = random.randint(0, max_value)
             h = hashlib.sha256()
