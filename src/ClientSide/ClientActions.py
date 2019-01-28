@@ -586,4 +586,15 @@ class ClientActions:
             i += 1
         Auction.cryptopuzzle(100+i,100-i)
         return True
+    
+    def show_receipts(self, client):
+        dictt = {}
+        for dirname, dirnames, filenames in os.walk(self._client_path + "/receipts/"):
+            # print path to all filenames.
+            i = 1
+            for filename in filenames:
+                dictt[i] = filename
+                print(filename)
+                i += 1
+        print("IM HERE")
 
