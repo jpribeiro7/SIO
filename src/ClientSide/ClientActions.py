@@ -371,10 +371,20 @@ class ClientActions:
         try:
             sock.sendto(base64.b64encode(message.encode()), AR_ADDRESS)
 
-            data, server = sock.recvfrom(SOCKET_BYTES)
+            oo = True
+            dee = b""
+            while oo:
+                data, server = sock.recvfrom(SOCKET_BYTES)
+                dee += data
+                try:
+                    decoded_message = base64.b64decode(dee)
+                    message_json = json.loads(decoded_message, strict = False)
+                    oo = False
+                except:
+                    oo = True
 
+            decoded_message = base64.b64decode(dee)
             # The client should always receive a confirmation from the server
-            decoded_message = base64.b64decode(data)
             message = json.loads(decoded_message, strict = False)
 
             if not HMAC_Conf.verify_function("message", message, client.session_key_repository):
@@ -497,7 +507,7 @@ class ClientActions:
 
 
     def save_receipt(self, client, message_json):
-        # VERIFYES THE message integrity
+        # VERIFIES THE message integrity
         if not HMAC_Conf.verify_function("message", message_json, client.session_key_repository):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
@@ -519,6 +529,7 @@ class ClientActions:
 
         rsa_kg = RSAKGen()
         citizen = CitizenCard()
+
         result = rsa_kg.verify_sign(server_signature, bloc_hash, client.server_public_key_repository)
         if not result:
             print("The receipt signature is not valid")
@@ -529,13 +540,13 @@ class ClientActions:
             print("The client signature is not valid")
             return
 
-        if citizen.load_name() != bidder:
+        if citizen.load_name() != str(bidder,"utf-8"):
             print("The bidder name is not the same as the citizen card")
             return
 
-        receipt = create_receipt(timestamp,auction_id,server_signature,bid_amount,bid_signature,receipt_unique_hash,bloc_hash, bidder)
+        receipt = create_receipt(timestamp,auction_id,server_signature,bid_amount,bid_signature,receipt_unique_hash,bloc_hash, str(bidder,"utf-8"))
 
-        file = open(os.getcwd() + "/" + client.username + "/receipts/"+str(auction_id)+"_"+str(timestamp)+".json","w")
+        file = open(os.getcwd() + "/" + client.username + "/receipts/"+str(auction_id,"utf-8")+"_"+str(timestamp,"utf-8")+".json","w")
         json.dump(receipt, file)
 
 
@@ -557,7 +568,6 @@ class ClientActions:
                 oo = False
             except:
                 oo = True
-                print("One")
 
         decoded_message = base64.b64decode(dee)
         message_json = json.loads(decoded_message, strict = False)
@@ -586,7 +596,7 @@ class ClientActions:
             i += 1
         Auction.cryptopuzzle(100+i,100-i)
         return True
-    
+
     def show_receipts(self, client):
         dictt = {}
         for dirname, dirnames, filenames in os.walk(self._client_path + "/receipts/"):
@@ -596,5 +606,4 @@ class ClientActions:
                 dictt[i] = filename
                 print(filename)
                 i += 1
-        print("IM HERE")
-
+        print("Barraca")

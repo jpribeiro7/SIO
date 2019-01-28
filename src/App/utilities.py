@@ -189,5 +189,4 @@ def create_receipt(timestamp, auction_id, server_signature, bid_amount, bid_sign
     message += "\"receipt_unique_hash\" : \"" + str(uuid) + "\" ,\n"
     message += "\"bidder\" : \"" + str(bidder) + "\" \n"
     message += "}"
-    print(message)
     return message

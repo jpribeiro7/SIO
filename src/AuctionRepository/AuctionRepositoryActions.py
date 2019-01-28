@@ -362,7 +362,7 @@ class AuctionRepositoryActions:
         bidder = encrypt_message_sk(bidder, sk)
 
         receipt = create_receipt(encrypt_message_sk(str(block.timestamp),sk), encrypt_message_sk(str(auction_id),sk),
-                                 server_signature, encrypt_message_sk(str(amount), sk), encrypt_message_sk(signature,sk),
+                                 server_signature, encrypt_message_sk(amount, sk), encrypt_message_sk(signature,sk),
                                  uuids, last, bidder)
 
         # cipher receipt with pub_key
@@ -538,9 +538,6 @@ class AuctionRepositoryActions:
         message += "}"
 
         return base64.b64encode(message.encode("utf-8"))
-
-
-
 
     ## ADDED
     def auction_to_view(self, message_json):

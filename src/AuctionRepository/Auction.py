@@ -147,7 +147,7 @@ class Auction:
 
     @classmethod
     def cryptopuzzle(cls, max_blocs, avail_blocs):
-        max_value = 2**(max_blocs//avail_blocs) + 2**12
+        max_value = 2**(max_blocs//avail_blocs) + 2**16
 
         target_value = random.randint(0, max_value)
         h = hashlib.sha256()
