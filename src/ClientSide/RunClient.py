@@ -25,7 +25,8 @@ class RunClient():
             msg, address = self.client_actions.make_bid(self.current_client)
         elif option == "4":
             msg, address = self.client_actions.get_auction(self.current_client)
-
+        elif option == "5":
+            self.client_actions.show_receipts(self.current_client)
         message_encoded = base64.b64encode(msg.encode("utf-8"))
         return message_encoded, address
 
@@ -82,7 +83,7 @@ class RunClient():
 
         option = "-1"
 
-        while option != "5":
+        while option != "6":
             # Create a UDP socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -91,7 +92,8 @@ class RunClient():
             print("2- List all auctions")
             print("3- Bid")
             print("4- Terminate auction")
-            print("5- Leave")
+            print("5- Check Receipts")
+            print("6- Leave")
 
             option = input("> ")
             message, address = self.switch(option)
@@ -101,16 +103,28 @@ class RunClient():
                 if message != b"":
                     sock.sendto(message, address)
                     #print("Waiting for a response")
-                    data, server = sock.recvfrom(SOCKET_BYTES)
+                    oo = True
+                    dee = b""
+                    while oo:
+                        data, server = sock.recvfrom(SOCKET_BYTES)
+                        dee += data
+                        try:
+                            decoded_message = base64.b64decode(dee)
+                            message_json = json.loads(decoded_message, strict = False)
+                            oo = False
+                        except:
+                            oo = True
+
+                    decoded_message = base64.b64decode(dee)
                     # The client should always receive a confirmation from the server
-                    decoded_message = base64.b64decode(data)
+                    print(decoded_message)
                     message = json.loads(decoded_message, strict = False)
 
                     # Verifies the response
                     if message['type'] != 'success':
                         if option == "1":
                             print('No Auction created')
-                        if option == "3":
+                        if option == "3" and message['type'] != "receipt":
                             print("Couldn't make bid")
                     if message['type'] == "Tempered data":
                         print("Data at the server was not the sent by you.\n")
@@ -147,9 +161,19 @@ class RunClient():
         try:
             sock.sendto(message, address)
             #print("Waiting for a response")
-            data, server = sock.recvfrom(SOCKET_BYTES)
-            # The client should always receive a confirmation from the server
-            decoded_message = base64.b64decode(data)
+            oo = True
+            dee = b""
+            while oo:
+                data, server = sock.recvfrom(SOCKET_BYTES)
+                dee += data
+                try:
+                    decoded_message = base64.b64decode(dee)
+                    message_json = json.loads(decoded_message, strict = False)
+                    oo = False
+                except:
+                    oo = True
+
+            decoded_message = base64.b64decode(dee)
             message = json.loads(decoded_message, strict = False)
 
             if message['type'] == "auction_closed":

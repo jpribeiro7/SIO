@@ -19,9 +19,9 @@ while True:
     data, address = sock.recvfrom(utils_app.SOCKET_BYTES)
 
     decoded_data = base64.b64decode(data)
-    print("server: ",decoded_data)
+    #print("server: ",decoded_data)
     message_json = json.loads(decoded_data, strict=False)
-    print(message_json)
+    #print(message_json)
 
     if message_json["type"] == "create_auction":
         data = actions.create_auction(message_json, address)
@@ -45,8 +45,13 @@ while True:
         data = actions.ask_public(message_json)
     elif message_json["type"] == "ask_challenge":
         data = actions.ask_challenge(message_json)
+    elif message_json["type"] == "pre_bid_auction":
+        data = actions.get_pre_bid_blockchain(message_json)
 
     if data != b"":
-        sent = sock.sendto(data, address)
-        print('sent {} bytes back to {}'.format(
-                sent, address))
+        BUFSIZE = 65330
+        while data:
+            sent = sock.sendto(data[:BUFSIZE], address)
+            print('sent {} bytes back to {}'.format(
+                    sent, address))
+            data = data[BUFSIZE:]

@@ -231,7 +231,7 @@ class ClientActions:
 
         while amount == "":
             amount = input("Bid Amount: ")
-        if not self.pre_bid(client):
+        if not self.pre_bid(client,auction_id):
             return
         citizen = CitizenCard()
         certificate = citizen.load_authentication_certificate()
@@ -262,6 +262,29 @@ class ClientActions:
 
         #print(message)
         return message, AR_ADDRESS
+
+
+    def pre_bid_get_auction(self, client, auction_id):
+        enc_auct_id = encrypt_message_sk(auction_id, client.session_key_repository)
+        #print(enc_auct_id.encode())
+        # Cipher the auction ID complete
+        enc_json_message = encrypt_message_complete(base64.b64encode(enc_auct_id.encode("utf-8")),client.session_key_repository, client.server_public_key_repository)
+        key = enc_json_message[0]
+        iv = enc_json_message[2]
+        data = enc_json_message[1]
+        hmac = HMAC_Conf.integrity_control(data.encode(),client.session_key_repository)
+
+        message = "{ \"type\" : \"pre_bid_auction\" ,\n"
+        message += "\"username\" : \"" + client.username + "\" ,\n"
+        message += "\"auction_id\" : \"" + data + "\",\n"
+        message += "\"Key\" : \"" + str(base64.b64encode(key), 'utf-8') + "\",\n"
+        message += "\"iv\" : \"" + str(base64.b64encode(iv), 'utf-8') + "\",\n"
+        message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8') + "\"\n"
+        message += "}"
+
+        return message, AR_ADDRESS
+
+
 
     def get_auction(self, client):
         auction_id = ""
@@ -354,10 +377,20 @@ class ClientActions:
         try:
             sock.sendto(base64.b64encode(message.encode()), AR_ADDRESS)
 
-            data, server = sock.recvfrom(SOCKET_BYTES)
+            oo = True
+            dee = b""
+            while oo:
+                data, server = sock.recvfrom(SOCKET_BYTES)
+                dee += data
+                try:
+                    decoded_message = base64.b64decode(dee)
+                    message_json = json.loads(decoded_message, strict = False)
+                    oo = False
+                except:
+                    oo = True
 
+            decoded_message = base64.b64decode(dee)
             # The client should always receive a confirmation from the server
-            decoded_message = base64.b64decode(data)
             message = json.loads(decoded_message, strict = False)
 
             if not HMAC_Conf.verify_function("message", message, client.session_key_repository):
@@ -370,23 +403,117 @@ class ClientActions:
                                 client.private_key)
 
             data_json = json.loads(data, strict="false")
-            print(data_json)
+
             # Now decript the blockchain
+            auc_type = unpadd_data(data_json["auct_type"], client.session_key_repository)
             dec_bloc = unpadd_data(data_json["blockchain"], client.session_key_repository)
             block_chain = pickle.loads(dec_bloc)
+            availability = unpadd_data(data_json["avail"],client.session_key_repository)
 
-            print("OPEN ",data_json["avail"])
-            # Check if it is open
-            # if it is close, verify blockchain
-            # and then the users
+            #
+            # Auction is still ongoing
+            #
+            if str(availability, "utf-8") == "True":
+                # validate blockchain
+                if not Auction.validate_blockchain(block_chain, auc_type):
+                    print("The auction is not valid! ")
+                    return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
-            if message['type'] == "auction_closed":
-                print("Auction closed")
+                for bid in block_chain:
+                    print("------------------------")
+                    print("User: " + str(bid.username, "utf-8"))
+                    print("Ammount: " + str(bid.amount, "utf-8"))
+                    if bid.previous_hash == None:
+                        print("Previous_hash: " + str(bid.previous_hash))
+                    else:
+                        print("Previous_hash: " + str(bid.previous_hash, "utf-8"))
+                    print("Bid Hash: " + str(bid.hash, "utf-8"))
+
+                print("\nAuction is valid")
+
+                return base64.b64encode("{ \"type\" : \"Valid\"}".encode('utf-8'))
+
+
+            #
+            # Always validate blockchain
+            #
+            if not Auction.validate_blockchain(block_chain, auc_type):
+                print("The auction is not valid! ")
+                return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
+            #
+            #Auction is closed now we check
+            #
+            if str(auc_type, "utf-8") == ENGLISH_AUCTION:
+                validity = True
+                for bid in block_chain:
+                    sec_dec = Fernet(bid.first_symmetric_key)
+
+                    print("---------------------------------")
+                    print("Bidder: " + str(sec_dec.decrypt(bid.username), "utf-8"))
+                    print("Amount: " + str(bid.amount, "utf-8"))
+
+                    cert_bytes = sec_dec.decrypt(bid.certificate)
+                    cert = x509.load_pem_x509_certificate(cert_bytes, default_backend())
+                    a = CitizenCard()
+                    if not a.validate_certificate(cert):
+                        validity = False
+
+                    sign = sec_dec.decrypt(bid.signature)
+
+                    if not a.check_signature(cert, sign, bid.amount ):
+                        validity = False
+                        print("Signature: Not valid")
+                    else:
+                        print("Signature: Valid")
+
+                    if bid.previous_hash == None:
+                        print("Previous_hash: " + str(bid.previous_hash))
+                    else:
+                        print("Previous_hash: " + str(bid.previous_hash, "utf-8"))
+
+                    print("Bid Hash: " + str(bid.hash, "utf-8"))
+
+                if validity == False:
+                    print("The auction is not valid")
+
+            else:
+                validity = True
+                prev_bid = None #amount
+                bd = None #Winner bid
+                for bid in block_chain:
+                    sec_dec = Fernet(bid.first_symmetric_key)
+                    dec_amount = sec_dec.decrypt(bid.amount)
+                    ammount = int((str(dec_amount,"utf-8")))
+
+                    if prev_bid == None:
+                        prev_bid = ammount
+                        bd = bid
+                    else:
+                        if prev_bid < ammount:
+                            prev_bid = ammount
+                            bd = bid
+
+                print("---------------Winner--------------------")
+                sec_dec = Fernet(bd.first_symmetric_key)
+                dec_amount = sec_dec.decrypt(bd.amount)
+                print("Amount: " + str(dec_amount,"utf-8"))
+                dec_user = sec_dec.decrypt(bd.username)
+                print("User: " + str(dec_user,"utf-8"))
+                cert_bytes = sec_dec.decrypt(bd.certificate)
+                cert = x509.load_pem_x509_certificate(cert_bytes, default_backend())
+                a = CitizenCard()
+                if not a.validate_certificate(cert):
+                    validity = False
+                    print("The auction is not valid")
+            print("----------------")
+
         finally:
             sock.close()
 
+
     def save_receipt(self, client, message_json):
-        # VERIFYES THE message integrity
+        # VERIFIES THE message integrity
         if not HMAC_Conf.verify_function("message", message_json, client.session_key_repository):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
 
@@ -408,6 +535,7 @@ class ClientActions:
 
         rsa_kg = RSAKGen()
         citizen = CitizenCard()
+
         result = rsa_kg.verify_sign(server_signature, bloc_hash, client.server_public_key_repository)
         if not result:
             print("The receipt signature is not valid")
@@ -418,27 +546,38 @@ class ClientActions:
             print("The client signature is not valid")
             return
 
-        if citizen.load_name() != bidder:
+        if citizen.load_name() != str(bidder,"utf-8"):
             print("The bidder name is not the same as the citizen card")
             return
 
-        receipt = create_receipt(timestamp,auction_id,server_signature,bid_amount,bid_signature,receipt_unique_hash,bloc_hash, bidder)
+        receipt = create_receipt(timestamp,auction_id,server_signature,bid_amount,bid_signature,receipt_unique_hash,bloc_hash, str(bidder,"utf-8"))
 
-        file = open(os.getcwd() + "/" + client.username + "/receipts/"+str(auction_id)+"_"+str(timestamp)+".json","w")
+        file = open(os.getcwd() + "/" + client.username + "/receipts/"+str(auction_id,"utf-8")+"_"+str(timestamp,"utf-8")+".json","w")
         json.dump(receipt, file)
 
 
-    def pre_bid(self,client):
-        msg, address = self.get_auction(client)
+    def pre_bid(self,client,auction_id):
+
+        msg, address = self.pre_bid_get_auction(client,auction_id)
+
         msg_encoded = base64.b64encode(msg.encode('utf-8'))
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(msg_encoded, address)
-        data, server = sock.recvfrom(SOCKET_BYTES)
+        oo = True
+        dee = b""
+        while oo:
+            data, server = sock.recvfrom(SOCKET_BYTES)
+            dee += data
+            try:
+                decoded_message = base64.b64decode(dee)
+                message_json = json.loads(decoded_message, strict = False)
+                oo = False
+            except:
+                oo = True
 
-        decoded_message = base64.b64decode(data)
+        decoded_message = base64.b64decode(dee)
         message_json = json.loads(decoded_message, strict = False)
-
-
+        print("I decoded")
         # VERIFYES THE message integrity
         if not HMAC_Conf.verify_function("message", message_json, client.session_key_repository):
             return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
@@ -448,7 +587,7 @@ class ClientActions:
                             message_json["message"], base64.b64decode(message_json["iv"]),
                             base64.b64decode(message_json["Key"]),
                             client.private_key)
-        print(data)
+
         data_json = json.loads(data, strict="false")
         something = unpadd_data(data_json["blockchain"], client.session_key_repository)
         chain_type = unpadd_data(data_json["auct_type"], client.session_key_repository)
@@ -457,6 +596,20 @@ class ClientActions:
         if not result:
             print("Chain is not legit")
             return False
-        Auction.cryptopuzzle()
+
+        i = 0
+        for bid in blockchain:
+            i += 1
+        Auction.cryptopuzzle(100+i,100-i)
         return True
 
+    def show_receipts(self, client):
+        dictt = {}
+        for dirname, dirnames, filenames in os.walk(self._client_path + "/receipts/"):
+            # print path to all filenames.
+            i = 1
+            for filename in filenames:
+                dictt[i] = filename
+                print(filename)
+                i += 1
+        print("Barraca")
