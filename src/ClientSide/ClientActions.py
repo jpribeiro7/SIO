@@ -368,14 +368,24 @@ class ClientActions:
             # Now decript the blockchain
             dec_bloc = unpadd_data(data_json["blockchain"], client.session_key_repository)
             block_chain = pickle.loads(dec_bloc)
+            availability = unpadd_data(data_json["avail"],client.session_key_repository)
 
-            print("OPEN ",data_json["avail"])
+            # validate blockchain
+            if not Auction.validate_blockchain(block_chain):
+                print("The auction is not valid! ")
+                return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+            # TODO IN THE SERVER SEND A FIELD WITH THE TYPE
+            for bid in block_chain:
+                f = Fernet(bid.second_symmetric_key)
+                sec_dec = f.decrypt(bid.first_symmetric_key)
+                dec_key = Fernet(sec_dec)
+                print(dec_key.decrypt(bid.certificate))
+            # TODO VERYFY IF IT DOES THAT (THE PRINT ) THEN VALIDATE SIGNATURES WHILE PRINTING THE BLOCKS
             # Check if it is open
             # if it is close, verify blockchain
             # and then the users
 
-            if message['type'] == "auction_closed":
-                print("Auction closed")
+
         finally:
             sock.close()
 
