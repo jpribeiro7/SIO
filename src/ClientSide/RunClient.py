@@ -103,13 +103,14 @@ class RunClient():
                     data, server = sock.recvfrom(SOCKET_BYTES)
                     # The client should always receive a confirmation from the server
                     decoded_message = base64.b64decode(data)
+                    print(decoded_message)
                     message = json.loads(decoded_message, strict = False)
 
                     # Verifies the response
                     if message['type'] != 'success':
                         if option == "1":
                             print('No Auction created')
-                        if option == "3":
+                        if option == "3" and message['type'] != "receipt":
                             print("Couldn't make bid")
                     if message['type'] == "Tempered data":
                         print("Data at the server was not the sent by you.\n")

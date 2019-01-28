@@ -4,6 +4,9 @@ import datetime
 from App.app import *
 from RSAKeyGenerator.RSAKGen import RSAKGen
 from cryptography.fernet import Fernet
+import hashlib
+import random
+import datetime
 
 
 class Auction:
@@ -77,7 +80,8 @@ class Auction:
             calculated_hash = Block.build_hash(username=current_block.username,
                                                signature=current_block.signature,
                                                amount=current_block.amount,
-                                               previous_hash=current_block.previous_hash)
+                                               previous_hash=current_block.previous_hash,
+                                               certificate=current_block.certificate)
             if current_block.hash != calculated_hash:
                 return False
             # validate hash
@@ -94,8 +98,8 @@ class Auction:
         fernet = Fernet(auction_sym)
 
         if self.type == BLIND_AUCTION:
-            amount = fernet.encrypt(str(amount).encode())
-            amount = rsa_kg.cipher_public_key(self.auction_user_key, amount)
+            amount = fernet.encrypt(amount)
+            #amount = rsa_kg.cipher_public_key(self.auction_user_key, amount)
 
         # Hybrid cipher
 
@@ -131,14 +135,9 @@ class Auction:
 
             # decipher first sym key with auction pub key
             sym_key = rsa_kg.decipher_with_private_key(self.auction_private_key, sym_key)
+            bid.first_symmetric_key = sym_key
 
-        for bid in self.blockchain:
-            print(bid.username)
-            print(bid.amount)
-            print(bid.signature)
-            print(bid.certificate)
 
-            print()
     # Used to get the last bid of the English Auction
     def get_last_bid(self):
         if self.blockchain == []:
@@ -147,5 +146,22 @@ class Auction:
         
 
     @classmethod
-    def cryptopuzzle(cls):
-        pass
+    def cryptopuzzle(cls, max_blocs, avail_blocs):
+        max_value = 2**(max_blocs//avail_blocs) + 2**12
+
+        target_value = random.randint(0, max_value)
+        h = hashlib.sha256()
+        h.update(str(target_value).encode())
+        target_digest = h.digest()
+
+        print("Max value ", max_value)
+        print("Target ", target_value)
+        while True:
+            nonce = random.randint(0, max_value)
+            h = hashlib.sha256()
+            h.update(str(nonce).encode())
+            nonce_digest = h.digest()
+
+            if nonce_digest == target_digest:
+                break
+
