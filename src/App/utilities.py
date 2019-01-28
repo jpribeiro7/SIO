@@ -173,7 +173,7 @@ def b_decod(data):
 :param bloc_hash:               block hash in blockchain
 
 """
-def create_receipt(timestamp, auction_id, server_signature, bid_amount, bid_signature, uuid, bloc_hash):
+def create_receipt(timestamp, auction_id, server_signature, bid_amount, bid_signature, uuid, bloc_hash, bidder):
 
     receipt_dig = hashes.Hash(hashes.SHA256(), backend=default_backend())
     receipt_dig.update(str(bloc_hash).encode() + str(server_signature).encode())
@@ -186,7 +186,8 @@ def create_receipt(timestamp, auction_id, server_signature, bid_amount, bid_sign
     message += "\"bid_amount\" : \"" + str(bid_amount) + "\", \n"
     message += "\"bid_signature\" : \"" + str((bid_signature)) + "\", \n"
     message += "\"bloc_hash\" : \"" + str(bloc_hash) + "\", \n"
-    message += "\"receipt_unique_hash\" : \"" + str(uuid) + "\" \n"
+    message += "\"receipt_unique_hash\" : \"" + str(uuid) + "\" ,\n"
+    message += "\"bidder\" : \"" + str(bidder) + "\" \n"
     message += "}"
     print(message)
     return message

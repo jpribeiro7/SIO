@@ -319,6 +319,9 @@ class AuctionRepositoryActions:
         auction_id = unpadd_data(
             message_json["auction_id"],
             self.auction_repository.session_key_clients[username])
+        bidder = unpadd_data(
+            message_json["bidder"],
+            self.auction_repository.session_key_clients[username])
         amount = unpadd_data(
             message_json["amount"],
             self.auction_repository.session_key_clients[username])
@@ -330,6 +333,7 @@ class AuctionRepositoryActions:
             message_json["certificate"],
             self.auction_repository.session_key_clients[username])
 
+
         # validate certificate and signature
         cert = x509.load_pem_x509_certificate(certificate, default_backend())
         citizen = CitizenCard()
@@ -340,7 +344,7 @@ class AuctionRepositoryActions:
             return base64.b64encode("{ \"type\" : \"No valid certificate\"}".encode('utf-8'))
 
         auction = self.auction_repository.auctions[str(auction_id, "utf-8")]
-        response = auction.makeBid(username, amount, signature, certificate)
+        response = auction.makeBid(bidder, amount, signature, certificate)
 
         if not response:
             return base64.b64encode("{ \"type\" : \"No success\"}".encode('utf-8'))
@@ -355,10 +359,11 @@ class AuctionRepositoryActions:
         uuids = encrypt_message_sk(str(uuid.uuid1()), sk)
 
         last = encrypt_message_sk(block.hash, sk)
+        bidder = encrypt_message_sk(bidder, sk)
 
         receipt = create_receipt(encrypt_message_sk(str(block.timestamp),sk), encrypt_message_sk(str(auction_id),sk),
                                  server_signature, encrypt_message_sk(str(amount), sk), encrypt_message_sk(signature,sk),
-                                 uuids, last)
+                                 uuids, last, bidder)
 
         # cipher receipt with pub_key
         client_pub = rsa_kg.load_public_key(os.getcwd() + "/Clients/" + username)
@@ -420,7 +425,8 @@ class AuctionRepositoryActions:
         message = "{ \"type\" : \"get_auction_to_close\", \n"
 
         message_interm = "{\n\"auction_id\" : \"" + encrypt_message_sk(auction_id, sk) + "\" ,\n"
-        message_interm += "\"blockchain\" : \"" + enc_bl + "\"\n"
+        message_interm += "\"blockchain\" : \"" + enc_bl + "\",\n"
+        message_interm += "\"auct_type\" : \"" + encrypt_message_sk(auction.type, sk) + "\"\n"
         message_interm += "}"
         rsa_kg = RSAKGen()
         client_pub = rsa_kg.load_public_key(os.getcwd() + "/Clients/" + username)

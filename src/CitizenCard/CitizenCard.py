@@ -142,3 +142,8 @@ class CitizenCard:
             if revocation_list.get_revoked_certificate_by_serial_number(certificate.serial_number) is not None:
                 return False
         return True
+
+    def load_name(self):
+        cert = self.load_authentication_certificate()
+        return cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+

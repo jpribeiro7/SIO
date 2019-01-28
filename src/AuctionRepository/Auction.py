@@ -69,7 +69,7 @@ class Auction:
         return self.blockchain
 
     @classmethod
-    def validate_blockchain(cls,chain):
+    def validate_blockchain(cls,chain, type):
         # validate blockchain
         for i in range(1, len(chain)):
             previous_block = chain[i-1]
@@ -83,6 +83,9 @@ class Auction:
             # validate hash
             if current_block.previous_hash != previous_block.hash:
                 return False
+            if type == ENGLISH_AUCTION and current_block.amount < previous_block.amount:
+                return False
+
         return True
 
     def cipher_content(self, previous_hash, username, amount, signature, certificate):
@@ -97,7 +100,7 @@ class Auction:
         # Hybrid cipher
 
         # cipher with sym key
-        username = fernet.encrypt(username.encode("utf-8"))
+        username = fernet.encrypt(username)
         signature = fernet.encrypt(signature)
         certificate = fernet.encrypt(certificate)
 
@@ -142,3 +145,7 @@ class Auction:
             return "No bids"
         return self.blockchain[-1].amount
         
+
+    @classmethod
+    def cryptopuzzle(cls):
+        pass

@@ -128,7 +128,7 @@ class RunClient():
                             print(auction)
                         ## ADDEDDD
                         op = input("\nAuction to view: ")
-                        if op != -1:
+                        if op != "-1":
                             self.client_actions.auction_to_view(client=self.current_client, id_auc=op)
 
                     if message['type'] == "get_auction_to_close":

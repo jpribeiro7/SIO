@@ -9,6 +9,7 @@ import pickle
 from AuctionRepository.Block import Block
 import socket
 import json
+from AuctionRepository.Auction import Auction
 
 
 class ClientActions:
@@ -216,6 +217,7 @@ class ClientActions:
     # Makes a bid to the repository
     # TODO: Get a cryptopuzzle and solve it
     def make_bid(self, client):
+
         amount = ""
         auction_id = ""
         while auction_id == "":
@@ -223,7 +225,8 @@ class ClientActions:
 
         while amount == "":
             amount = input("Bid Amount: ")
-
+        if not self.pre_bid(client):
+            return
         citizen = CitizenCard()
         certificate = citizen.load_authentication_certificate()
         signature = citizen.digital_signature(amount)
@@ -231,6 +234,7 @@ class ClientActions:
         message += "\"username\" : \"" + client.username + "\",\n"
         interm_message = "{ \"auction_id\" : \"" + encrypt_message_sk(auction_id,client.session_key_repository) + "\",\n"
         interm_message += "\"amount\" : \"" + encrypt_message_sk(amount,client.session_key_repository) + "\",\n"
+        interm_message += "\"bidder\" : \"" + encrypt_message_sk(citizen.load_name(),client.session_key_repository) + "\",\n"
         interm_message += "\"certificate\" : \"" + encrypt_message_sk(certificate, client.session_key_repository) + "\",\n"
         interm_message += "\"signature\" : \"" + encrypt_message_sk(signature,client.session_key_repository) + "\"\n"
         interm_message += "}"
@@ -394,18 +398,59 @@ class ClientActions:
         bid_signature = unpadd_data(message_json["bid_signature"], client.session_key_repository)
         bloc_hash = unpadd_data(message_json["bloc_hash"], client.session_key_repository)
         receipt_unique_hash = unpadd_data(message_json["receipt_unique_hash"], client.session_key_repository)
+        bidder = unpadd_data(message_json["bidder"], client.session_key_repository)
 
         rsa_kg = RSAKGen()
         citizen = CitizenCard()
         result = rsa_kg.verify_sign(server_signature, bloc_hash, client.server_public_key_repository)
         if not result:
             print("The receipt signature is not valid")
+            return
         cert = citizen.load_authentication_certificate()
         result = citizen.check_signature(cert, bid_signature, bid_amount)
         if not result:
             print("The client signature is not valid")
+            return
 
-        receipt = create_receipt(timestamp,auction_id,server_signature,bid_amount,bid_signature,receipt_unique_hash,bloc_hash)
+        if citizen.load_name() != bidder:
+            print("The bidder name is not the same as the citizen card")
+            return
+
+        receipt = create_receipt(timestamp,auction_id,server_signature,bid_amount,bid_signature,receipt_unique_hash,bloc_hash, bidder)
 
         file = open(os.getcwd() + "/" + client.username + "/receipts/"+str(auction_id)+"_"+str(timestamp)+".json","w")
         json.dump(receipt, file)
+
+
+    def pre_bid(self,client):
+        msg, address = self.get_auction(client)
+        msg_encoded = base64.b64encode(msg.encode('utf-8'))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(msg_encoded, address)
+        data, server = sock.recvfrom(SOCKET_BYTES)
+
+        decoded_message = base64.b64decode(data)
+        message_json = json.loads(decoded_message, strict = False)
+
+
+        # VERIFYES THE message integrity
+        if not HMAC_Conf.verify_function("message", message_json, client.session_key_repository):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
+        # Decrypts the message
+        data = decrypt_data(client.session_key_repository,
+                            message_json["message"], base64.b64decode(message_json["iv"]),
+                            base64.b64decode(message_json["Key"]),
+                            client.private_key)
+        print(data)
+        data_json = json.loads(data, strict="false")
+        something = unpadd_data(data_json["blockchain"], client.session_key_repository)
+        chain_type = unpadd_data(data_json["auct_type"], client.session_key_repository)
+        blockchain = pickle.loads(something)
+        result = Auction.validate_blockchain(blockchain, chain_type)
+        if not result:
+            print("Chain is not legit")
+            return False
+        Auction.cryptopuzzle()
+        return True
+
