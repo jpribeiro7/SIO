@@ -32,8 +32,12 @@ while True:
         data = actions.create_session_key_user_server(message_json)
     elif message_json["type"] == "build_trust":
         data = actions.build_trust(message_json)
+    elif message_json["type"] == "ask_public":
+        data = actions.ask_public(message_json)
+    elif message_json["type"] == "ask_challenge":
+        data = actions.ask_challenge(message_json)
 
-
+    print(data)
     if data:
         sent = sock.sendto(data, address)
         print('sent {} bytes back to {}'.format(

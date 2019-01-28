@@ -31,6 +31,7 @@ class RunClient():
 
     # Initial menu
     def login_menu(self):
+
         print("1- Login")
         print("2- Exit")
 
@@ -38,7 +39,7 @@ class RunClient():
 
         if option == "1":
             self.current_client = self.client_actions.login()
-            self.build_trust()
+            #self.build_trust()
         else:
             sys.exit(0)
 

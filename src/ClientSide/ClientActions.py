@@ -10,7 +10,8 @@ from AuctionRepository.Block import Block
 import socket
 import json
 from AuctionRepository.Auction import Auction
-
+from App.app import *
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 class ClientActions:
     _client_path = ""
@@ -27,7 +28,6 @@ class ClientActions:
         current_client = Client(username)
         current_client.password = password
         self._client_path = os.getcwd() + "/" + username
-
         # Check existence
         if check_directory(self._client_path):
             try:
@@ -58,51 +58,57 @@ class ClientActions:
             current_client.auction_private_key = keys[2]
             current_client.auction_public_key = keys[3]
             rsa_gen.save_keys_client(self._client_path, password)
+            current_client.server_public_key_manager = self.ask_for_pubkey(AM_ADDRESS)
+            current_client.server_public_key_repository = self.ask_for_pubkey(AR_ADDRESS)
+            save_server_key_client(os.getcwd()+"/" + current_client.username, current_client.server_public_key_manager.public_bytes(
+                encoding= serialization.Encoding.PEM,
+                format= serialization.PublicFormat.SubjectPublicKeyInfo), AM_S_C_KEY)
+            save_server_key_client(os.getcwd()+"/" + current_client.username, current_client.server_public_key_repository.public_bytes(
+                encoding= serialization.Encoding.PEM,
+                format= serialization.PublicFormat.SubjectPublicKeyInfo), AR_S_C_KEY)
 
         # builds DH
-        current_client.initialize_session_key(AM_ADDRESS)
-        current_client.initialize_session_key(AR_ADDRESS)
-
-        current_client.citizenCard = CitizenCard()
+        #
+        current_client.initialize_session_key(AM_ADDRESS, self)
+        current_client.initialize_session_key(AR_ADDRESS, self)
 
         return current_client
 
+    # asks server for his public key
+    def ask_for_pubkey(self, address):
+        message = "{\"type\" : \"ask_public\"" + "\n"
+        message += "}"
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(base64.b64encode(message.encode()), address)
+
+        data, server = sock.recvfrom(SOCKET_BYTES)
+        decoded_message = base64.b64decode(data)
+        sock.close()
+        json_message = json.loads(decoded_message, strict=False)
+        print(json_message)
+        pk = json_message["public"]
+        return load_pem_public_key(pk.encode(), default_backend())
+
     # Sends the message to the server to begin the trust
-    def trust_server(self,client, address=None):
+    def trust_server(self,client, challenge):
 
         # loads citizen card
         rsa = RSAKGen()
-        certificate = client.citizenCard.load_authentication_certificate()
-        # print(client.username)
-        if client.username != self.last and self.digital_signature is None:
-            self.digital_signature = client.citizenCard.digital_signature(client.username.encode('utf-8'))
-            self.last = client.username
+        citizen = CitizenCard()
+        certificate = citizen.load_authentication_certificate()
 
-        session_key = None
-        if AM_ADDRESS == address:
-            session_key = client.session_key_manager
-        else:
-            session_key = client.session_key_repository
+        self.digital_signature = citizen.digital_signature(challenge)
+        self.last = client.username
 
         digital_signature = self.digital_signature
         rsa_sign = rsa.sign_message(client.username.encode('utf-8'), client.private_key)
-
-        # We mac the CERTIFICATE
-        hmac = HMAC_Conf.integrity_control(encrypt_message_sk(certificate, session_key).encode("utf-8"),
-                                    session_key)
-
-        # print(rsa.sign_message(client.username.encode('utf-8'), client.private_key) )
         # builds trust message
-        json_message = "{ " + "\n"
-        json_message += "\"type\" : \"build_trust\"," + "\n"
-        json_message += "\"public\" : \"" + encrypt_message_sk(get_public_key_bytes(client.public_key),
-                                                               session_key) + "\", \n"
-        json_message += "\"rsa_signature\" : \"" + encrypt_message_sk(rsa_sign, session_key) + "\", \n"
+        json_message = "{\n\"rsa_signature\" : \"" + str(base64.b64encode(rsa_sign), "utf-8")+ "\", \n"
         json_message += "\"username\" : \"" + client.username + "\", \n"
-        json_message += "\"certificate\" : \"" + encrypt_message_sk(certificate, session_key) + "\", \n"
-        json_message += "\"hmac\" : \"" + str(base64.b64encode(hmac), 'utf-8') + "\", \n"
-        json_message += "\"digital_signature\" : \"" + encrypt_message_sk(digital_signature, session_key) + "\""
-        json_message += "\n" + "}"
+        json_message += "\"certificate\" : \"" +  str(base64.b64encode(certificate.public_bytes(serialization.Encoding.PEM)), "utf-8") + "\", \n"
+        json_message += "\"digital_signature\" : \"" + str(base64.b64encode(digital_signature), "utf-8") + "\" \n}"
+
         return json_message
 
     # This will create the auction with the server

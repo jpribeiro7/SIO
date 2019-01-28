@@ -4,7 +4,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.x509.oid import NameOID
+from cryptography.x509.oid import NameOID, ExtensionOID
 from cryptography.hazmat.primitives import hashes
 import base64
 import os
@@ -29,7 +29,7 @@ class CitizenCard:
 
         mechanism = PyKCS11.Mechanism(PyKCS11.CKM_SHA1_RSA_PKCS,None)
 
-        return bytes(session.sign(citizen_authentication_priv_key,text, mechanism))
+        return bytes(session.sign(citizen_authentication_priv_key, text, mechanism))
 
     def check_signature(self, cert, signature, username):
         pub_key = cert.public_key()
@@ -67,22 +67,20 @@ class CitizenCard:
 
         # verify certificate_path
         for i in range(0,len(certificate_path)):
-            # verify purpose
-
-            # verify common name
-            # if certificate_path[i].subject.get_attributes_for_oid(NameOID.COMMON_NAME).value == certificate:
 
             # verify validity
-            # if certificate_path[i].not_valid_after < datetime.datetime.now():
-            #    return False
-
-            # verifies signature for all intermediates
-            if i != len(certificate_path)-1 and \
-                    not self.valid_certificate_signature(certificate_path[i], certificate_path[i+1].public_key()):
+            if certificate_path[i].not_valid_after < datetime.datetime.now():
                 return False
-            # verifies signature for root (Baltimore which is self-signed)
+
+            # verifies signature for all intermediates and it's purpose
+            if i != len(certificate_path)-1 and \
+                    not (self.valid_certificate_signature(certificate_path[i], certificate_path[i+1].public_key())\
+                         or certificate_path[i].extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value.ca != 'Yes'):
+                return False
+            # verifies signature for root (Baltimore which is self-signed) and it's purpose
             if i == len(certificate_path)-1 and \
-                    not self.valid_certificate_signature(certificate_path[i], certificate_path[i].public_key()):
+                    not (self.valid_certificate_signature(certificate_path[i], certificate_path[i].public_key())\
+                         or certificate_path[i].extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value.ca != 'Yes'):
                 return False
         return True
 

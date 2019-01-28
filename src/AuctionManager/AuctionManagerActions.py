@@ -64,6 +64,34 @@ class AuctionManagerAuctions:
 
     # Function to create a session key between user and server
     def create_session_key_user_server(self, message_json):
+        rsa_kg = RSAKGen()
+        username = message_json["username"]
+        random_key = rsa_kg.decipher_with_private_key(self.auction_manager.private_key, base64.b64decode(message_json["random_key"]))
+        # VERIFIES THE message integrity
+        if not HMAC_Conf.verify_function("message", message_json, random_key ):
+            return base64.b64encode("{ \"type\" : \"Tempered data\"}".encode('utf-8'))
+
+        # Decrypts the message
+        data = decrypt_data("",
+                            message_json["message"], base64.b64decode(message_json["iv"]),
+                            base64.b64decode(message_json["Key"]),
+                            self.auction_manager.private_key)
+
+
+        # Loads the messsage to json
+        internal_json = json.loads(data,strict="False")
+        rsa_signature = internal_json["rsa_signature"]
+        certificate = base64.b64decode(internal_json["certificate"])  #PENSO QUE TENS DE FAZER BASE64 DECODE
+        digital_signature = base64.b64decode(internal_json["digital_signature"])
+        citizen = CitizenCard()
+        certificate = x509.load_pem_x509_certificate(certificate,default_backend())
+        if not citizen.check_signature(certificate, digital_signature, self.auction_manager.clients_challenge[base64.b64decode(message_json["username"])].encode()):
+            return base64.b64encode("{ \"type\" : \"No valid signature\"}".encode('utf-8'))
+
+        if not citizen.validate_certificate(certificate):
+            return base64.b64encode("{ \"type\" : \"No valid certificate\"}".encode('utf-8'))
+
+        self.auction_manager.clients_challenge.pop(base64.b64decode(message_json["username"]))
 
         # Get the parameters
         parameters = pickle.loads(codecs.decode(message_json["params"].encode(), "base64"))
@@ -99,6 +127,16 @@ class AuctionManagerAuctions:
         message += "}"
         # Get the username and set the session key
         self.auction_manager.session_clients[message_json["username"]] = derived_key
+
+
+        # Get the public key from the user key from the user
+        _dir = os.getcwd() + "/Clients/" + message_json["username"]
+        if not check_directory(_dir):
+            if not check_directory(os.getcwd() + "/Clients"):
+                os.mkdir(os.getcwd() + "/Clients")
+            os.mkdir(_dir)
+            with open(_dir+"/" + utils_app.PK_NAME, "wb") as file:
+                file.write(message_json["public"].encode("utf-8"))
 
         return base64.b64encode(message.encode('utf-8'))
 
@@ -292,3 +330,22 @@ class AuctionManagerAuctions:
 
         return base64.b64encode("{\"type\" : \"success\"}".encode("utf-8"))
 
+    def ask_public(self,message_json):
+
+        message_final_json = "{"
+        message_final_json += "\"type\" : \"ask_public\", \n"
+        message_final_json += "\"public\" : \"" + self.auction_manager.public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                                                                format=serialization.PublicFormat.
+                                                                                                SubjectPublicKeyInfo).decode('utf-8') + "\"\n"
+        message_final_json += "}"
+
+        return base64.b64encode(message_final_json.encode("utf-8"))
+
+    def ask_challenge(self, message_json):
+        print(base64.b64decode(message_json["username"]))
+        self.auction_manager.clients_challenge[base64.b64decode(message_json["username"])] = str(base64.b64encode(os.urandom(12)),"utf-8")
+        message_final_json = "{"
+        message_final_json += "\"type\" : \"ask_challenge\", \n"
+        message_final_json += "\"challenge\" : \""+self.auction_manager.clients_challenge[base64.b64decode(message_json["username"])]+"\" \n"
+        message_final_json += "}"
+        return base64.b64encode(message_final_json.encode("utf-8"))

@@ -10,6 +10,8 @@ class AuctionManagerEntity:
         self.session_key_repository = None
         # Public key Repos
         self.public_repository_key = None
+        # Temporary challenges
+        self.clients_challenge = {}
 
 
 

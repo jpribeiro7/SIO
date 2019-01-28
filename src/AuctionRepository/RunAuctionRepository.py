@@ -26,7 +26,7 @@ while True:
     if message_json["type"] == "create_auction":
         data = actions.create_auction(message_json, address)
     elif message_json["type"] == "session_key":
-        data = actions.create_session_key(message_json, address)
+        data = actions.create_session_key_user_server(message_json)
     elif message_json["type"] == "session_server":
         data = actions.create_session_key_server(message_json, address)
     elif message_json["type"] == "list_auctions":
@@ -41,6 +41,10 @@ while True:
         data = actions.close_auction(message_json)
     elif message_json["type"] == "auction_to_view":
         data = actions.auction_to_view(message_json)
+    elif message_json["type"] == "ask_public":
+        data = actions.ask_public(message_json)
+    elif message_json["type"] == "ask_challenge":
+        data = actions.ask_challenge(message_json)
 
     if data != b"":
         sent = sock.sendto(data, address)
